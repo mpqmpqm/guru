@@ -17,7 +17,9 @@
     "vite": "^7.2.4"
   },
   "dependencies": {
+    "@elevenlabs/elevenlabs-js": "^2.27.0",
     "@modelcontextprotocol/sdk": "^1.24.3",
+    "dotenv": "^17.2.3",
     "ws": "^8.18.3"
   }
 }

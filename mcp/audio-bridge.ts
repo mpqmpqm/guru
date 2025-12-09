@@ -1,10 +1,19 @@
+import "dotenv/config";
 import { WebSocketServer, WebSocket } from "ws";
 import { randomUUID } from "crypto";
+import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 
 interface PendingRequest {
   resolve: () => void;
   reject: (error: Error) => void;
 }
+
+const elevenlabs = new ElevenLabsClient({
+  apiKey: process.env.ELEVENLABS_API_KEY,
+});
+
+// Rachel voice - calm and clear, good for yoga
+const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || "21m00Tcm4TlvDq8ikWAM";
 
 export class AudioBridge {
   private wss: WebSocketServer;
@@ -48,6 +57,22 @@ export class AudioBridge {
     );
   }
 
+  private broadcast(message: string) {
+    for (const client of this.clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    }
+  }
+
+  private broadcastBinary(data: Buffer) {
+    for (const client of this.clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(data);
+      }
+    }
+  }
+
   async speak(text: string): Promise<void> {
     if (this.clients.size === 0) {
       throw new Error(
@@ -56,23 +81,33 @@ export class AudioBridge {
     }
 
     const id = randomUUID();
-    const message = JSON.stringify({ type: "speak", text, id });
 
-    // Send to all connected clients
-    for (const client of this.clients) {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(message);
-      }
+    // Send start message with text
+    const startMsg = JSON.stringify({ type: "audio-start", text, id });
+    this.broadcast(startMsg);
+
+    // Stream audio chunks from ElevenLabs
+    const audioStream = await elevenlabs.textToSpeech.stream(VOICE_ID, {
+      text,
+      modelId: "eleven_flash_v2_5",
+      outputFormat: "mp3_44100_128",
+    });
+
+    // Send chunks as binary
+    for await (const chunk of audioStream) {
+      this.broadcastBinary(Buffer.from(chunk));
     }
+
+    // Send end message
+    const endMsg = JSON.stringify({ type: "audio-end", id });
+    this.broadcast(endMsg);
 
     // Wait for completion acknowledgment
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         this.pending.delete(id);
-        reject(
-          new Error("Speech timeout - no response from browser")
-        );
-      }, 30000); // 30 second timeout
+        reject(new Error("Speech timeout - no response from browser"));
+      }, 60000); // 60 second timeout for longer audio
 
       this.pending.set(id, {
         resolve: () => {
