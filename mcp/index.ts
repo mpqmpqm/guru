@@ -7,10 +7,8 @@ import {
 import { AudioBridge } from "./audio-bridge.js";
 import { toolDefinitions, handleCue, handleCueSequence } from "./tools.js";
 
-const WS_PORT = 8080;
-
-// Initialize the audio bridge (WebSocket server)
-const bridge = new AudioBridge(WS_PORT);
+// Initialize the audio bridge
+const bridge = new AudioBridge();
 
 // Initialize the MCP server
 const server = new Server(
@@ -117,9 +115,7 @@ process.on("SIGHUP", cleanup);
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  process.stderr.write(
-    "[Yoga MCP] Server started. Waiting for tool calls...\n"
-  );
+  process.stderr.write("[Yoga MCP] Server started. Audio plays via MPV.\n");
 }
 
 main().catch((error) => {

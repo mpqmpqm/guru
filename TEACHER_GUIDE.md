@@ -17,10 +17,10 @@ For the smoothest pacing, batch related instructions using
 
 ```
 cue_sequence([
-  { text: "inhale, reach your arms overhead", pause: 4 },
-  { text: "exhale, fold forward", pause: 4 },
-  { text: "inhale, halfway lift", pause: 4 },
-  { text: "exhale, fold", pause: 4 }
+  { text: "inhale, reach your arms overhead", pause: 2 },
+  { text: "exhale, fold forward", pause: 2 },
+  { text: "inhale, halfway lift", pause: 2 },
+  { text: "exhale, fold", pause: 2 }
 ])
 ```
 
@@ -56,25 +56,25 @@ The tempo is fixed at **50 BPM** (beats per minute):
 Use `cue` with appropriate pauses to guide breathing:
 
 ```
-cue("breathe in", pause=4)   // 4 counts for the inhale
-cue("breathe out", pause=4)  // 4 counts for the exhale
+cue("breathe in", pause=2)   // 2 counts for the inhale
+cue("breathe out", pause=2)  // 2 counts for the exhale
 ```
 
 You can vary the timing based on the moment:
 
 ```
-cue("inhale deeply", pause=6)           // longer breath
-cue("exhale completely", pause=6)       // match the inhale
-cue("sip in a little more air", pause=2) // quick top-up breath
+cue("inhale deeply", pause=3)           // longer breath
+cue("exhale completely", pause=3)       // match the inhale
+cue("sip in a little more air", pause=1) // quick top-up breath
 ```
 
 For a simple breathing sequence:
 
 ```
-cue("breathe in", pause=4)
-cue("breathe out", pause=4)
-cue("breathe in", pause=4)
-cue("breathe out", pause=4)
+cue("breathe in", pause=2)
+cue("breathe out", pause=2)
+cue("breathe in", pause=2)
+cue("breathe out", pause=2)
 ```
 
 ## Cueing for Position
@@ -83,16 +83,16 @@ Use `cue` to guide students into poses. Consider breaking complex
 movements into steps:
 
 ```
-cue("come to standing at the top of your mat", pause=2)
-cue("feet hip width apart", pause=1)
-cue("arms by your sides", pause=1)
+cue("come to standing at the top of your mat", pause=1)
+cue("feet hip width apart", pause=0)
+cue("arms by your sides", pause=0)
 ```
 
 For transitions, give the instruction and a pause for movement:
 
 ```
-cue("step your right foot back into a lunge", pause=3)
-cue("lower your back knee to the mat", pause=2)
+cue("step your right foot back into a lunge", pause=1)
+cue("lower your back knee to the mat", pause=1)
 ```
 
 ## Using Pauses Effectively
@@ -103,34 +103,34 @@ after speaking.
 | Pause | Duration | Good for                              |
 | ----- | -------- | ------------------------------------- |
 | 0     | none     | Quick instructions, flowing speech    |
-| 1-2   | 1.2-2.4s | Minor adjustments, brief transitions  |
-| 3-4   | 3.6-4.8s | Standard breath, moderate transitions |
-| 6-8   | 7.2-9.6s | Holding poses, longer breath cycles   |
+| 1     | 1.2s     | Minor adjustments, brief transitions  |
+| 2     | 2.4s     | Standard breath, moderate transitions |
+| 3-4   | 3.6-4.8s | Holding poses, longer breath cycles   |
 
 **No pause** - use for instructions that flow into the next:
 
 ```
 cue("as you exhale")  // no pause, flows into next cue
-cue("fold forward", pause=4)
+cue("fold forward", pause=2)
 ```
 
-**Short pause** (1-2 counts) - for small adjustments:
+**Short pause** (1 count) - for small adjustments:
 
 ```
-cue("relax your shoulders", pause=1)
-cue("soften your jaw", pause=1)
+cue("relax your shoulders", pause=0)
+cue("soften your jaw", pause=0)
 ```
 
-**Standard pause** (3-4 counts) - for breath-length holds:
+**Standard pause** (2 counts) - for breath-length holds:
 
 ```
-cue("hold here", pause=4)
+cue("hold here", pause=2)
 ```
 
-**Long pause** (6+ counts) - for sustained holds:
+**Long pause** (3+ counts) - for sustained holds:
 
 ```
-cue("stay in this pose, breathing naturally", pause=8)
+cue("stay in this pose, breathing naturally", pause=4)
 ```
 
 ## Example Sequences
@@ -138,44 +138,44 @@ cue("stay in this pose, breathing naturally", pause=8)
 ### Simple Breath Awareness
 
 ```
-cue("find a comfortable seated position", pause=4)
-cue("close your eyes", pause=2)
-cue("begin to notice your breath", pause=4)
-cue("breathe in", pause=4)
-cue("breathe out", pause=4)
-cue("breathe in", pause=4)
-cue("breathe out", pause=4)
-cue("let your breath return to normal", pause=2)
+cue("find a comfortable seated position", pause=2)
+cue("close your eyes", pause=1)
+cue("begin to notice your breath", pause=2)
+cue("breathe in", pause=2)
+cue("breathe out", pause=2)
+cue("breathe in", pause=2)
+cue("breathe out", pause=2)
+cue("let your breath return to normal", pause=1)
 ```
 
 ### Sun Salutation Opening
 
 ```
-cue("stand at the top of your mat in mountain pose", pause=3)
-cue("inhale, reach your arms overhead", pause=4)
-cue("exhale, fold forward", pause=4)
-cue("inhale, halfway lift, flat back", pause=4)
-cue("exhale, fold", pause=4)
+cue("stand at the top of your mat in mountain pose", pause=1)
+cue("inhale, reach your arms overhead", pause=2)
+cue("exhale, fold forward", pause=2)
+cue("inhale, halfway lift, flat back", pause=2)
+cue("exhale, fold", pause=2)
 ```
 
 ### Holding a Pose
 
 ```
-cue("come into warrior two", pause=4)
-cue("front knee over ankle", pause=1)
-cue("arms extend long", pause=1)
-cue("gaze over your front fingertips", pause=2)
-cue("hold here", pause=8)
-cue("breathe", pause=4)
+cue("come into warrior two", pause=2)
+cue("front knee over ankle", pause=0)
+cue("arms extend long", pause=0)
+cue("gaze over your front fingertips", pause=1)
+cue("hold here", pause=4)
+cue("breathe", pause=2)
 ```
 
 ### Asymmetric Breathing (Longer Exhale)
 
 ```
-cue("breathe in", pause=4)
-cue("slowly breathe out", pause=6)
-cue("breathe in", pause=4)
-cue("slowly breathe out", pause=6)
+cue("breathe in", pause=2)
+cue("slowly breathe out", pause=3)
+cue("breathe in", pause=2)
+cue("slowly breathe out", pause=3)
 ```
 
 ## Tips
@@ -192,12 +192,12 @@ cue("slowly breathe out", pause=6)
 4. **Match pause to movement complexity.** Bigger transitions
    need longer pauses.
 
-5. **Silence is okay.** A `cue("hold", pause=8)` gives students
+5. **Silence is okay.** A `cue("hold", pause=4)` gives students
    space without constant talking.
 
 6. **Flow vs. structure.** Use zero-pause cues for flowing
    sequences, longer pauses for restorative work.
 
 7. **Combine breath and movement.** You can cue both in one:
-   `cue("inhale, reach your arms up", pause=4)` is often more
+   `cue("inhale, reach your arms up", pause=2)` is often more
    natural than separate breath and movement cues.
