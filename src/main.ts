@@ -26,6 +26,7 @@ let audioElement: HTMLAudioElement | null = null;
 let pendingChunks: ArrayBuffer[] = [];
 let currentId: string | null = null;
 let ws: WebSocket | null = null;
+let audioStarted = false;
 
 // DOM elements
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -115,52 +116,57 @@ async function startPlayback() {
   if (!audioElement || !audioUnlocked) return;
   try {
     await audioElement.play();
+    audioStarted = true;
   } catch (e) {
     console.error("Playback failed:", e);
+    audioStarted = false;
   }
 }
 
 function endPlayback(): Promise<void> {
   return new Promise((resolve) => {
-    if (!audioElement || !mediaSource) {
+    // If audio never started or no media, resolve immediately
+    if (!audioElement || !mediaSource || !audioStarted) {
+      cleanup();
       resolve();
       return;
     }
 
     let resolved = false;
-    let timeout: ReturnType<typeof setTimeout>;
-
     const done = () => {
       if (resolved) return;
       resolved = true;
-      clearTimeout(timeout);
       cleanup();
       resolve();
     };
 
-    // Timeout fallback - if nothing works after 30s, just resolve
-    timeout = setTimeout(() => {
-      if (!resolved) {
-        console.warn("Audio playback timeout - forcing completion");
-        done();
-      }
-    }, 30000);
+    // Reduced timeout - 5s is plenty for any reasonable audio completion
+    const timeout = setTimeout(() => {
+      console.warn("Audio completion timeout - forcing completion");
+      done();
+    }, 5000);
 
-    // Set up ended handler to avoid race condition
-    audioElement.onended = done;
+    // Primary: ended event
+    audioElement.onended = () => {
+      clearTimeout(timeout);
+      done();
+    };
 
-    // Also poll for ended state as backup (onended can be unreliable)
+    // Start polling immediately (don't wait for chunks)
     const pollEnded = () => {
       if (resolved) return;
       if (audioElement?.ended) {
+        clearTimeout(timeout);
         done();
         return;
       }
       setTimeout(pollEnded, 100);
     };
+    pollEnded();
 
-    // Wait for all chunks to be appended, then end stream
-    const waitForChunks = () => {
+    // End the stream when chunks are done (non-blocking, runs in parallel)
+    const endStream = () => {
+      if (resolved) return;
       if (pendingChunks.length === 0 && !sourceBuffer?.updating) {
         if (mediaSource?.readyState === "open") {
           try {
@@ -169,20 +175,11 @@ function endPlayback(): Promise<void> {
             console.error("Error ending stream:", e);
           }
         }
-
-        // Check if already ended
-        if (audioElement?.ended) {
-          done();
-          return;
-        }
-
-        // Start polling as backup
-        pollEnded();
       } else {
-        setTimeout(waitForChunks, 50);
+        setTimeout(endStream, 50);
       }
     };
-    waitForChunks();
+    endStream();
   });
 }
 
@@ -198,6 +195,7 @@ function cleanup() {
   sourceBuffer = null;
   audioElement = null;
   pendingChunks = [];
+  audioStarted = false;
 }
 
 // WebSocket connection

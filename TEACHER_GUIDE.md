@@ -3,11 +3,36 @@
 This guide explains how to use the yoga tool effectively to lead
 a class.
 
-## Available Tool
+## Available Tools
 
-| Tool  | Arguments                        | Behavior                          |
-| ----- | -------------------------------- | --------------------------------- |
-| `cue` | `text: string`, `pause?: number` | Speaks the text, optionally waits |
+| Tool           | Arguments                                            | Behavior                                    |
+| -------------- | ---------------------------------------------------- | ------------------------------------------- |
+| `cue`          | `text: string`, `pause?: number`                     | Speaks the text, optionally waits           |
+| `cue_sequence` | `cues: [{text: string, pause?: number}, ...]`        | Executes multiple cues in sequence          |
+
+## Batching Cues for Smooth Flow
+
+For the smoothest pacing, batch related instructions using
+`cue_sequence`. This eliminates latency between cues:
+
+```
+cue_sequence([
+  { text: "inhale, reach your arms overhead", pause: 4 },
+  { text: "exhale, fold forward", pause: 4 },
+  { text: "inhale, halfway lift", pause: 4 },
+  { text: "exhale, fold", pause: 4 }
+])
+```
+
+**When to use `cue_sequence`:**
+- Breath sequences where timing matters
+- Sun salutations and flowing vinyasas
+- Any series of 3-5 related cues
+
+**When to use individual `cue` calls:**
+- When you need to adapt based on the moment
+- For isolated instructions
+- When the next cue depends on student response
 
 ## Understanding Blocking Calls
 

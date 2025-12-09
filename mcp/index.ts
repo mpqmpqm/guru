@@ -5,7 +5,7 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { AudioBridge } from "./audio-bridge.js";
-import { toolDefinitions, handleCue } from "./tools.js";
+import { toolDefinitions, handleCue, handleCueSequence } from "./tools.js";
 
 const WS_PORT = 8080;
 
@@ -54,6 +54,24 @@ server.setRequestHandler(
           };
         }
         return await handleCue(bridge, text, pause);
+      }
+
+      if (name === "cue_sequence") {
+        const { cues } = args as {
+          cues: Array<{ text: string; pause?: number }>;
+        };
+        if (!cues || !Array.isArray(cues) || cues.length === 0) {
+          return {
+            content: [
+              {
+                type: "text" as const,
+                text: "Error: cues array is required and must not be empty",
+              },
+            ],
+            isError: true,
+          };
+        }
+        return await handleCueSequence(bridge, cues);
       }
 
       return {

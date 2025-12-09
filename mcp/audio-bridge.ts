@@ -93,9 +93,12 @@ export class AudioBridge {
       outputFormat: "mp3_44100_128",
     });
 
-    // Send chunks as binary
-    for await (const chunk of audioStream) {
-      this.broadcastBinary(Buffer.from(chunk));
+    // Send chunks as binary using reader API
+    const reader = audioStream.getReader();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      this.broadcastBinary(Buffer.from(value));
     }
 
     // Send end message
@@ -107,7 +110,7 @@ export class AudioBridge {
       const timeout = setTimeout(() => {
         this.pending.delete(id);
         reject(new Error("Speech timeout - no response from browser"));
-      }, 60000); // 60 second timeout for longer audio
+      }, 15000); // 15 second timeout
 
       this.pending.set(id, {
         resolve: () => {
