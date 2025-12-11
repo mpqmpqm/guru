@@ -129,9 +129,10 @@ export async function* streamChat(
       console.log(`Agent aborted for session ${sessionId}`);
       return;
     }
+    console.error("Agent error:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
     yield {
       type: "error",
-      content: `Error: ${error instanceof Error ? error.message : String(error)}`,
+      content: `Error: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
     };
   } finally {
     // Clear the abort controller when done
