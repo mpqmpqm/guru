@@ -23,6 +23,8 @@ interface Session {
   audioReady: (() => void) | null;
   // Abort controller for cancelling the agent
   abortController: AbortController | null;
+  // Timestamp when query() started (for latency tracking)
+  queryStartTime?: number;
 }
 
 class SessionManager {
@@ -64,6 +66,17 @@ class SessionManager {
     if (session) {
       session.abortController = controller;
     }
+  }
+
+  setQueryStartTime(sessionId: string, time: number): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.queryStartTime = time;
+    }
+  }
+
+  getQueryStartTime(sessionId: string): number | undefined {
+    return this.sessions.get(sessionId)?.queryStartTime;
   }
 
   abortAgent(sessionId: string): void {

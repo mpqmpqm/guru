@@ -79,6 +79,9 @@ export async function* streamChat(
     // Track thinking block to emit start/end events
     let thinkingBlockIndex: number | null = null;
 
+    // Record query start time for latency tracking
+    sessionManager.setQueryStartTime(sessionId, Date.now());
+
     // Query Claude with streaming
     for await (const message of query({
       prompt: userMessage,

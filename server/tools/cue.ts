@@ -10,6 +10,33 @@ const VOICE_INSTRUCTIONS =
   "Warm, grounded guide. Measured pace with natural pauses. No performing: the inner light simply shines through.";
 const MS_PER_COUNT = 1000;
 
+// Track latencies separately for running averages (in seconds)
+const queryLatencies: number[] = [];
+const openaiLatencies: number[] = [];
+const MAX_LATENCY_SAMPLES = 10;
+const INCLUDE_OPENAI_LATENCY = false;
+
+function recordLatency(arr: number[], value: number): void {
+  arr.push(value);
+  if (arr.length > MAX_LATENCY_SAMPLES) {
+    arr.shift();
+  }
+}
+
+function average(arr: number[]): number {
+  if (arr.length === 0) return 0;
+  return arr.reduce((a, b) => a + b, 0) / arr.length;
+}
+
+function computeAverageLatency(): number {
+  const queryAvg = average(queryLatencies);
+  const openaiAvg = INCLUDE_OPENAI_LATENCY
+    ? average(openaiLatencies)
+    : 0;
+  const total = queryAvg + openaiAvg;
+  return total;
+}
+
 export function createCueTool(sessionId: string) {
   return tool(
     "cue",
@@ -25,8 +52,19 @@ export function createCueTool(sessionId: string) {
     },
     async (args) => {
       const pause = args.pause ?? 0;
+      const queryStartTime =
+        sessionManager.getQueryStartTime(sessionId);
+
+      // Record query latency (time since last cue or query start)
+      if (queryStartTime) {
+        recordLatency(
+          queryLatencies,
+          (Date.now() - queryStartTime) / 1000
+        );
+      }
 
       // Generate audio from OpenAI and stream directly to client
+      const openaiStart = Date.now();
       const response = await openai.audio.speech.create({
         model: "gpt-4o-mini-tts",
         voice: VOICE,
@@ -34,6 +72,10 @@ export function createCueTool(sessionId: string) {
         instructions: VOICE_INSTRUCTIONS,
         response_format: "pcm",
       });
+      recordLatency(
+        openaiLatencies,
+        (Date.now() - openaiStart) / 1000
+      );
 
       // Notify the client via SSE immediately
       sessionManager.sendSSE(sessionId, "cue", {
@@ -63,13 +105,26 @@ export function createCueTool(sessionId: string) {
       await sessionManager.queueAudio(sessionId, audioStream);
 
       // Send pause start/end events - client counts down from duration
+      const adjusted = Math.max(
+        0,
+        pause - computeAverageLatency()
+      );
       if (pause > 0) {
-        sessionManager.sendSSE(sessionId, "pause_start", { duration: pause });
+        sessionManager.sendSSE(sessionId, "pause_start", {
+          duration: pause,
+        });
         await new Promise((resolve) =>
-          setTimeout(resolve, pause * MS_PER_COUNT)
+          setTimeout(resolve, adjusted * MS_PER_COUNT)
         );
-        sessionManager.sendSSE(sessionId, "pause_end", {});
+        new Promise((resolve) =>
+          setTimeout(resolve, (pause - adjusted) * MS_PER_COUNT)
+        ).then(() =>
+          sessionManager.sendSSE(sessionId, "pause_end", {})
+        );
       }
+
+      // Reset timestamp for next cue measurement
+      sessionManager.setQueryStartTime(sessionId, Date.now());
 
       return {
         content: [
