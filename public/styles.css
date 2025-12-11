@@ -318,8 +318,23 @@ footer {
   align-items: flex-end;
 }
 
-.chat-form textarea {
+/* Auto-growing textarea using CSS Grid trick */
+.grow-wrap {
   flex: 1;
+  display: grid;
+}
+
+.grow-wrap::after {
+  content: attr(data-replicated-value) " ";
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  visibility: hidden;
+  border-color: transparent;
+}
+
+.grow-wrap > textarea,
+.grow-wrap::after {
+  grid-area: 1 / 1 / 2 / 2;
   padding: 0.875rem 1.25rem;
   border: 1px solid var(--border-subtle);
   border-radius: 14px;
@@ -328,13 +343,15 @@ footer {
   font-family: inherit;
   font-size: 0.95rem;
   font-weight: 300;
-  transition: all 0.3s ease;
-  resize: none;
   line-height: 1.4;
-  field-sizing: content;
+  resize: none;
+  overflow: hidden;
   min-height: 0;
-  height: auto;
   max-height: 25dvh;
+}
+
+.grow-wrap > textarea {
+  transition: all 0.3s ease;
   overflow-y: auto;
 }
 

@@ -519,5 +519,11 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
+// Sync textarea value to wrapper for CSS grid auto-resize trick
+const growWrap = messageInput.parentElement;
+messageInput.addEventListener("input", () => {
+  growWrap.dataset.replicatedValue = messageInput.value;
+});
+
 // Initialize on load
 init();
