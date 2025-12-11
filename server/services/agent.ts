@@ -90,7 +90,6 @@ export async function* streamChat(
           yoga: yogaServer,
         },
         allowedTools: ["mcp__yoga__cue"],
-        maxTurns: 50,
         permissionMode: "bypassPermissions",
         allowDangerouslySkipPermissions: true,
         model: "claude-opus-4-5",
