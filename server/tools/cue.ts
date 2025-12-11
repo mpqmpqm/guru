@@ -7,7 +7,7 @@ const openai = new OpenAI();
 
 const VOICE = "alloy";
 const VOICE_INSTRUCTIONS =
-  "Warm, grounded yoga teacher. Measured pace with natural pauses. Clear articulation, especially Sanskrit. Calm and present—not breathy, not performative. No filler praise. Quiet confidence, unhurried but awake.";
+  "Warm, grounded guide. Measured pace with natural pauses. Clear articulation, especially Sanskrit. Calm and present—not breathy, not performative. No filler praise. Quiet confidence, unhurried but awake.";
 const MS_PER_COUNT = 1000;
 
 export function createCueTool(sessionId: string) {
@@ -28,7 +28,7 @@ export function createCueTool(sessionId: string) {
 
       // Generate audio from OpenAI and stream directly to client
       const response = await openai.audio.speech.create({
-        model: "tts-1",
+        model: "gpt-4o-mini-tts",
         voice: VOICE,
         input: args.text,
         instructions: VOICE_INSTRUCTIONS,
