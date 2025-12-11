@@ -1,6 +1,6 @@
 import { tool } from "@anthropic-ai/claude-agent-sdk";
-import { z } from "zod";
 import OpenAI from "openai";
+import { z } from "zod";
 import { sessionManager } from "../services/session-manager.js";
 
 const openai = new OpenAI();
@@ -39,7 +39,7 @@ export function createCueTool(sessionId: string) {
       // Generate audio from OpenAI and stream directly to client
       console.log(`[cue] requesting OpenAI TTS audio...`);
       const response = await openai.audio.speech.create({
-        model: "gpt-4o-mini-tts",
+        model: "tts-1",
         voice: VOICE,
         input: args.text,
         instructions: VOICE_INSTRUCTIONS,
@@ -71,7 +71,9 @@ export function createCueTool(sessionId: string) {
       // Wait for the pause duration (browser will reconnect for next cue)
       if (pause > 0) {
         console.log(`[cue] waiting ${pause}s...`);
-        await new Promise((resolve) => setTimeout(resolve, pause * MS_PER_COUNT));
+        await new Promise((resolve) =>
+          setTimeout(resolve, pause * MS_PER_COUNT)
+        );
         console.log(`[cue] pause complete`);
       }
 

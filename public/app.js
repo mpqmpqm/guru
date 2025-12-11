@@ -1,5 +1,5 @@
 // DOM elements
-const messagesEl = document.getElementById("messages");
+const cueDisplayEl = document.getElementById("cue-display");
 const statusEl = document.getElementById("status");
 const audioEl = document.getElementById("audio-player");
 const chatForm = document.getElementById("chat-form");
@@ -47,7 +47,7 @@ async function init() {
     console.error("Init error:", error);
     statusEl.textContent = "Error";
     statusEl.className = "status error";
-    appendMessage("error", "Failed to connect. Please refresh the page.");
+    showCue("Failed to connect. Please refresh the page.");
   }
 }
 
@@ -66,41 +66,35 @@ function connectSSE() {
 
   eventSource.addEventListener("processing", (event) => {
     isProcessing = true;
-    sendBtn.disabled = true;
+    sendBtn.textContent = "Stop";
+    sendBtn.disabled = false;
   });
 
   eventSource.addEventListener("text", (event) => {
     const data = JSON.parse(event.data);
     if (data.content) {
-      appendMessage("assistant", data.content);
+      showCue(data.content);
     }
   });
 
   eventSource.addEventListener("cue", (event) => {
     const data = JSON.parse(event.data);
-    const pauseInfo = data.pause ? ` (${data.pause}s pause)` : "";
-    nowPlayingEl.textContent = `"${data.text}"${pauseInfo}`;
-
-    // Clear after the cue duration + speech time estimate
-    const clearDelay = (data.pause || 0) * 1000 + data.text.length * 50 + 2000;
-    setTimeout(() => {
-      if (nowPlayingEl.textContent.includes(data.text)) {
-        nowPlayingEl.textContent = "";
-      }
-    }, clearDelay);
+    showCue(data.text);
   });
 
   eventSource.addEventListener("done", () => {
     isProcessing = false;
+    sendBtn.textContent = "Begin";
     sendBtn.disabled = false;
   });
 
   eventSource.addEventListener("error", (event) => {
     if (event.data) {
       const data = JSON.parse(event.data);
-      appendMessage("error", data.content || "An error occurred");
+      showCue(data.content || "An error occurred");
     }
     isProcessing = false;
+    sendBtn.textContent = "Begin";
     sendBtn.disabled = false;
   });
 
@@ -118,22 +112,21 @@ function connectSSE() {
   };
 }
 
-// Append message to chat
-function appendMessage(role, content) {
+// Display cue in center
+function showCue(content) {
   const div = document.createElement("div");
-  div.className = `message ${role}`;
+  div.className = "cue";
   div.textContent = content;
-  messagesEl.appendChild(div);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
+  cueDisplayEl.innerHTML = "";
+  cueDisplayEl.appendChild(div);
 }
 
 // Send message
 async function sendMessage(message) {
   if (!message.trim() || !sessionId || isProcessing) return;
 
-  // Show user message
-  appendMessage("user", message);
   messageInput.value = "";
+  cueDisplayEl.innerHTML = "";
 
   // Start audio stream on first message (user has interacted)
   if (!audioStarted) {
@@ -158,16 +151,35 @@ async function sendMessage(message) {
       throw new Error(error.error || "Failed to send message");
     }
   } catch (error) {
-    appendMessage("error", `Failed to send: ${error.message}`);
+    showCue(`Failed to send: ${error.message}`);
     isProcessing = false;
     sendBtn.disabled = false;
   }
 }
 
+// Stop the current session
+function stopSession() {
+  if (eventSource) {
+    eventSource.close();
+  }
+  audioEl.pause();
+  audioEl.src = "";
+  isProcessing = false;
+  sendBtn.textContent = "Begin";
+  sendBtn.disabled = false;
+  cueDisplayEl.innerHTML = "";
+  connectSSE();
+}
+
 // Event listeners
 chatForm.addEventListener("submit", (e) => {
   e.preventDefault();
-  sendMessage(messageInput.value);
+
+  if (isProcessing) {
+    stopSession();
+  } else {
+    sendMessage(messageInput.value);
+  }
 });
 
 // Debug audio element state

@@ -12,35 +12,25 @@
   <body>
     <div class="container">
       <header>
-        <h1>Yoga Guide</h1>
+        <h1>guru</h1>
         <div id="status" class="status disconnected">
-          Connecting...
+          Connecting
         </div>
       </header>
 
       <main>
-        <div id="messages" class="messages">
-          <div class="message system">
-            Welcome! Tell me what kind of yoga practice you'd
-            like today.
-          </div>
-        </div>
-
-        <form id="chat-form" class="chat-form">
-          <input
-            type="text"
-            id="message-input"
-            placeholder="e.g., A gentle 10 minute morning stretch"
-            autocomplete="off"
-            value="A 2 minute guided breathing exercise"
-          />
-          <button type="submit" id="send-btn">Send</button>
-        </form>
+        <div id="cue-display" class="cue-display"></div>
       </main>
 
       <footer>
+        <form id="chat-form" class="chat-form">
+          <textarea
+            id="message-input"
+            placeholder="e.g., A gentle 10 minute morning stretch"
+          ></textarea>
+          <button type="submit" id="send-btn">Begin</button>
+        </form>
         <audio id="audio-player" preload="none"></audio>
-        <div id="now-playing" class="now-playing"></div>
       </footer>
     </div>
 
