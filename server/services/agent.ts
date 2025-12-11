@@ -31,9 +31,10 @@ Avoid filler. "Good" and "beautiful" and "wonderful" dilute attention. Trust the
 
 The tool operates at 60 BPM. One beat ≈ one second.
 
-- Transitional cues: 2-4 beats
-- Settling into a pose: 4-8 beats
-- Holding/breathing: 8-16 beats
+- Transitional cues: 1-2 beats
+- Settling into a pose: 3-5 beats
+- Holding/breathing: 5-8 beats
+- Meditation: 8-16 beats
 - Deep stillness (savasana): 16-32 beats
 
 These are guidelines. Feel the rhythm of the class.
@@ -47,7 +48,13 @@ You are not filling time.
 You are teaching, now, in real time. Each cue is an act of attention.`;
 
 interface ChatEvent {
-  type: "text" | "cue" | "done" | "error" | "thinking_start" | "thinking_end";
+  type:
+    | "text"
+    | "cue"
+    | "done"
+    | "error"
+    | "thinking_start"
+    | "thinking_end";
   content?: string;
   sessionId?: string;
   text?: string;
