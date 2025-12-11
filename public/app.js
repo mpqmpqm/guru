@@ -1,19 +1,24 @@
 // DOM elements
 const cueDisplayEl = document.getElementById("cue-display");
 const statusEl = document.getElementById("status");
+const streamTimerEl = document.getElementById("stream-timer");
 const chatForm = document.getElementById("chat-form");
 const messageInput = document.getElementById("message-input");
 const sendBtn = document.getElementById("send-btn");
 
 // Audio constants - OpenAI PCM is 24kHz, 16-bit signed, little-endian, mono
 const SAMPLE_RATE = 24000;
-const MIN_BUFFER_SIZE = 4800; // 0.2 seconds of audio (24000 * 0.2) to avoid tiny chunks
+const MIN_BUFFER_SIZE = 12000; // 0.5 seconds of audio (24000 * 0.5) to buffer before playback
 
 // State
 let sessionId = null;
 let eventSource = null;
 let isProcessing = false;
 let wakeLock = null;
+
+// Stream timer state
+let streamStartTime = null;
+let streamTimerInterval = null;
 
 // Web Audio API state
 let audioContext = null;
@@ -56,6 +61,36 @@ async function unlockAudioContext() {
 
   isAudioUnlocked = true;
   nextStartTime = audioContext.currentTime;
+}
+
+// Format duration as mm:ss
+function formatDuration(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}
+
+// Start stream timer
+function startStreamTimer() {
+  streamStartTime = Date.now();
+  streamTimerEl.textContent = "0:00";
+  streamTimerEl.classList.add("active");
+
+  streamTimerInterval = setInterval(() => {
+    const elapsed = Date.now() - streamStartTime;
+    streamTimerEl.textContent = formatDuration(elapsed);
+  }, 1000);
+}
+
+// Stop stream timer
+function stopStreamTimer() {
+  if (streamTimerInterval) {
+    clearInterval(streamTimerInterval);
+    streamTimerInterval = null;
+  }
+  streamTimerEl.classList.remove("active");
+  streamStartTime = null;
 }
 
 // Request wake lock to prevent screen from sleeping during audio playback
@@ -255,6 +290,7 @@ function connectSSE() {
     isProcessing = true;
     sendBtn.textContent = "Stop";
     sendBtn.disabled = false;
+    startStreamTimer();
   });
 
   eventSource.addEventListener("thinking", () => {
@@ -280,6 +316,7 @@ function connectSSE() {
     sendBtn.textContent = "Begin";
     sendBtn.disabled = false;
     messageInput.value = "";
+    stopStreamTimer();
   });
 
   eventSource.addEventListener("error", (event) => {
@@ -294,6 +331,7 @@ function connectSSE() {
     isProcessing = false;
     sendBtn.textContent = "Begin";
     sendBtn.disabled = false;
+    stopStreamTimer();
   });
 
   eventSource.onerror = () => {
@@ -423,6 +461,7 @@ function stopSession() {
     audioFetchController = null;
   }
   releaseWakeLock();
+  stopStreamTimer();
   isProcessing = false;
   sendBtn.textContent = "Begin";
   sendBtn.disabled = false;

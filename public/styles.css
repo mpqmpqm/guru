@@ -198,6 +198,23 @@ h1::after {
   }
 }
 
+.stream-timer {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+  margin-top: 0.5rem;
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  transition: opacity 0.3s ease, height 0.3s ease;
+}
+
+.stream-timer.active {
+  opacity: 0.5;
+  height: 1em;
+}
+
 main {
   flex: 1;
   display: flex;
