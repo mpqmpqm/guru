@@ -1,6 +1,11 @@
 import { v4 as uuidv4 } from "uuid";
 import type { Response } from "express";
 
+// PCM audio constants - 24kHz, 16-bit mono
+const SAMPLE_RATE = 24000;
+const BYTES_PER_SAMPLE = 2;
+const BYTES_PER_SECOND = SAMPLE_RATE * BYTES_PER_SAMPLE; // 48000
+
 type AudioItem = {
   type: "audio";
   stream: AsyncIterable<Uint8Array>;
@@ -110,13 +115,26 @@ class SessionManager {
     if (!item) return;
 
     if (item.type === "audio") {
-      let chunkCount = 0;
+      // "Radio station" model: stream audio at playback rate
+      // This ensures onComplete fires after audio has "played" on the server
+      const streamStartTime = Date.now();
       let totalBytes = 0;
+
       for await (const chunk of item.stream) {
-        chunkCount++;
         totalBytes += chunk.length;
         yield { type: "data" as const, data: Buffer.from(chunk) };
+
+        // Calculate how much audio we've sent and how long that should take
+        const expectedDurationMs = (totalBytes / BYTES_PER_SECOND) * 1000;
+        const elapsed = Date.now() - streamStartTime;
+        const waitTime = expectedDurationMs - elapsed;
+
+        // Throttle to real-time playback rate
+        if (waitTime > 0) {
+          await new Promise((resolve) => setTimeout(resolve, waitTime));
+        }
       }
+
       yield { type: "flush" as const };
       item.onComplete();
     }
