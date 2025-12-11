@@ -13,6 +13,7 @@ const MIN_BUFFER_SIZE = 4800; // 0.2 seconds of audio (24000 * 0.2) to avoid tin
 let sessionId = null;
 let eventSource = null;
 let isProcessing = false;
+let wakeLock = null;
 
 // Web Audio API state
 let audioContext = null;
@@ -49,6 +50,33 @@ async function unlockAudioContext() {
 
   isAudioUnlocked = true;
   nextStartTime = audioContext.currentTime;
+}
+
+// Request wake lock to prevent screen from sleeping during audio playback
+async function requestWakeLock() {
+  if (wakeLock || !("wakeLock" in navigator)) return;
+
+  try {
+    wakeLock = await navigator.wakeLock.request("screen");
+    wakeLock.addEventListener("release", () => {
+      wakeLock = null;
+    });
+  } catch (err) {
+    // Wake lock request failed (e.g., low battery, unsupported)
+    wakeLock = null;
+  }
+}
+
+// Release wake lock when stream stops
+async function releaseWakeLock() {
+  if (wakeLock) {
+    try {
+      await wakeLock.release();
+    } catch (err) {
+      // Ignore release errors
+    }
+    wakeLock = null;
+  }
 }
 
 // Convert Int16 PCM to Float32 for Web Audio API
@@ -374,6 +402,7 @@ function stopSession() {
     audioFetchController.abort();
     audioFetchController = null;
   }
+  releaseWakeLock();
   isProcessing = false;
   sendBtn.textContent = "Begin";
   sendBtn.disabled = false;
@@ -392,12 +421,28 @@ chatForm.addEventListener("submit", async (e) => {
     // https://webkit.org/blog/6784/new-video-policies-for-ios/
     await unlockAudioContext();
 
+    // Request wake lock to keep screen on during streaming
+    await requestWakeLock();
+
     // Start audio stream if not already running
     if (!audioFetchController) {
       startAudioStream();
     }
 
     sendMessage(messageInput.value);
+  }
+});
+
+// Resume AudioContext and wake lock when page becomes visible (e.g., phone unlocked)
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && audioContext && isAudioUnlocked) {
+    if (audioContext.state === "suspended") {
+      audioContext.resume();
+    }
+    // Re-acquire wake lock if stream is still active
+    if (isProcessing && !wakeLock) {
+      requestWakeLock();
+    }
   }
 });
 
