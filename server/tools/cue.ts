@@ -32,7 +32,7 @@ export function createCueTool(sessionId: string) {
         voice: VOICE,
         input: args.text,
         instructions: VOICE_INSTRUCTIONS,
-        response_format: "mp3",
+        response_format: "pcm",
       });
 
       // Notify the client via SSE immediately

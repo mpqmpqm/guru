@@ -12,13 +12,12 @@ audioRouter.get("/:sessionId", async (req, res) => {
     return res.status(404).json({ error: "Session not found" });
   }
 
-  // Set headers for streaming MP3
+  // Set headers for streaming raw PCM (24kHz, 16-bit signed, little-endian, mono)
   res.writeHead(200, {
-    "Content-Type": "audio/mpeg",
+    "Content-Type": "application/octet-stream",
     "Transfer-Encoding": "chunked",
     "Cache-Control": "no-cache, no-store",
     Connection: "keep-alive",
-    // Prevent buffering
     "X-Accel-Buffering": "no",
   });
 

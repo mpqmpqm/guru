@@ -1,17 +1,174 @@
 // DOM elements
 const cueDisplayEl = document.getElementById("cue-display");
 const statusEl = document.getElementById("status");
-const audioEl = document.getElementById("audio-player");
 const chatForm = document.getElementById("chat-form");
 const messageInput = document.getElementById("message-input");
 const sendBtn = document.getElementById("send-btn");
-const nowPlayingEl = document.getElementById("now-playing");
+
+// Audio constants - OpenAI PCM is 24kHz, 16-bit signed, little-endian, mono
+const SAMPLE_RATE = 24000;
+const MIN_BUFFER_SIZE = 4800; // 0.2 seconds of audio (24000 * 0.2) to avoid tiny chunks
 
 // State
 let sessionId = null;
 let eventSource = null;
-let audioStarted = false;
 let isProcessing = false;
+
+// Web Audio API state
+let audioContext = null;
+let nextStartTime = 0;
+let isAudioUnlocked = false;
+let audioFetchController = null;
+let pcmBuffer = new Uint8Array(0); // Buffer for incomplete samples
+
+// Initialize AudioContext (but don't unlock yet - needs user gesture)
+function initAudioContext() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)({
+      sampleRate: SAMPLE_RATE,
+    });
+  }
+}
+
+// Unlock AudioContext - must be called from user gesture
+async function unlockAudioContext() {
+  if (isAudioUnlocked) return;
+
+  initAudioContext();
+
+  if (audioContext.state === "suspended") {
+    await audioContext.resume();
+  }
+
+  // Play a tiny silent buffer to fully unlock on iOS
+  const silentBuffer = audioContext.createBuffer(1, 1, SAMPLE_RATE);
+  const source = audioContext.createBufferSource();
+  source.buffer = silentBuffer;
+  source.connect(audioContext.destination);
+  source.start();
+
+  isAudioUnlocked = true;
+  nextStartTime = audioContext.currentTime;
+}
+
+// Convert Int16 PCM to Float32 for Web Audio API
+function int16ToFloat32(int16Array) {
+  const float32Array = new Float32Array(int16Array.length);
+  for (let i = 0; i < int16Array.length; i++) {
+    float32Array[i] = int16Array[i] / 32768;
+  }
+  return float32Array;
+}
+
+// Schedule PCM audio buffer for playback
+// flush=true forces scheduling even if buffer is small (used at end of stream)
+function scheduleAudioBuffer(pcmData, flush = false) {
+  if (!audioContext || !isAudioUnlocked) return;
+
+  // Append new data to buffer
+  const newBuffer = new Uint8Array(pcmBuffer.length + pcmData.length);
+  newBuffer.set(pcmBuffer);
+  newBuffer.set(pcmData, pcmBuffer.length);
+
+  // Only process complete samples (2 bytes each for 16-bit PCM)
+  const completeSamples = Math.floor(newBuffer.length / 2);
+  if (completeSamples === 0) {
+    pcmBuffer = newBuffer;
+    return;
+  }
+
+  // Wait for minimum buffer size unless flushing
+  if (!flush && completeSamples < MIN_BUFFER_SIZE) {
+    pcmBuffer = newBuffer;
+    return;
+  }
+
+  const bytesToProcess = completeSamples * 2;
+  const dataToProcess = newBuffer.slice(0, bytesToProcess);
+
+  // Keep any remaining odd byte for next chunk
+  pcmBuffer = newBuffer.slice(bytesToProcess);
+
+  // Convert to Int16Array - need to copy to aligned buffer
+  const alignedBuffer = new ArrayBuffer(dataToProcess.length);
+  new Uint8Array(alignedBuffer).set(dataToProcess);
+  const int16Data = new Int16Array(alignedBuffer);
+  const float32Data = int16ToFloat32(int16Data);
+
+  // Create audio buffer
+  const audioBuffer = audioContext.createBuffer(1, float32Data.length, SAMPLE_RATE);
+  audioBuffer.getChannelData(0).set(float32Data);
+
+  // Schedule playback
+  const source = audioContext.createBufferSource();
+  source.buffer = audioBuffer;
+  source.connect(audioContext.destination);
+
+  // Ensure we don't schedule in the past
+  const startTime = Math.max(nextStartTime, audioContext.currentTime);
+  source.start(startTime);
+
+  // Update next start time for seamless playback
+  nextStartTime = startTime + audioBuffer.duration;
+}
+
+// Fetch and play audio for the current session
+async function startAudioStream() {
+  if (!sessionId || !isAudioUnlocked) return;
+
+  // Cancel any existing fetch
+  if (audioFetchController) {
+    audioFetchController.abort();
+  }
+
+  // Reset buffer for new audio stream
+  pcmBuffer = new Uint8Array(0);
+
+  audioFetchController = new AbortController();
+
+  try {
+    const response = await fetch(`/api/audio/${sessionId}`, {
+      signal: audioFetchController.signal,
+    });
+
+    if (!response.ok) return;
+
+    const reader = response.body.getReader();
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      // Schedule this chunk for playback
+      if (value && value.length > 0) {
+        scheduleAudioBuffer(value);
+      }
+    }
+
+    // Flush any remaining buffered audio
+    if (pcmBuffer.length > 0) {
+      scheduleAudioBuffer(new Uint8Array(0), true);
+    }
+
+    // Audio stream ended, start a new one for the next cue
+    // Small delay to avoid hammering the server
+    setTimeout(() => {
+      if (sessionId && isAudioUnlocked) {
+        startAudioStream();
+      }
+    }, 100);
+
+  } catch (error) {
+    if (error.name === "AbortError") return;
+
+    // Reconnect on error
+    setTimeout(() => {
+      if (sessionId && isAudioUnlocked) {
+        startAudioStream();
+      }
+    }, 2000);
+  }
+}
 
 // Initialize session
 async function init() {
@@ -25,9 +182,6 @@ async function init() {
 
     const data = await response.json();
     sessionId = data.sessionId;
-
-    // Connect audio stream
-    audioEl.src = `/api/audio/${sessionId}`;
 
     // Connect SSE for chat events
     connectSSE();
@@ -193,12 +347,6 @@ async function sendMessage(message) {
   messageInput.value = "";
   cueDisplayEl.innerHTML = "";
 
-  // Start audio stream on first message (user has interacted)
-  if (!audioStarted) {
-    audioStarted = true;
-    audioEl.play().catch(() => {});
-  }
-
   try {
     const response = await fetch(`/api/chat/${sessionId}`, {
       method: "POST",
@@ -222,8 +370,10 @@ function stopSession() {
   if (eventSource) {
     eventSource.close();
   }
-  audioEl.pause();
-  audioEl.src = "";
+  if (audioFetchController) {
+    audioFetchController.abort();
+    audioFetchController = null;
+  }
   isProcessing = false;
   sendBtn.textContent = "Begin";
   sendBtn.disabled = false;
@@ -232,37 +382,22 @@ function stopSession() {
 }
 
 // Event listeners
-chatForm.addEventListener("submit", (e) => {
+chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   if (isProcessing) {
     stopSession();
   } else {
+    // Unlock AudioContext on user gesture (iOS requirement)
+    // https://webkit.org/blog/6784/new-video-policies-for-ios/
+    await unlockAudioContext();
+
+    // Start audio stream if not already running
+    if (!audioFetchController) {
+      startAudioStream();
+    }
+
     sendMessage(messageInput.value);
-  }
-});
-
-// When audio ends or pauses, reconnect for next cue
-audioEl.addEventListener("pause", () => {
-  if (audioStarted && sessionId) {
-    // Small delay to avoid hammering the server
-    setTimeout(() => {
-      audioEl.src = `/api/audio/${sessionId}`;
-      audioEl.play().catch(() => {});
-    }, 100);
-  }
-});
-
-// Handle audio errors - reconnect if connection lost
-audioEl.addEventListener("error", () => {
-  if (audioStarted && sessionId) {
-    nowPlayingEl.textContent = "Audio connection lost - reconnecting...";
-    setTimeout(() => {
-      if (sessionId) {
-        audioEl.src = `/api/audio/${sessionId}`;
-        audioEl.play().catch(() => {});
-      }
-    }, 2000);
   }
 });
 
