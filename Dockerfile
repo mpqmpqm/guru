@@ -14,15 +14,6 @@ FROM node:24-slim
 
 WORKDIR /app
 
-# Tools used by Claude Code CLI
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends \
-    git \
-    ripgrep \
-  && rm -rf /var/lib/apt/lists/*
-
-# Install Claude Code CLI (required by claude-agent-sdk)
-RUN npm install -g @anthropic-ai/claude-code
 
 # Install production dependencies only
 COPY package*.json ./
