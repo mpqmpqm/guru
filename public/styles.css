@@ -204,9 +204,9 @@ h1::after {
 main {
   flex: 1;
   display: flex;
-  align-items: center;
   min-height: 0;
   position: relative;
+  justify-content: center;
 }
 
 /* Ambient glow behind cue */
@@ -235,6 +235,7 @@ main:has(.cue)::before {
   padding: 2.5rem;
   width: 100%;
   display: flex;
+  text-wrap: pretty;
 }
 
 .cue-display .cue {
