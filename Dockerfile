@@ -16,8 +16,15 @@ WORKDIR /app
 
 # Sandbox deps required by Claude Code CLI on Linux
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends bubblewrap socat \
+  && apt-get install -y --no-install-recommends \
+    bubblewrap \
+    socat \
+    git \
+    ripgrep \
   && rm -rf /var/lib/apt/lists/*
+
+# Enable SDK debug logs (written to ~/.claude/debug)
+ENV DEBUG_CLAUDE_AGENT_SDK=1
 
 # Install Claude Code CLI (required by claude-agent-sdk)
 RUN npm install -g @anthropic-ai/claude-code
