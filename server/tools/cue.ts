@@ -31,7 +31,7 @@ export function createCueTool(sessionId: string) {
         model: "gpt-4o-mini-tts",
         voice: VOICE,
         input: args.text,
-        instructions: VOICE_INSTRUCTIONS,
+        // instructions: VOICE_INSTRUCTIONS,
         response_format: "pcm",
       });
 
