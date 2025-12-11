@@ -63,9 +63,10 @@ export function createCueTool(sessionId: string) {
       await sessionManager.queueAudio(sessionId, audioStream);
 
       // Wait for the pause duration (browser will reconnect for next cue)
+      const adjusted = Math.max(0, Math.ceil(pause / 2));
       if (pause > 0) {
         await new Promise((resolve) =>
-          setTimeout(resolve, pause * MS_PER_COUNT)
+          setTimeout(resolve, adjusted * MS_PER_COUNT)
         );
       }
 
