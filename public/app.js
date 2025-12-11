@@ -174,8 +174,19 @@ chatForm.addEventListener("submit", (e) => {
 audioEl.addEventListener("waiting", () => log("[audio] waiting - buffer empty"));
 audioEl.addEventListener("stalled", () => log("[audio] stalled - fetching data"));
 audioEl.addEventListener("playing", () => log("[audio] playing"));
-audioEl.addEventListener("pause", () => log("[audio] paused"));
 audioEl.addEventListener("canplay", () => log("[audio] canplay - ready to play"));
+
+// When audio ends or pauses, reconnect for next cue
+audioEl.addEventListener("pause", () => {
+  log("[audio] paused - reconnecting for next cue");
+  if (audioStarted && sessionId) {
+    // Small delay to avoid hammering the server
+    setTimeout(() => {
+      audioEl.src = `/api/audio/${sessionId}`;
+      audioEl.play().catch(() => {});
+    }, 100);
+  }
+});
 audioEl.addEventListener("progress", () => {
   const buffered = audioEl.buffered;
   if (buffered.length > 0) {

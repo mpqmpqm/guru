@@ -66,14 +66,10 @@ export function createCueTool(sessionId: string) {
       await sessionManager.queueAudio(sessionId, singleChunk());
       console.log(`[cue] audio streamed`);
 
-      // Queue silence for the pause duration AND wait the actual time
-      // queueSilence writes audio data to keep browser buffer fed
-      // setTimeout blocks the agent for the actual pause duration
+      // Wait for the pause duration (browser will reconnect for next cue)
       if (pause > 0) {
-        console.log(`[cue] queueing ${pause}s silence and waiting...`);
-        const silencePromise = sessionManager.queueSilence(sessionId, pause * MS_PER_COUNT);
-        const waitPromise = new Promise((resolve) => setTimeout(resolve, pause * MS_PER_COUNT));
-        await Promise.all([silencePromise, waitPromise]);
+        console.log(`[cue] waiting ${pause}s...`);
+        await new Promise((resolve) => setTimeout(resolve, pause * MS_PER_COUNT));
         console.log(`[cue] pause complete`);
       }
 
