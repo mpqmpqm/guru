@@ -207,7 +207,9 @@ h1::after {
   opacity: 0;
   height: 0;
   overflow: hidden;
-  transition: opacity 0.3s ease, height 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    height 0.3s ease;
 }
 
 .stream-timer.active {
@@ -331,7 +333,8 @@ footer {
   line-height: 1.4;
   field-sizing: content;
   min-height: 0;
-  max-height: 30vh;
+  height: auto;
+  max-height: 25dvh;
   overflow-y: auto;
 }
 
