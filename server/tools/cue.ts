@@ -30,27 +30,6 @@ export function createCueTool(sessionId: string) {
         `[cue] called: "${args.text.slice(0, 50)}..." pause=${args.pause || 0}`
       );
 
-      // Generate audio from ElevenLabs - collect fully before streaming
-      console.log(`[cue] requesting ElevenLabs audio...`);
-      const audioStream = await elevenlabs.textToSpeech.stream(
-        VOICE_ID,
-        {
-          text: args.text,
-          modelId: "eleven_flash_v2_5",
-          outputFormat: "mp3_44100_128",
-        }
-      );
-
-      // Collect all chunks first to avoid mid-stream gaps
-      const chunks: Buffer[] = [];
-      for await (const chunk of audioStream) {
-        chunks.push(Buffer.from(chunk));
-      }
-      const fullAudio = Buffer.concat(chunks);
-      console.log(
-        `[cue] got ${fullAudio.length} bytes, queueing audio`
-      );
-
       const pause = args.pause ?? 0;
 
       // Notify the client via SSE immediately
@@ -59,11 +38,16 @@ export function createCueTool(sessionId: string) {
         pause,
       });
 
-      // Queue the complete audio buffer
-      async function* singleChunk() {
-        yield fullAudio;
-      }
-      await sessionManager.queueAudio(sessionId, singleChunk());
+      // Generate audio from ElevenLabs and stream directly to client
+      console.log(`[cue] requesting ElevenLabs audio...`);
+      const audioStream = await elevenlabs.textToSpeech.stream(VOICE_ID, {
+        text: args.text,
+        modelId: "eleven_flash_v2_5",
+        outputFormat: "mp3_44100_128",
+      });
+
+      // Pass stream directly - chunks flow to client as they arrive
+      await sessionManager.queueAudio(sessionId, audioStream);
       console.log(`[cue] audio streamed`);
 
       // Wait for the pause duration (browser will reconnect for next cue)
