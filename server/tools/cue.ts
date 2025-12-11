@@ -1,15 +1,13 @@
 import { tool } from "@anthropic-ai/claude-agent-sdk";
 import { z } from "zod";
-import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
+import OpenAI from "openai";
 import { sessionManager } from "../services/session-manager.js";
 
-const elevenlabs = new ElevenLabsClient({
-  apiKey: process.env.ELEVENLABS_API_KEY,
-});
+const openai = new OpenAI();
 
-// Rachel voice - calm and clear, good for yoga
-const VOICE_ID =
-  process.env.ELEVENLABS_VOICE_ID || "21m00Tcm4TlvDq8ikWAM";
+const VOICE = "alloy";
+const VOICE_INSTRUCTIONS =
+  "Warm, grounded yoga teacher. Measured pace with natural pauses. Clear articulation, especially Sanskrit. Calm and present—not breathy, not performative. No filler praise. Quiet confidence, unhurried but awake.";
 const MS_PER_COUNT = 1000;
 
 export function createCueTool(sessionId: string) {
@@ -38,13 +36,33 @@ export function createCueTool(sessionId: string) {
         pause,
       });
 
-      // Generate audio from ElevenLabs and stream directly to client
-      console.log(`[cue] requesting ElevenLabs audio...`);
-      const audioStream = await elevenlabs.textToSpeech.stream(VOICE_ID, {
-        text: args.text,
-        modelId: "eleven_flash_v2_5",
-        outputFormat: "mp3_44100_128",
+      // Generate audio from OpenAI and stream directly to client
+      console.log(`[cue] requesting OpenAI TTS audio...`);
+      const response = await openai.audio.speech.create({
+        model: "gpt-4o-mini-tts",
+        voice: VOICE,
+        input: args.text,
+        instructions: VOICE_INSTRUCTIONS,
+        response_format: "mp3",
       });
+
+      // Convert web ReadableStream to AsyncIterable<Uint8Array>
+      async function* streamToAsyncIterable(
+        stream: ReadableStream<Uint8Array>
+      ): AsyncIterable<Uint8Array> {
+        const reader = stream.getReader();
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            yield value;
+          }
+        } finally {
+          reader.releaseLock();
+        }
+      }
+
+      const audioStream = streamToAsyncIterable(response.body!);
 
       // Pass stream directly - chunks flow to client as they arrive
       await sessionManager.queueAudio(sessionId, audioStream);

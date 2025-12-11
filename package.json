@@ -18,10 +18,10 @@
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.1.62",
-    "@elevenlabs/elevenlabs-js": "^2.27.0",
     "@modelcontextprotocol/sdk": "^1.24.3",
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
+    "openai": "^6.10.0",
     "uuid": "^11.1.0",
     "zod": "^3.24.4"
   }

@@ -1,21 +1,46 @@
+import { execSync } from "child_process";
 import "dotenv/config";
-import { ElevenLabsClient, stream } from "@elevenlabs/elevenlabs-js";
+import { unlinkSync, writeFileSync } from "fs";
+import OpenAI from "openai";
+import { tmpdir } from "os";
+import { join } from "path";
 
-const elevenlabs = new ElevenLabsClient({
-  apiKey: process.env.ELEVENLABS_API_KEY,
-});
+const openai = new OpenAI();
 
-// Rachel voice - calm and clear, good for yoga
-const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || "21m00Tcm4TlvDq8ikWAM";
+const VOICE = "alloy";
+const VOICE_INSTRUCTIONS =
+  "Warm, grounded yoga teacher. Measured pace with natural pauses. Clear articulation, especially Sanskrit. Calm and present—not breathy, not performative. No filler praise. Quiet confidence, unhurried but awake.";
 
 export class AudioBridge {
   async speak(text: string): Promise<void> {
-    const audioStream = await elevenlabs.textToSpeech.stream(VOICE_ID, {
-      text,
-      modelId: "eleven_flash_v2_5",
-      outputFormat: "mp3_44100_128",
+    const response = await openai.audio.speech.create({
+      model: "gpt-4o-mini-tts",
+      voice: VOICE,
+      input: text,
+      instructions: VOICE_INSTRUCTIONS,
+      response_format: "mp3",
     });
-    await stream(audioStream);
+
+    // Write to temp file and play with afplay (macOS) or ffplay
+    const tempFile = join(
+      tmpdir(),
+      `guru-tts-${Date.now()}.mp3`
+    );
+    const buffer = Buffer.from(await response.arrayBuffer());
+    writeFileSync(tempFile, buffer);
+
+    try {
+      // Try afplay (macOS), fall back to ffplay
+      try {
+        execSync(`afplay "${tempFile}"`, { stdio: "ignore" });
+      } catch {
+        execSync(`ffplay -nodisp -autoexit "${tempFile}"`, {
+          stdio: "ignore",
+        });
+      }
+    } finally {
+      unlinkSync(tempFile);
+    }
   }
 
   async wait(ms: number): Promise<void> {
