@@ -3,6 +3,7 @@ import {
   query,
 } from "@anthropic-ai/claude-agent-sdk";
 import { createCueTool } from "../tools/cue.js";
+import { createPersonaTool } from "../tools/persona.js";
 import { sessionManager } from "./session-manager.js";
 
 const SYSTEM_PROMPT = `# guru
@@ -102,11 +103,14 @@ export async function* streamChat(
   const abortController = new AbortController();
   sessionManager.setAbortController(sessionId, abortController);
 
-  // Create MCP server with cue tool for this session
+  // Create MCP server with tools for this session
   const yogaServer = createSdkMcpServer({
     name: "yoga",
     version: "1.0.0",
-    tools: [createCueTool(sessionId)],
+    tools: [
+      createPersonaTool(sessionId),
+      createCueTool(sessionId),
+    ],
   });
 
   try {
@@ -126,7 +130,7 @@ export async function* streamChat(
         mcpServers: {
           yoga: yogaServer,
         },
-        allowedTools: ["mcp__yoga__cue"],
+        allowedTools: ["mcp__yoga__persona", "mcp__yoga__cue"],
         permissionMode: "bypassPermissions",
         allowDangerouslySkipPermissions: true,
         model: "claude-opus-4-5",
