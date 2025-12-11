@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "local-mcp": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["tsx", "mcp/index.ts"]
-    }
-  }
-}
