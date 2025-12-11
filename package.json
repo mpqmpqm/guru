@@ -6,7 +6,8 @@
   "scripts": {
     "mcp": "tsx mcp/index.ts",
     "dev": "tsx watch server/index.ts",
-    "start": "tsx server/index.ts"
+    "start": "tsx server/index.ts",
+    "typecheck": "tsc -b"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",

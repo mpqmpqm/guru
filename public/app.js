@@ -5,15 +5,23 @@ const audioEl = document.getElementById("audio-player");
 const chatForm = document.getElementById("chat-form");
 const messageInput = document.getElementById("message-input");
 const sendBtn = document.getElementById("send-btn");
-const playBtn = document.getElementById("play-btn");
-const playText = playBtn.querySelector(".play-text");
 const nowPlayingEl = document.getElementById("now-playing");
 
 // State
 let sessionId = null;
 let eventSource = null;
-let isPlaying = false;
+let audioStarted = false;
 let isProcessing = false;
+
+// Send logs to server
+function log(message, level = "info") {
+  console[level === "error" ? "error" : "log"](message);
+  fetch("/api/log", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ level, message }),
+  }).catch(() => {});
+}
 
 // Initialize session
 async function init() {
@@ -34,9 +42,6 @@ async function init() {
 
     // Connect SSE for chat events
     connectSSE();
-
-    // Enable play button
-    playBtn.disabled = false;
 
   } catch (error) {
     console.error("Init error:", error);
@@ -130,6 +135,17 @@ async function sendMessage(message) {
   appendMessage("user", message);
   messageInput.value = "";
 
+  // Start audio stream on first message (user has interacted)
+  if (!audioStarted) {
+    audioStarted = true;
+    log("[audio] Starting audio stream...");
+    audioEl.play().then(() => {
+      log("[audio] Playing");
+    }).catch((err) => {
+      log("[audio] Play failed: " + err, "error");
+    });
+  }
+
   try {
     const response = await fetch(`/api/chat/${sessionId}`, {
       method: "POST",
@@ -148,60 +164,36 @@ async function sendMessage(message) {
   }
 }
 
-// Handle play button
-function toggleAudio() {
-  if (isPlaying) {
-    audioEl.pause();
-    isPlaying = false;
-    playBtn.classList.remove("playing");
-    playText.textContent = "Tap to resume audio";
-  } else {
-    // Start playing the audio stream
-    audioEl.play()
-      .then(() => {
-        isPlaying = true;
-        playBtn.classList.add("playing");
-        playText.textContent = "Audio playing";
-      })
-      .catch((err) => {
-        console.error("Audio play failed:", err);
-        appendMessage("system", "Tap the play button to hear audio guidance");
-      });
-  }
-}
-
 // Event listeners
 chatForm.addEventListener("submit", (e) => {
   e.preventDefault();
   sendMessage(messageInput.value);
 });
 
-playBtn.addEventListener("click", toggleAudio);
-
-// Handle audio events
-audioEl.addEventListener("playing", () => {
-  isPlaying = true;
-  playBtn.classList.add("playing");
-  playText.textContent = "Audio playing";
+// Debug audio element state
+audioEl.addEventListener("waiting", () => log("[audio] waiting - buffer empty"));
+audioEl.addEventListener("stalled", () => log("[audio] stalled - fetching data"));
+audioEl.addEventListener("playing", () => log("[audio] playing"));
+audioEl.addEventListener("pause", () => log("[audio] paused"));
+audioEl.addEventListener("canplay", () => log("[audio] canplay - ready to play"));
+audioEl.addEventListener("progress", () => {
+  const buffered = audioEl.buffered;
+  if (buffered.length > 0) {
+    log(`[audio] progress - buffered: ${buffered.end(buffered.length - 1).toFixed(1)}s, current: ${audioEl.currentTime.toFixed(1)}s`);
+  }
 });
 
-audioEl.addEventListener("pause", () => {
-  isPlaying = false;
-  playBtn.classList.remove("playing");
-  playText.textContent = "Tap to resume audio";
-});
-
-audioEl.addEventListener("error", (e) => {
-  console.error("Audio error:", e);
-  // Don't show error for initial load - it's expected
-  if (audioEl.currentTime > 0) {
+// Handle audio errors - reconnect if connection lost
+audioEl.addEventListener("error", () => {
+  const err = audioEl.error;
+  const errorMsg = err ? `code=${err.code} ${err.message || ""}` : "unknown";
+  log("[audio] error: " + errorMsg, "error");
+  if (audioStarted && sessionId) {
     nowPlayingEl.textContent = "Audio connection lost - reconnecting...";
     setTimeout(() => {
       if (sessionId) {
         audioEl.src = `/api/audio/${sessionId}`;
-        if (isPlaying) {
-          audioEl.play().catch(() => {});
-        }
+        audioEl.play().catch(() => {});
       }
     }, 2000);
   }

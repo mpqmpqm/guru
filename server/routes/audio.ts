@@ -22,25 +22,24 @@ audioRouter.get("/:sessionId", async (req, res) => {
     "X-Accel-Buffering": "no",
   });
 
-  // Handle client disconnect
+  // Handle client disconnect - don't abort agent (audio can reconnect)
+  // Agent is only aborted when SSE closes (user leaves page)
   req.on("close", () => {
     console.log(`Audio stream closed for session ${sessionId}`);
-    sessionManager.closeAudioStream(sessionId);
   });
 
   console.log(`Audio stream started for session ${sessionId}`);
 
-  // Stream audio from queue
+  // Stream audio from queue - write directly without buffering
   try {
-    for await (const chunk of sessionManager.consumeAudioQueue(sessionId)) {
-      // Check if connection is still open
+    for await (const msg of sessionManager.consumeAudioQueue(sessionId)) {
       if (res.writableEnded) break;
 
-      const written = res.write(chunk);
-      if (!written) {
-        // Backpressure - wait for drain
-        await new Promise((resolve) => res.once("drain", resolve));
+      if (msg.type === "data") {
+        console.log(`[audio] writing ${msg.data.length}b`);
+        res.write(msg.data);
       }
+      // flush signals are just markers, no action needed now
     }
   } catch (error) {
     console.error(`Audio stream error for session ${sessionId}:`, error);

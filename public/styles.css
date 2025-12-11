@@ -174,54 +174,11 @@ main {
 }
 
 footer {
-  padding: 1rem 0;
+  padding: 0.5rem 0;
   flex-shrink: 0;
 }
 
-.audio-controls {
-  display: flex;
-  justify-content: center;
-}
-
-.play-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 2rem;
-  border: none;
-  border-radius: 999px;
-  background: var(--accent);
-  color: white;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.play-btn:hover:not(:disabled) {
-  transform: scale(1.02);
-}
-
-.play-btn:disabled {
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-  cursor: not-allowed;
-}
-
-.play-btn.playing {
-  background: var(--success);
-}
-
-.play-btn.playing .play-icon::before {
-  content: "⏸";
-}
-
-.play-icon {
-  font-size: 1.25rem;
-}
-
 .now-playing {
-  margin-top: 0.75rem;
   text-align: center;
   font-size: 0.85rem;
   color: var(--text-secondary);

@@ -61,6 +61,10 @@ export async function* streamChat(
     return;
   }
 
+  // Create abort controller for this query
+  const abortController = new AbortController();
+  sessionManager.setAbortController(sessionId, abortController);
+
   // Create MCP server with cue tool for this session
   const yogaServer = createSdkMcpServer({
     name: "yoga",
@@ -68,22 +72,12 @@ export async function* streamChat(
     tools: [createCueTool(sessionId)],
   });
 
-  // Create async message generator for streaming input mode
-  async function* generateMessages() {
-    yield {
-      type: "user" as const,
-      message: {
-        role: "user" as const,
-        content: userMessage,
-      },
-    };
-  }
-
   try {
     // Query Claude with streaming
     for await (const message of query({
-      prompt: generateMessages(),
+      prompt: userMessage,
       options: {
+        abortController,
         systemPrompt: SYSTEM_PROMPT,
         resume: session.agentSessionId,
         mcpServers: {
@@ -107,21 +101,31 @@ export async function* streamChat(
             }
           }
         }
-      } else if (message.type === "result" && message.subtype === "success") {
-        // Store the session ID for future conversation continuation
-        sessionManager.setAgentSessionId(sessionId, message.session_id);
-        yield { type: "done", sessionId: message.session_id };
-      } else if (message.type === "result" && message.subtype !== "success") {
-        yield {
-          type: "error",
-          content: `Agent error: ${message.subtype}`,
-        };
+      } else if (message.type === "result") {
+        if (message.subtype === "success") {
+          // Store the session ID for future conversation continuation
+          sessionManager.setAgentSessionId(sessionId, message.session_id);
+          yield { type: "done", sessionId: message.session_id };
+        } else {
+          yield {
+            type: "error",
+            content: `Agent error: ${message.subtype}`,
+          };
+        }
       }
     }
   } catch (error) {
+    // Don't report abort errors - they're intentional (user disconnected)
+    if (error instanceof Error && error.name === "AbortError") {
+      console.log(`Agent aborted for session ${sessionId}`);
+      return;
+    }
     yield {
       type: "error",
       content: `Error: ${error instanceof Error ? error.message : String(error)}`,
     };
+  } finally {
+    // Clear the abort controller when done
+    sessionManager.setAbortController(sessionId, null as unknown as AbortController);
   }
 }

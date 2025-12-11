@@ -8,7 +8,8 @@ const elevenlabs = new ElevenLabsClient({
 });
 
 // Rachel voice - calm and clear, good for yoga
-const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || "21m00Tcm4TlvDq8ikWAM";
+const VOICE_ID =
+  process.env.ELEVENLABS_VOICE_ID || "21m00Tcm4TlvDq8ikWAM";
 const MS_PER_COUNT = 1000;
 
 export function createCueTool(sessionId: string) {
@@ -25,34 +26,65 @@ export function createCueTool(sessionId: string) {
         ),
     },
     async (args) => {
-      // Generate audio stream from ElevenLabs
-      const audioStream = await elevenlabs.textToSpeech.stream(VOICE_ID, {
-        text: args.text,
-        modelId: "eleven_flash_v2_5",
-        outputFormat: "mp3_44100_128",
-      });
+      console.log(
+        `[cue] called: "${args.text.slice(0, 50)}..." pause=${args.pause || 0}`
+      );
 
-      // Queue the audio to the session's audio stream
-      sessionManager.queueAudio(sessionId, audioStream);
+      // Generate audio from ElevenLabs - collect fully before streaming
+      console.log(`[cue] requesting ElevenLabs audio...`);
+      const audioStream = await elevenlabs.textToSpeech.stream(
+        VOICE_ID,
+        {
+          text: args.text,
+          modelId: "eleven_flash_v2_5",
+          outputFormat: "mp3_44100_128",
+        }
+      );
 
-      // Queue silence for the pause
-      if (args.pause && args.pause > 0) {
-        sessionManager.queueSilence(sessionId, args.pause * MS_PER_COUNT);
+      // Collect all chunks first to avoid mid-stream gaps
+      const chunks: Buffer[] = [];
+      for await (const chunk of audioStream) {
+        chunks.push(Buffer.from(chunk));
       }
+      const fullAudio = Buffer.concat(chunks);
+      console.log(
+        `[cue] got ${fullAudio.length} bytes, queueing audio`
+      );
 
-      // Notify the client via SSE that a cue was spoken
+      const pause = args.pause ?? 0;
+
+      // Notify the client via SSE immediately
       sessionManager.sendSSE(sessionId, "cue", {
         text: args.text,
-        pause: args.pause || 0,
+        pause,
       });
 
+      // Queue the complete audio buffer
+      async function* singleChunk() {
+        yield fullAudio;
+      }
+      await sessionManager.queueAudio(sessionId, singleChunk());
+      console.log(`[cue] audio streamed`);
+
+      // Queue silence for the pause duration AND wait the actual time
+      // queueSilence writes audio data to keep browser buffer fed
+      // setTimeout blocks the agent for the actual pause duration
+      if (pause > 0) {
+        console.log(`[cue] queueing ${pause}s silence and waiting...`);
+        const silencePromise = sessionManager.queueSilence(sessionId, pause * MS_PER_COUNT);
+        const waitPromise = new Promise((resolve) => setTimeout(resolve, pause * MS_PER_COUNT));
+        await Promise.all([silencePromise, waitPromise]);
+        console.log(`[cue] pause complete`);
+      }
+
+      console.log(`[cue] complete`);
       return {
         content: [
           {
             type: "text" as const,
             text:
-              args.pause && args.pause > 0
-                ? `Cue complete with ${args.pause} count pause`
+              pause > 0
+                ? `Cue complete with ${pause} count pause`
                 : "Cue complete",
           },
         ],

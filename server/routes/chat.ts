@@ -34,10 +34,11 @@ chatRouter.get("/events/:sessionId", (req, res) => {
     }
   }, 15000);
 
-  // Handle client disconnect
+  // Handle client disconnect - stop the agent
   req.on("close", () => {
     clearInterval(heartbeat);
-    console.log(`SSE connection closed for session ${sessionId}`);
+    console.log(`SSE connection closed for session ${sessionId} - stopping agent`);
+    sessionManager.abortAgent(sessionId);
   });
 });
 
@@ -45,6 +46,8 @@ chatRouter.get("/events/:sessionId", (req, res) => {
 chatRouter.post("/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
   const { message } = req.body;
+
+  console.log(`[chat] POST /${sessionId} - message: "${message?.slice(0, 50)}..."`);
 
   if (!message || typeof message !== "string") {
     return res.status(400).json({ error: "Message is required" });
@@ -61,12 +64,15 @@ chatRouter.post("/:sessionId", async (req, res) => {
   try {
     // Stream response via SSE
     for await (const event of streamChat(sessionId, message)) {
+      console.log(`[chat] event: ${event.type}`, event.content?.slice?.(0, 100) || event);
       sessionManager.sendSSE(sessionId, event.type, event);
     }
+    console.log(`[chat] done processing`);
     res.json({ success: true });
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : String(error);
+    console.error(`[chat] error:`, errorMessage);
     sessionManager.sendSSE(sessionId, "error", { content: errorMessage });
     res.status(500).json({ error: errorMessage });
   }

@@ -27,6 +27,18 @@ app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
+// Client-side logging endpoint
+app.post("/api/log", (req, res) => {
+  const { level, message } = req.body;
+  const prefix = "[client]";
+  if (level === "error") {
+    console.error(prefix, message);
+  } else {
+    console.log(prefix, message);
+  }
+  res.sendStatus(204);
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Yoga Guide server running on http://localhost:${PORT}`);
