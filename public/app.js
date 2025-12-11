@@ -13,16 +13,6 @@ let eventSource = null;
 let audioStarted = false;
 let isProcessing = false;
 
-// Send logs to server
-function log(message, level = "info") {
-  console[level === "error" ? "error" : "log"](message);
-  fetch("/api/log", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ level, message }),
-  }).catch(() => {});
-}
-
 // Initialize session
 async function init() {
   try {
@@ -35,7 +25,6 @@ async function init() {
 
     const data = await response.json();
     sessionId = data.sessionId;
-    console.log("Session created:", sessionId);
 
     // Connect audio stream
     audioEl.src = `/api/audio/${sessionId}`;
@@ -115,7 +104,6 @@ function connectSSE() {
     // Attempt reconnection after a delay
     setTimeout(() => {
       if (sessionId) {
-        console.log("Attempting SSE reconnection...");
         connectSSE();
       }
     }, 3000);
@@ -208,12 +196,7 @@ async function sendMessage(message) {
   // Start audio stream on first message (user has interacted)
   if (!audioStarted) {
     audioStarted = true;
-    log("[audio] Starting audio stream...");
-    audioEl.play().then(() => {
-      log("[audio] Playing");
-    }).catch((err) => {
-      log("[audio] Play failed: " + err, "error");
-    });
+    audioEl.play().catch(() => {});
   }
 
   try {
@@ -259,15 +242,8 @@ chatForm.addEventListener("submit", (e) => {
   }
 });
 
-// Debug audio element state
-audioEl.addEventListener("waiting", () => log("[audio] waiting - buffer empty"));
-audioEl.addEventListener("stalled", () => log("[audio] stalled - fetching data"));
-audioEl.addEventListener("playing", () => log("[audio] playing"));
-audioEl.addEventListener("canplay", () => log("[audio] canplay - ready to play"));
-
 // When audio ends or pauses, reconnect for next cue
 audioEl.addEventListener("pause", () => {
-  log("[audio] paused - reconnecting for next cue");
   if (audioStarted && sessionId) {
     // Small delay to avoid hammering the server
     setTimeout(() => {
@@ -276,18 +252,9 @@ audioEl.addEventListener("pause", () => {
     }, 100);
   }
 });
-audioEl.addEventListener("progress", () => {
-  const buffered = audioEl.buffered;
-  if (buffered.length > 0) {
-    log(`[audio] progress - buffered: ${buffered.end(buffered.length - 1).toFixed(1)}s, current: ${audioEl.currentTime.toFixed(1)}s`);
-  }
-});
 
 // Handle audio errors - reconnect if connection lost
 audioEl.addEventListener("error", () => {
-  const err = audioEl.error;
-  const errorMsg = err ? `code=${err.code} ${err.message || ""}` : "unknown";
-  log("[audio] error: " + errorMsg, "error");
   if (audioStarted && sessionId) {
     nowPlayingEl.textContent = "Audio connection lost - reconnecting...";
     setTimeout(() => {

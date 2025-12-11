@@ -64,10 +64,8 @@ chatRouter.post("/:sessionId", async (req, res) => {
   try {
     // Stream response via SSE
     for await (const event of streamChat(sessionId, message)) {
-      console.log(`[chat] event: ${event.type}`, event.content?.slice?.(0, 100) || event);
       sessionManager.sendSSE(sessionId, event.type, event);
     }
-    console.log(`[chat] done processing`);
     res.json({ success: true });
   } catch (error) {
     const errorMessage =

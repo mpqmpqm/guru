@@ -24,14 +24,9 @@ export function createCueTool(sessionId: string) {
         ),
     },
     async (args) => {
-      console.log(
-        `[cue] called: "${args.text.slice(0, 50)}..." pause=${args.pause || 0}`
-      );
-
       const pause = args.pause ?? 0;
 
       // Generate audio from OpenAI and stream directly to client
-      console.log(`[cue] requesting OpenAI TTS audio...`);
       const response = await openai.audio.speech.create({
         model: "tts-1",
         voice: VOICE,
@@ -66,18 +61,14 @@ export function createCueTool(sessionId: string) {
 
       // Pass stream directly - chunks flow to client as they arrive
       await sessionManager.queueAudio(sessionId, audioStream);
-      console.log(`[cue] audio streamed`);
 
       // Wait for the pause duration (browser will reconnect for next cue)
       if (pause > 0) {
-        console.log(`[cue] waiting ${pause}s...`);
         await new Promise((resolve) =>
           setTimeout(resolve, pause * MS_PER_COUNT)
         );
-        console.log(`[cue] pause complete`);
       }
 
-      console.log(`[cue] complete`);
       return {
         content: [
           {

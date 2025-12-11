@@ -24,11 +24,7 @@ audioRouter.get("/:sessionId", async (req, res) => {
 
   // Handle client disconnect - don't abort agent (audio can reconnect)
   // Agent is only aborted when SSE closes (user leaves page)
-  req.on("close", () => {
-    console.log(`Audio stream closed for session ${sessionId}`);
-  });
-
-  console.log(`Audio stream started for session ${sessionId}`);
+  req.on("close", () => {});
 
   // Stream audio from queue - write directly without buffering
   try {
@@ -36,7 +32,6 @@ audioRouter.get("/:sessionId", async (req, res) => {
       if (res.writableEnded) break;
 
       if (msg.type === "data") {
-        console.log(`[audio] writing ${msg.data.length}b`);
         res.write(msg.data);
       }
       // flush signals are just markers, no action needed now

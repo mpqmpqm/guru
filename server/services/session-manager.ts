@@ -64,7 +64,6 @@ class SessionManager {
   abortAgent(sessionId: string): void {
     const session = this.sessions.get(sessionId);
     if (session?.abortController) {
-      console.log(`Aborting agent for session ${sessionId}`);
       session.abortController.abort();
       session.abortController = null;
     }
@@ -75,7 +74,6 @@ class SessionManager {
     if (!session) return Promise.resolve();
 
     return new Promise((resolve) => {
-      console.log(`[session] queueAudio for ${sessionId}, queue length: ${session.audioQueue.length + 1}`);
       session.audioQueue.push({ type: "audio", stream, onComplete: resolve });
       // Signal that new audio is available
       session.audioReady?.();
@@ -119,7 +117,6 @@ class SessionManager {
         totalBytes += chunk.length;
         yield { type: "data" as const, data: Buffer.from(chunk) };
       }
-      console.log(`[session] streamed audio: ${chunkCount} chunks, ${totalBytes} bytes`);
       yield { type: "flush" as const };
       item.onComplete();
     }
