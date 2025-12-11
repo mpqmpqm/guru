@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Yoga Guide</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Yoga Guide</h1>
+      <div id="status" class="status disconnected">Connecting...</div>
+    </header>
+
+    <main>
+      <div id="messages" class="messages">
+        <div class="message system">
+          Welcome! Tell me what kind of yoga practice you'd like today.
+        </div>
+      </div>
+
+      <form id="chat-form" class="chat-form">
+        <input
+          type="text"
+          id="message-input"
+          placeholder="e.g., A gentle 10 minute morning stretch"
+          autocomplete="off"
+        >
+        <button type="submit" id="send-btn">Send</button>
+      </form>
+    </main>
+
+    <footer>
+      <div class="audio-controls">
+        <button id="play-btn" class="play-btn" disabled>
+          <span class="play-icon">▶</span>
+          <span class="play-text">Tap to start audio</span>
+        </button>
+        <audio id="audio-player" preload="none"></audio>
+      </div>
+      <div id="now-playing" class="now-playing"></div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
