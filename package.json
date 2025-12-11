@@ -6,7 +6,8 @@
   "scripts": {
     "mcp": "tsx mcp/index.ts",
     "dev": "tsx watch server/index.ts",
-    "start": "tsx server/index.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/index.js",
     "typecheck": "tsc -b"
   },
   "devDependencies": {
