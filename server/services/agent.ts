@@ -1,4 +1,7 @@
-import { query, createSdkMcpServer } from "@anthropic-ai/claude-agent-sdk";
+import {
+  createSdkMcpServer,
+  query,
+} from "@anthropic-ai/claude-agent-sdk";
 import { createCueTool } from "../tools/cue.js";
 import { sessionManager } from "./session-manager.js";
 
@@ -107,7 +110,10 @@ export async function* streamChat(
       } else if (message.type === "result") {
         if (message.subtype === "success") {
           // Store the session ID for future conversation continuation
-          sessionManager.setAgentSessionId(sessionId, message.session_id);
+          sessionManager.setAgentSessionId(
+            sessionId,
+            message.session_id
+          );
           yield { type: "done", sessionId: message.session_id };
         } else {
           yield {
@@ -129,6 +135,9 @@ export async function* streamChat(
     };
   } finally {
     // Clear the abort controller when done
-    sessionManager.setAbortController(sessionId, null as unknown as AbortController);
+    sessionManager.setAbortController(
+      sessionId,
+      null as unknown as AbortController
+    );
   }
 }
