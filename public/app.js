@@ -47,7 +47,7 @@ async function init() {
     console.error("Init error:", error);
     statusEl.textContent = "Error";
     statusEl.className = "status error";
-    showCue("Failed to connect. Please refresh the page.");
+    showError("Failed to connect. Please refresh the page.");
   }
 }
 
@@ -70,15 +70,21 @@ function connectSSE() {
     sendBtn.disabled = false;
   });
 
+  eventSource.addEventListener("thinking", () => {
+    showThinking();
+  });
+
   eventSource.addEventListener("text", (event) => {
     const data = JSON.parse(event.data);
     if (data.content) {
+      hideThinking();
       showCue(data.content);
     }
   });
 
   eventSource.addEventListener("cue", (event) => {
     const data = JSON.parse(event.data);
+    hideThinking();
     showCue(data.text);
   });
 
@@ -91,7 +97,11 @@ function connectSSE() {
   eventSource.addEventListener("error", (event) => {
     if (event.data) {
       const data = JSON.parse(event.data);
-      showCue(data.content || "An error occurred");
+      const msg = data.content || "An error occurred";
+      // Don't show abort as error - it's expected when user stops
+      if (!msg.toLowerCase().includes("aborted")) {
+        showError(msg);
+      }
     }
     isProcessing = false;
     sendBtn.textContent = "Begin";
@@ -119,6 +129,73 @@ function showCue(content) {
   div.textContent = content;
   cueDisplayEl.innerHTML = "";
   cueDisplayEl.appendChild(div);
+}
+
+// Show thinking indicator
+let thinkingStartTime = null;
+let thinkingInterval = null;
+
+function showThinking() {
+  thinkingStartTime = Date.now();
+
+  const div = document.createElement("div");
+  div.className = "thinking";
+  div.id = "thinking-indicator";
+
+  const dot = document.createElement("span");
+  dot.className = "thinking-dot";
+
+  const text = document.createElement("span");
+  text.className = "thinking-text";
+  text.textContent = "thinking";
+
+  const timer = document.createElement("span");
+  timer.className = "thinking-timer";
+  timer.id = "thinking-timer";
+  timer.textContent = "0s";
+
+  div.appendChild(dot);
+  div.appendChild(text);
+  div.appendChild(timer);
+
+  cueDisplayEl.innerHTML = "";
+  cueDisplayEl.appendChild(div);
+
+  // Update timer every second
+  thinkingInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - thinkingStartTime) / 1000);
+    const timerEl = document.getElementById("thinking-timer");
+    if (timerEl) {
+      timerEl.textContent = `${elapsed}s`;
+    }
+  }, 1000);
+}
+
+// Hide thinking indicator
+function hideThinking() {
+  if (thinkingInterval) {
+    clearInterval(thinkingInterval);
+    thinkingInterval = null;
+  }
+  thinkingStartTime = null;
+  const indicator = document.getElementById("thinking-indicator");
+  if (indicator) {
+    indicator.remove();
+  }
+}
+
+// Display error in collapsible details
+function showError(message) {
+  const details = document.createElement("details");
+  details.className = "error-details";
+  const summary = document.createElement("summary");
+  summary.textContent = "Something went wrong";
+  const content = document.createElement("p");
+  content.textContent = message;
+  details.appendChild(summary);
+  details.appendChild(content);
+  cueDisplayEl.innerHTML = "";
+  cueDisplayEl.appendChild(details);
 }
 
 // Send message
@@ -151,7 +228,7 @@ async function sendMessage(message) {
       throw new Error(error.error || "Failed to send message");
     }
   } catch (error) {
-    showCue(`Failed to send: ${error.message}`);
+    showError(`Failed to send: ${error.message}`);
     isProcessing = false;
     sendBtn.disabled = false;
   }

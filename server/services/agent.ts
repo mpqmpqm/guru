@@ -44,7 +44,7 @@ You are not filling time.
 You are teaching, now, in real time. Each cue is an act of attention.`;
 
 interface ChatEvent {
-  type: "text" | "cue" | "done" | "error";
+  type: "text" | "cue" | "done" | "error" | "thinking";
   content?: string;
   sessionId?: string;
   text?: string;
@@ -73,6 +73,9 @@ export async function* streamChat(
   });
 
   try {
+    // Emit thinking event to indicate agent is processing
+    yield { type: "thinking" };
+
     // Query Claude with streaming
     for await (const message of query({
       prompt: userMessage,

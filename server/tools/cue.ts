@@ -30,12 +30,6 @@ export function createCueTool(sessionId: string) {
 
       const pause = args.pause ?? 0;
 
-      // Notify the client via SSE immediately
-      sessionManager.sendSSE(sessionId, "cue", {
-        text: args.text,
-        pause,
-      });
-
       // Generate audio from OpenAI and stream directly to client
       console.log(`[cue] requesting OpenAI TTS audio...`);
       const response = await openai.audio.speech.create({
@@ -44,6 +38,12 @@ export function createCueTool(sessionId: string) {
         input: args.text,
         instructions: VOICE_INSTRUCTIONS,
         response_format: "mp3",
+      });
+
+      // Notify the client via SSE immediately
+      sessionManager.sendSSE(sessionId, "cue", {
+        text: args.text,
+        pause,
       });
 
       // Convert web ReadableStream to AsyncIterable<Uint8Array>
