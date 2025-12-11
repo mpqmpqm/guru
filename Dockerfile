@@ -14,21 +14,15 @@ FROM node:24-slim
 
 WORKDIR /app
 
-# Sandbox deps required by Claude Code CLI on Linux
+# Tools used by Claude Code CLI
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-    bubblewrap \
-    socat \
     git \
     ripgrep \
   && rm -rf /var/lib/apt/lists/*
 
-# Enable SDK debug logs (written to ~/.claude/debug)
-ENV DEBUG_CLAUDE_AGENT_SDK=1
-
 # Install Claude Code CLI (required by claude-agent-sdk)
 RUN npm install -g @anthropic-ai/claude-code
-RUN npm install -g @anthropic-ai/sdk
 
 # Install production dependencies only
 COPY package*.json ./

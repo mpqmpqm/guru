@@ -121,11 +121,6 @@ export async function* streamChat(
             content: `Agent error: ${message.subtype}`,
           };
         }
-      } else if (message.type === "system") {
-        yield {
-          type: "error",
-          content: `System message: ${JSON.stringify(message)}`,
-        };
       }
     }
   } catch (error) {
