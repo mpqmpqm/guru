@@ -6,8 +6,8 @@ import { sessionManager } from "../services/session-manager.js";
 const openai = new OpenAI();
 
 const VOICE = "alloy";
-const VOICE_INSTRUCTIONS =
-  "Warm, grounded guide. Measured pace with natural pauses. Clear articulation, especially Sanskrit. Calm and present—not breathy, not performative. No filler praise. Quiet confidence, unhurried but awake.";
+// const VOICE_INSTRUCTIONS =
+// "Warm, grounded guide. Measured pace with natural pauses. Clear articulation, especially Sanskrit. Calm and present—not breathy, not performative. No filler praise. Quiet confidence, unhurried but awake.";
 const MS_PER_COUNT = 1000;
 
 export function createCueTool(sessionId: string) {
