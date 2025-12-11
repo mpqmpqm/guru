@@ -38,6 +38,11 @@ RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
 COPY public ./public
 
+# Create non-root user (Claude Code blocks bypassPermissions when running as root)
+RUN useradd -m -s /bin/bash appuser \
+  && chown -R appuser:appuser /app
+USER appuser
+
 # Expose port
 EXPOSE 3000
 
