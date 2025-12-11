@@ -25,7 +25,9 @@ let pcmBuffer = new Uint8Array(0); // Buffer for incomplete samples
 // Initialize AudioContext (but don't unlock yet - needs user gesture)
 function initAudioContext() {
   if (!audioContext) {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)({
+    audioContext = new (
+      window.AudioContext || window.webkitAudioContext
+    )({
       sampleRate: SAMPLE_RATE,
     });
   }
@@ -42,7 +44,11 @@ async function unlockAudioContext() {
   }
 
   // Play a tiny silent buffer to fully unlock on iOS
-  const silentBuffer = audioContext.createBuffer(1, 1, SAMPLE_RATE);
+  const silentBuffer = audioContext.createBuffer(
+    1,
+    1,
+    SAMPLE_RATE
+  );
   const source = audioContext.createBufferSource();
   source.buffer = silentBuffer;
   source.connect(audioContext.destination);
@@ -94,7 +100,9 @@ function scheduleAudioBuffer(pcmData, flush = false) {
   if (!audioContext || !isAudioUnlocked) return;
 
   // Append new data to buffer
-  const newBuffer = new Uint8Array(pcmBuffer.length + pcmData.length);
+  const newBuffer = new Uint8Array(
+    pcmBuffer.length + pcmData.length
+  );
   newBuffer.set(pcmBuffer);
   newBuffer.set(pcmData, pcmBuffer.length);
 
@@ -124,7 +132,11 @@ function scheduleAudioBuffer(pcmData, flush = false) {
   const float32Data = int16ToFloat32(int16Data);
 
   // Create audio buffer
-  const audioBuffer = audioContext.createBuffer(1, float32Data.length, SAMPLE_RATE);
+  const audioBuffer = audioContext.createBuffer(
+    1,
+    float32Data.length,
+    SAMPLE_RATE
+  );
   audioBuffer.getChannelData(0).set(float32Data);
 
   // Schedule playback
@@ -133,7 +145,10 @@ function scheduleAudioBuffer(pcmData, flush = false) {
   source.connect(audioContext.destination);
 
   // Ensure we don't schedule in the past
-  const startTime = Math.max(nextStartTime, audioContext.currentTime);
+  const startTime = Math.max(
+    nextStartTime,
+    audioContext.currentTime
+  );
   source.start(startTime);
 
   // Update next start time for seamless playback
@@ -185,7 +200,6 @@ async function startAudioStream() {
         startAudioStream();
       }
     }, 100);
-
   } catch (error) {
     if (error.name === "AbortError") return;
 
@@ -205,15 +219,17 @@ async function init() {
     statusEl.className = "status disconnected";
 
     // Create new session
-    const response = await fetch("/api/session", { method: "POST" });
-    if (!response.ok) throw new Error("Failed to create session");
+    const response = await fetch("/api/session", {
+      method: "POST",
+    });
+    if (!response.ok)
+      throw new Error("Failed to create session");
 
     const data = await response.json();
     sessionId = data.sessionId;
 
     // Connect SSE for chat events
     connectSSE();
-
   } catch (error) {
     console.error("Init error:", error);
     statusEl.textContent = "Error";
@@ -263,6 +279,7 @@ function connectSSE() {
     isProcessing = false;
     sendBtn.textContent = "Begin";
     sendBtn.disabled = false;
+    messageInput.value = "";
   });
 
   eventSource.addEventListener("error", (event) => {
@@ -333,7 +350,9 @@ function showThinking() {
 
   // Update timer every second
   thinkingInterval = setInterval(() => {
-    const elapsed = Math.floor((Date.now() - thinkingStartTime) / 1000);
+    const elapsed = Math.floor(
+      (Date.now() - thinkingStartTime) / 1000
+    );
     const timerEl = document.getElementById("thinking-timer");
     if (timerEl) {
       timerEl.textContent = `${elapsed}s`;
@@ -348,7 +367,9 @@ function hideThinking() {
     thinkingInterval = null;
   }
   thinkingStartTime = null;
-  const indicator = document.getElementById("thinking-indicator");
+  const indicator = document.getElementById(
+    "thinking-indicator"
+  );
   if (indicator) {
     indicator.remove();
   }
@@ -372,7 +393,6 @@ function showError(message) {
 async function sendMessage(message) {
   if (!message.trim() || !sessionId || isProcessing) return;
 
-  messageInput.value = "";
   cueDisplayEl.innerHTML = "";
 
   try {
@@ -435,7 +455,11 @@ chatForm.addEventListener("submit", async (e) => {
 
 // Resume AudioContext and wake lock when page becomes visible (e.g., phone unlocked)
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && audioContext && isAudioUnlocked) {
+  if (
+    document.visibilityState === "visible" &&
+    audioContext &&
+    isAudioUnlocked
+  ) {
     if (audioContext.state === "suspended") {
       audioContext.resume();
     }
