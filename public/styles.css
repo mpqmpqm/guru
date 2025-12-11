@@ -92,6 +92,52 @@ body::after {
   z-index: 2;
 }
 
+/* Status bar - fixed top right with timer and connection indicator */
+.status-bar {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  z-index: 10;
+}
+
+.connection-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transition: all 0.5s ease;
+  flex-shrink: 0;
+}
+
+.connection-indicator.connected {
+  background: var(--accent-success);
+  box-shadow: 0 0 12px var(--accent-success);
+}
+
+.connection-indicator.disconnected {
+  background: var(--text-muted);
+  animation: indicatorPulse 2.5s ease-in-out infinite;
+}
+
+.connection-indicator.error {
+  background: var(--accent-error);
+  box-shadow: 0 0 12px var(--accent-error);
+}
+
+@keyframes indicatorPulse {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+}
+
 header {
   flex-shrink: 0;
   text-align: center;
@@ -103,8 +149,9 @@ h1 {
   font-weight: 500;
   letter-spacing: 0.08em;
   color: var(--text-primary);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   text-transform: lowercase;
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 h1::after {
@@ -118,110 +165,46 @@ h1::after {
     var(--accent-amber),
     transparent
   );
-  margin: 1rem auto 0;
+  margin: 0.75rem auto 0;
   opacity: 0.6;
 }
 
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.65rem;
-  padding: 0.4rem 0.9rem;
-  border-radius: 100px;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-weight: 500;
-  transition: all 0.4s ease;
-}
-
-.status::before {
-  content: "";
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  transition: all 0.4s ease;
-}
-
-.status.connected {
-  background: rgba(107, 143, 113, 0.12);
-  color: var(--accent-success);
-  border: 1px solid rgba(107, 143, 113, 0.2);
-}
-
-.status.connected::before {
-  background: var(--accent-success);
-  box-shadow: 0 0 8px var(--accent-success);
-}
-
-.status.disconnected {
-  background: var(--bg-elevated);
+.persona-description {
+  font-size: 0.8rem;
+  font-weight: 300;
   color: var(--text-muted);
-  border: 1px solid var(--border-subtle);
-  animation: subtlePulse 3s ease-in-out infinite;
+  line-height: 1.6;
+  max-width: 380px;
+  margin: 0.75rem auto 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  font-style: italic;
 }
 
-.status.disconnected::before {
-  background: var(--text-muted);
-  animation: dotPulse 3s ease-in-out infinite;
-}
-
-.status.error {
-  background: rgba(199, 95, 95, 0.12);
-  color: var(--accent-error);
-  border: 1px solid rgba(199, 95, 95, 0.2);
-}
-
-.status.error::before {
-  background: var(--accent-error);
-}
-
-@keyframes subtlePulse {
-  0%,
-  100% {
-    opacity: 0.6;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-@keyframes dotPulse {
-  0%,
-  100% {
-    opacity: 0.4;
-    transform: scale(0.9);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.1);
-  }
+.persona-description.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .stream-timer {
-  font-size: 0.6rem;
+  font-size: 0.65rem;
   color: var(--text-muted);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   font-variant-numeric: tabular-nums;
-  margin-top: 0.5rem;
   opacity: 0;
-  height: 0;
-  overflow: hidden;
-  transition:
-    opacity 0.3s ease,
-    height 0.3s ease;
+  transition: opacity 0.3s ease;
+  min-height: 1em;
 }
 
 .stream-timer.active {
-  opacity: 0.5;
-  height: 1em;
+  opacity: 0.6;
 }
 
 main {
   flex: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
   min-height: 0;
   position: relative;
 }
@@ -252,11 +235,10 @@ main:has(.cue)::before {
   padding: 2.5rem;
   width: 100%;
   display: flex;
-  justify-content: center;
 }
 
 .cue-display .cue {
-  font-size: 1.85rem;
+  font-size: 1.5rem;
   font-weight: 400;
   color: var(--text-primary);
   line-height: 1.5;

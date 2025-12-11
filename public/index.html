@@ -11,12 +11,13 @@
   </head>
   <body>
     <div class="container">
-      <header>
-        <h1>guru</h1>
-        <div id="status" class="status disconnected">
-          Connecting
-        </div>
+      <div class="status-bar">
         <div id="stream-timer" class="stream-timer"></div>
+        <div id="connection-indicator" class="connection-indicator disconnected"></div>
+      </div>
+      <header>
+        <h1 id="persona-name">guru</h1>
+        <p id="persona-description" class="persona-description"></p>
       </header>
 
       <main>

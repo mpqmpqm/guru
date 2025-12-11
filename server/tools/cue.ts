@@ -6,8 +6,6 @@ import { sessionManager } from "../services/session-manager.js";
 const openai = new OpenAI();
 
 const VOICE = "alloy";
-const DEFAULT_VOICE_INSTRUCTIONS =
-  "Warm, grounded guide. Measured pace with natural pauses. No performing: the inner light simply shines through.";
 const MS_PER_COUNT = 1000;
 
 // Track latencies separately for running averages (in seconds)
@@ -51,6 +49,19 @@ export function createCueTool(sessionId: string) {
         ),
     },
     async (args) => {
+      // Require persona to be set before any cues
+      const persona = sessionManager.getPersona(sessionId);
+      if (!persona) {
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: "You must call the persona tool first to establish your voice for this session.",
+            },
+          ],
+        };
+      }
+
       const pause = args.pause ?? 0;
       const queryStartTime =
         sessionManager.getQueryStartTime(sessionId);
@@ -65,8 +76,7 @@ export function createCueTool(sessionId: string) {
 
       // Generate audio from OpenAI and stream directly to client
       const openaiStart = Date.now();
-      const voiceInstructions =
-        sessionManager.getPersona(sessionId) ?? DEFAULT_VOICE_INSTRUCTIONS;
+      const voiceInstructions = persona.description;
       const response = await openai.audio.speech.create({
         model: "gpt-4o-mini-tts",
         voice: VOICE,

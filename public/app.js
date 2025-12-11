@@ -1,6 +1,8 @@
 // DOM elements
 const cueDisplayEl = document.getElementById("cue-display");
-const statusEl = document.getElementById("status");
+const connectionIndicator = document.getElementById("connection-indicator");
+const personaNameEl = document.getElementById("persona-name");
+const personaDescriptionEl = document.getElementById("persona-description");
 const streamTimerEl = document.getElementById("stream-timer");
 const chatForm = document.getElementById("chat-form");
 const messageInput = document.getElementById("message-input");
@@ -250,8 +252,7 @@ async function startAudioStream() {
 // Initialize session
 async function init() {
   try {
-    statusEl.textContent = "Connecting...";
-    statusEl.className = "status disconnected";
+    connectionIndicator.className = "connection-indicator disconnected";
 
     // Create new session
     const response = await fetch("/api/session", {
@@ -267,8 +268,7 @@ async function init() {
     connectSSE();
   } catch (error) {
     console.error("Init error:", error);
-    statusEl.textContent = "Error";
-    statusEl.className = "status error";
+    connectionIndicator.className = "connection-indicator error";
     showError("Failed to connect. Please refresh the page.");
   }
 }
@@ -282,8 +282,14 @@ function connectSSE() {
   eventSource = new EventSource(`/api/chat/events/${sessionId}`);
 
   eventSource.addEventListener("connected", () => {
-    statusEl.textContent = "Connected";
-    statusEl.className = "status connected";
+    connectionIndicator.className = "connection-indicator connected";
+  });
+
+  eventSource.addEventListener("persona", (event) => {
+    const data = JSON.parse(event.data);
+    personaNameEl.textContent = data.name;
+    personaDescriptionEl.textContent = data.description;
+    personaDescriptionEl.classList.add("visible");
   });
 
   eventSource.addEventListener("processing", (event) => {
@@ -348,8 +354,7 @@ function connectSSE() {
   });
 
   eventSource.onerror = () => {
-    statusEl.textContent = "Disconnected";
-    statusEl.className = "status disconnected";
+    connectionIndicator.className = "connection-indicator disconnected";
 
     // Attempt reconnection after a delay
     setTimeout(() => {
