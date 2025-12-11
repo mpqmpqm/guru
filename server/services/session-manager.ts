@@ -26,7 +26,6 @@ interface Session {
   // Timestamp when query() started (for latency tracking)
   queryStartTime?: number;
   // Persona for TTS voice instructions
-  personaName?: string;
   personaDescription?: string;
 }
 
@@ -82,18 +81,17 @@ class SessionManager {
     return this.sessions.get(sessionId)?.queryStartTime;
   }
 
-  setPersona(sessionId: string, name: string, description: string): void {
+  setPersona(sessionId: string, description: string): void {
     const session = this.sessions.get(sessionId);
     if (session) {
-      session.personaName = name;
       session.personaDescription = description;
     }
   }
 
-  getPersona(sessionId: string): { name: string; description: string } | undefined {
+  getPersona(sessionId: string): { description: string } | undefined {
     const session = this.sessions.get(sessionId);
-    if (session?.personaName && session?.personaDescription) {
-      return { name: session.personaName, description: session.personaDescription };
+    if (session?.personaDescription) {
+      return { description: session.personaDescription };
     }
     return undefined;
   }
