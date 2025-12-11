@@ -282,6 +282,9 @@ main:has(.cue)::before {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 0.75rem;
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
@@ -291,6 +294,15 @@ main:has(.cue)::before {
 
 .pause-status.active {
   opacity: 1;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent-amber);
+  border-radius: 50%;
+  animation: thinkingPulse 2s ease-in-out infinite;
+  box-shadow: 0 0 20px var(--accent-amber-dim);
 }
 
 footer {
@@ -516,35 +528,7 @@ audio {
   word-break: break-word;
 }
 
-/* Thinking indicator */
-.thinking {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  letter-spacing: 0.1em;
-  text-transform: lowercase;
-}
-
-.thinking-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--accent-amber);
-  border-radius: 50%;
-  animation: thinkingPulse 2s ease-in-out infinite;
-  box-shadow: 0 0 20px var(--accent-amber-dim);
-}
-
-.thinking-text {
-  opacity: 0.6;
-}
-
-.thinking-timer {
-  opacity: 0.4;
-  font-variant-numeric: tabular-nums;
-}
-
+/* Pulsing animation for status dot */
 @keyframes thinkingPulse {
   0%,
   100% {

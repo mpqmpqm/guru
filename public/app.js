@@ -293,27 +293,35 @@ function connectSSE() {
     startStreamTimer();
   });
 
-  eventSource.addEventListener("thinking", () => {
-    showThinking();
+  eventSource.addEventListener("thinking_start", () => {
+    startStatus("Thinking");
+  });
+
+  eventSource.addEventListener("thinking_end", () => {
+    stopStatus();
   });
 
   eventSource.addEventListener("text", (event) => {
     const data = JSON.parse(event.data);
     if (data.content) {
-      hideThinking();
+      stopStatus();
       showCue(data.content);
     }
   });
 
   eventSource.addEventListener("cue", (event) => {
     const data = JSON.parse(event.data);
-    hideThinking();
+    stopStatus();
     showCue(data.text);
   });
 
-  eventSource.addEventListener("pause", (event) => {
+  eventSource.addEventListener("pause_start", (event) => {
     const data = JSON.parse(event.data);
-    updatePauseStatus(data.remaining);
+    startCountdown("Pause", data.duration);
+  });
+
+  eventSource.addEventListener("pause_end", () => {
+    stopStatus();
   });
 
   eventSource.addEventListener("done", () => {
@@ -361,73 +369,57 @@ function showCue(content) {
   cueDisplayEl.appendChild(div);
 }
 
-// Update pause status display
-function updatePauseStatus(remaining) {
-  const pauseStatusEl = document.getElementById("pause-status");
-  if (remaining > 0) {
-    pauseStatusEl.textContent = `Pause: ${remaining}s`;
-    pauseStatusEl.classList.add("active");
-  } else {
-    pauseStatusEl.textContent = "";
-    pauseStatusEl.classList.remove("active");
-  }
-}
+// Unified status display for thinking/pause
+const pauseStatusEl = document.getElementById("pause-status");
+let statusStartTime = null;
+let statusInterval = null;
+let statusDuration = null; // For countdown mode
 
-// Show thinking indicator
-let thinkingStartTime = null;
-let thinkingInterval = null;
-
-function showThinking() {
-  thinkingStartTime = Date.now();
-
-  const div = document.createElement("div");
-  div.className = "thinking";
-  div.id = "thinking-indicator";
-
-  const dot = document.createElement("span");
-  dot.className = "thinking-dot";
-
-  const text = document.createElement("span");
-  text.className = "thinking-text";
-  text.textContent = "thinking";
-
-  const timer = document.createElement("span");
-  timer.className = "thinking-timer";
-  timer.id = "thinking-timer";
-  timer.textContent = "0s";
-
-  div.appendChild(dot);
-  div.appendChild(text);
-  div.appendChild(timer);
-
-  cueDisplayEl.innerHTML = "";
-  cueDisplayEl.appendChild(div);
-
-  // Update timer every second
-  thinkingInterval = setInterval(() => {
-    const elapsed = Math.floor(
-      (Date.now() - thinkingStartTime) / 1000
-    );
-    const timerEl = document.getElementById("thinking-timer");
-    if (timerEl) {
-      timerEl.textContent = `${elapsed}s`;
-    }
-  }, 1000);
-}
-
-// Hide thinking indicator
-function hideThinking() {
-  if (thinkingInterval) {
-    clearInterval(thinkingInterval);
-    thinkingInterval = null;
-  }
-  thinkingStartTime = null;
-  const indicator = document.getElementById(
-    "thinking-indicator"
+// Start elapsed timer (counts up from 0)
+function startStatus(label) {
+  stopStatus();
+  statusStartTime = Date.now();
+  statusDuration = null;
+  updateStatusDisplay(label);
+  statusInterval = setInterval(
+    () => updateStatusDisplay(label),
+    1000
   );
-  if (indicator) {
-    indicator.remove();
+  pauseStatusEl.classList.add("active");
+}
+
+// Start countdown timer (counts down from duration)
+function startCountdown(label, duration) {
+  stopStatus();
+  statusStartTime = Date.now();
+  statusDuration = duration;
+  updateStatusDisplay(label);
+  statusInterval = setInterval(
+    () => updateStatusDisplay(label),
+    1000
+  );
+  pauseStatusEl.classList.add("active");
+}
+
+function stopStatus() {
+  if (statusInterval) {
+    clearInterval(statusInterval);
+    statusInterval = null;
   }
+  statusStartTime = null;
+  statusDuration = null;
+  pauseStatusEl.innerHTML = "";
+  pauseStatusEl.classList.remove("active");
+}
+
+function updateStatusDisplay(label) {
+  const elapsed = Math.floor(
+    (Date.now() - statusStartTime) / 1000
+  );
+  const display = statusDuration
+    ? Math.max(0, statusDuration - elapsed)
+    : elapsed;
+  pauseStatusEl.innerHTML = `<span class="status-dot"></span>${label} ${display}s`;
 }
 
 // Display error in collapsible details
@@ -483,7 +475,7 @@ function stopSession() {
   sendBtn.textContent = "Begin";
   sendBtn.disabled = false;
   cueDisplayEl.innerHTML = "";
-  updatePauseStatus(0);
+  stopStatus();
   connectSSE();
 }
 

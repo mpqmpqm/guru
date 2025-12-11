@@ -62,13 +62,13 @@ export function createCueTool(sessionId: string) {
       // Pass stream directly - chunks flow to client as they arrive
       await sessionManager.queueAudio(sessionId, audioStream);
 
-      // Send countdown events during pause
+      // Send pause start/end events - client counts down from duration
       if (pause > 0) {
-        for (let i = pause; i > 0; i--) {
-          sessionManager.sendSSE(sessionId, "pause", { remaining: i });
-          await new Promise((resolve) => setTimeout(resolve, MS_PER_COUNT));
-        }
-        sessionManager.sendSSE(sessionId, "pause", { remaining: 0 });
+        sessionManager.sendSSE(sessionId, "pause_start", { duration: pause });
+        await new Promise((resolve) =>
+          setTimeout(resolve, pause * MS_PER_COUNT)
+        );
+        sessionManager.sendSSE(sessionId, "pause_end", {});
       }
 
       return {

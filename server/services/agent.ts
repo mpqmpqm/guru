@@ -47,7 +47,7 @@ You are not filling time.
 You are teaching, now, in real time. Each cue is an act of attention.`;
 
 interface ChatEvent {
-  type: "text" | "cue" | "done" | "error" | "thinking";
+  type: "text" | "cue" | "done" | "error" | "thinking_start" | "thinking_end";
   content?: string;
   sessionId?: string;
   text?: string;
@@ -76,8 +76,8 @@ export async function* streamChat(
   });
 
   try {
-    // Emit thinking event to indicate agent is processing
-    yield { type: "thinking" };
+    // Track thinking block to emit start/end events
+    let thinkingBlockIndex: number | null = null;
 
     // Query Claude with streaming
     for await (const message of query({
@@ -94,6 +94,7 @@ export async function* streamChat(
         allowDangerouslySkipPermissions: true,
         model: "claude-opus-4-5",
         maxThinkingTokens: 8192,
+        includePartialMessages: true,
       },
     })) {
       if (message.type === "assistant") {
@@ -107,6 +108,22 @@ export async function* streamChat(
               yield { type: "text", content: block.text };
             }
           }
+        }
+      } else if (message.type === "stream_event") {
+        // Detect thinking start/end from partial message events
+        const event = message.event;
+        if (
+          event.type === "content_block_start" &&
+          event.content_block.type === "thinking"
+        ) {
+          thinkingBlockIndex = event.index;
+          yield { type: "thinking_start" };
+        } else if (
+          event.type === "content_block_stop" &&
+          event.index === thinkingBlockIndex
+        ) {
+          thinkingBlockIndex = null;
+          yield { type: "thinking_end" };
         }
       } else if (message.type === "result") {
         if (message.subtype === "success") {
