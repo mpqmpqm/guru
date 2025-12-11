@@ -419,7 +419,8 @@ function updateStatusDisplay(label) {
   const display = statusDuration
     ? Math.max(0, statusDuration - elapsed)
     : elapsed;
-  pauseStatusEl.innerHTML = `<span class="status-dot"></span>${label} ${display}s`;
+  // pauseStatusEl.innerHTML = `<span class="status-dot"></span>${label} ${display}s`;
+  pauseStatusEl.innerHTML = `<span class="status-dot"></span>${label}`;
 }
 
 // Display error in collapsible details
