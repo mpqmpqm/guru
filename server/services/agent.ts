@@ -121,6 +121,11 @@ export async function* streamChat(
             content: `Agent error: ${message.subtype}`,
           };
         }
+      } else if (message.type === "system") {
+        yield {
+          type: "error",
+          content: `System message: ${JSON.stringify(message)}`,
+        };
       }
     }
   } catch (error) {
@@ -129,7 +134,10 @@ export async function* streamChat(
       console.log(`Agent aborted for session ${sessionId}`);
       return;
     }
-    console.error("Agent error:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+    console.error(
+      "Agent error:",
+      JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
+    );
     yield {
       type: "error",
       content: `Error: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
