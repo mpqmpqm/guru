@@ -23,6 +23,7 @@
 html,
 body {
   height: 100%;
+  background: var(--bg-deep);
 }
 
 body {
@@ -38,7 +39,6 @@ body {
     "Open Sans",
     "Helvetica Neue",
     sans-serif;
-  background: var(--bg-deep);
   color: var(--text-primary);
   position: relative;
   overflow: hidden;
