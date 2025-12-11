@@ -93,6 +93,7 @@ export async function* streamChat(
         maxTurns: 50,
         permissionMode: "bypassPermissions",
         allowDangerouslySkipPermissions: true,
+        model: "claude-opus-4-5",
       },
     })) {
       if (message.type === "assistant") {
