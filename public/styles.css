@@ -277,6 +277,22 @@ main:has(.cue)::before {
   }
 }
 
+.pause-status {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.pause-status.active {
+  opacity: 1;
+}
+
 footer {
   flex-shrink: 0;
   padding-top: 1rem;

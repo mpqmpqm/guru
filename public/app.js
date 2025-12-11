@@ -311,6 +311,11 @@ function connectSSE() {
     showCue(data.text);
   });
 
+  eventSource.addEventListener("pause", (event) => {
+    const data = JSON.parse(event.data);
+    updatePauseStatus(data.remaining);
+  });
+
   eventSource.addEventListener("done", () => {
     isProcessing = false;
     sendBtn.textContent = "Begin";
@@ -354,6 +359,18 @@ function showCue(content) {
   div.textContent = content;
   cueDisplayEl.innerHTML = "";
   cueDisplayEl.appendChild(div);
+}
+
+// Update pause status display
+function updatePauseStatus(remaining) {
+  const pauseStatusEl = document.getElementById("pause-status");
+  if (remaining > 0) {
+    pauseStatusEl.textContent = `Pause: ${remaining}s`;
+    pauseStatusEl.classList.add("active");
+  } else {
+    pauseStatusEl.textContent = "";
+    pauseStatusEl.classList.remove("active");
+  }
 }
 
 // Show thinking indicator
@@ -466,6 +483,7 @@ function stopSession() {
   sendBtn.textContent = "Begin";
   sendBtn.disabled = false;
   cueDisplayEl.innerHTML = "";
+  updatePauseStatus(0);
   connectSSE();
 }
 
