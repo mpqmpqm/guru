@@ -26,6 +26,12 @@ let sessionId = null;
 let eventSource = null;
 let isProcessing = false;
 let wakeLock = null;
+let personaPristine = true;
+
+// Track user interaction with persona details
+personaDescriptionEl.addEventListener("toggle", () => {
+  personaPristine = false;
+});
 
 // Stream timer state
 let streamStartTime = null;
@@ -383,7 +389,9 @@ function showCue(content) {
   div.textContent = content;
   cueDisplayEl.innerHTML = "";
   cueDisplayEl.appendChild(div);
-  personaDescriptionEl.removeAttribute("open");
+  if (personaPristine) {
+    personaDescriptionEl.removeAttribute("open");
+  }
 }
 
 // Unified status display for thinking/pause
@@ -494,6 +502,10 @@ function stopSession() {
   sendBtn.disabled = false;
   cueDisplayEl.innerHTML = "";
   stopStatus();
+  personaDescriptionTextEl.textContent = "";
+  personaDescriptionEl.classList.remove("visible");
+  personaDescriptionEl.setAttribute("open", "");
+  personaPristine = true;
   connectSSE();
 }
 
@@ -517,7 +529,7 @@ chatForm.addEventListener("submit", async (e) => {
     }
 
     sendMessage(messageInput.value);
-    startStatus("Thinking");
+    startStatus("Choosing a persona");
   }
 });
 
