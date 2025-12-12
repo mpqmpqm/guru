@@ -555,6 +555,7 @@ async function renderExampleChiclets() {
         messageInput.value = example.content;
         autoResizeTextarea();
         messageInput.focus();
+        messageInput.setSelectionRange(0, 0);
       });
       exampleChicletsEl.appendChild(chiclet);
     });
