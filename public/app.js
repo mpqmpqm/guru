@@ -3,7 +3,9 @@ const cueDisplayEl = document.getElementById("cue-display");
 const connectionIndicator = document.getElementById(
   "connection-indicator"
 );
-const personaDescriptionEl = document.getElementById("persona-description");
+const personaDescriptionEl = document.getElementById(
+  "persona-description"
+);
 const personaDescriptionTextEl = document.getElementById(
   "persona-description-text"
 );
@@ -514,6 +516,7 @@ chatForm.addEventListener("submit", async (e) => {
     }
 
     sendMessage(messageInput.value);
+    startStatus("Thinking");
   }
 });
 
