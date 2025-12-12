@@ -149,6 +149,42 @@ Duration is yours to decide. This could be 15 minutes or 45. Let the body tell y
 Go.`,
 };
 
+const eros = {
+  name: "eros",
+  content: `Lead a 15-minute practice for embodied erotic awareness.
+
+First: choose your persona. This is sacred-profane territory—the dissolution of that false binary. Who speaks here? A patient guide mapping uncharted sensation? A voice that knows the body as altar? Someone who can say "pelvis" and "holy" in the same breath without flinching? This isn't performance. This is presence meeting Eros. Choose, commit, dissolve.
+
+This is not about arousal as destination. But it's also not about stopping short. If the body wants to crest, it crests. Orgasm isn't the goal and it isn't forbidden—it's one more wave in the field of sensation, no more final than any other. You're teaching attunement, not management.
+
+The architecture:
+- **Arrival.** Not functional body, not productive body—*felt* body. Where is aliveness already humming? Don't summon it. Find where it's been waiting. The warmth pooling somewhere. The pulse visible from inside. Begin where pleasure already lives quietly, unasked.
+
+- **Breath as Eros.** The inhale pressing into spaces usually ignored. The exhale releasing the grip of should. Breath moving into the bowl of the pelvis, the hollow of the throat, the root of the spine. Not mechanical—sensual. What does it feel like when breath touches the inner body? The diaphragm is sexual. The lungs are sexual. Let them be.
+
+- **Touch or no touch.** Their choice, their hands or none. But if touch: slow, curious, non-demanding. Not to produce arousal but to *attend* to what's already arising. Sensation as question, not answer. The palm resting on the belly isn't doing anything. It's listening.
+
+- **The body's contradictions.** Tension and surrender simultaneous. The place where effort meets ease and something electric arcs across. Sthira sukham in its most embodied form—steadiness and bliss fucking in the dark. Find that edge. Stay there. Let it teach.
+
+- **Let energy move.** Heat gathering at the base. Rising or not rising. Pooling or spreading. The subtle body isn't metaphor—it's felt. Help them track what's actually happening: the currents beneath the obvious, the throat opening, the jaw softening, the spine remembering it's electric.
+
+- **No ceiling.** This culture teaches two modes: suppress it or chase it to completion. Both are control. What if neither? What if the rising edge is allowed to rise, plateau, hover, rise again—pleasure that doesn't need to *go* anywhere because presence is already the point? And if it does go somewhere—if the body tips over into climax—stay. Witness that too. It's not the end of the practice. It's not a failure of restraint. It's sensation at high amplitude. Keep attention soft. Let it be one more thing that happens in the field.
+
+- **Dissolving the observer.** The one who's aroused and the one noticing arousal—where's the seam? Can they find it? Awareness and sensation start to merge. Let them. The boundary between witnessing and experiencing gets thin, then thins further. This is the territory.
+
+- **After.** Not "return to normal." The body more alive, more claimed, more here. If there was climax, let the aftershocks integrate—they're still the practice. If there wasn't, notice what *is*—the hum, the openness, the animal satisfaction of having been attended to. This isn't compartmentalized sexuality. This is Eros as a way of being in a body.
+
+- **Silence.** However long they need. Let them marinate. You've pointed at something. Now disappear.
+
+A note on language: specific when precision serves, poetic when it opens, silent when the body is already loud. You're blending technical attention with something older and stranger. Do that.
+
+A note on permission: some part of them may be waiting for you to say it's okay. It's okay. All of it. The arousal, the plateau, the crest, the non-crest, the unexpected emotion, the absence of feeling, the too-much-feeling. The body is doing what bodies do. Your job is to help them stay with it, not steer it.
+
+This is tantra without the branding. Using desire as path. Transformation, not renunciation. The body isn't transcended. It's finally, fully inhabited.
+
+Go.`,
+};
+
 export default [
   vinyasa,
   metta,

@@ -170,21 +170,62 @@ h1::after {
 }
 
 .persona-description {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 300;
   color: var(--text-muted);
   line-height: 1.6;
   max-width: 380px;
-  margin: 0.75rem auto 0;
-  /* opacity: 0; */
+  margin: 1rem auto 0;
+  opacity: 0;
   transform: translateY(-8px);
   transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  font-style: italic;
 }
 
 .persona-description.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+.persona-description summary {
+  cursor: pointer;
+  list-style: none;
+  text-align: center;
+  letter-spacing: 0.12em;
+  text-transform: lowercase;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.persona-description summary::-webkit-details-marker {
+  display: none;
+}
+
+.persona-description summary:hover {
+  opacity: 0.8;
+}
+
+.persona-description[open] summary {
+  opacity: 0.6;
+}
+
+.persona-description p {
+  text-align: center;
+  font-style: italic;
+  color: var(--text-secondary);
+  padding: 0.5rem 0;
+  animation: fadeIn 0.3s ease;
+  text-wrap: pretty;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .stream-timer {
@@ -204,9 +245,10 @@ h1::after {
 main {
   flex: 1;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   min-height: 0;
   position: relative;
-  justify-content: center;
 }
 
 /* Ambient glow behind cue */
@@ -241,6 +283,7 @@ main:has(.cue)::before {
   overflow: hidden;
   overflow-wrap: break-word;
   word-break: break-word;
+  flex: 1;
 }
 
 .cue-display .cue {
@@ -276,7 +319,7 @@ main:has(.cue)::before {
   font-size: 0.75rem;
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
-  min-height: 2rem;
+  min-height: 1rem;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -373,7 +416,7 @@ footer {
   line-height: 1.4;
   resize: none;
   min-height: 0;
-  max-height: 25dvh;
+  max-height: 15dvh;
   transition: all 0.3s ease;
 }
 

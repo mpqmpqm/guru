@@ -3,8 +3,9 @@ const cueDisplayEl = document.getElementById("cue-display");
 const connectionIndicator = document.getElementById(
   "connection-indicator"
 );
-const personaDescriptionEl = document.getElementById(
-  "persona-description"
+const personaDescriptionEl = document.getElementById("persona-description");
+const personaDescriptionTextEl = document.getElementById(
+  "persona-description-text"
 );
 const streamTimerEl = document.getElementById("stream-timer");
 const chatForm = document.getElementById("chat-form");
@@ -295,7 +296,7 @@ function connectSSE() {
 
   eventSource.addEventListener("persona", (event) => {
     const data = JSON.parse(event.data);
-    personaDescriptionEl.textContent = data.description;
+    personaDescriptionTextEl.textContent = data.description;
     personaDescriptionEl.classList.add("visible");
   });
 
