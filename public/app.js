@@ -383,6 +383,7 @@ function showCue(content) {
   div.textContent = content;
   cueDisplayEl.innerHTML = "";
   cueDisplayEl.appendChild(div);
+  personaDescriptionEl.removeAttribute("open");
 }
 
 // Unified status display for thinking/pause
