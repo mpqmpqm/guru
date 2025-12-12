@@ -295,6 +295,56 @@ footer {
   padding-top: 1rem;
 }
 
+/* Example chiclets */
+.example-chiclets {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.25rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.example-chiclets::-webkit-scrollbar {
+  display: none;
+}
+
+.chiclet {
+  flex-shrink: 0;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.chiclet:hover {
+  background: var(--bg-elevated);
+  border-color: rgba(212, 168, 83, 0.25);
+  color: var(--text-primary);
+}
+
+.chiclet:active {
+  transform: scale(0.97);
+}
+
+.chiclet-clear {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.6rem;
+}
+
+.chiclet-clear:hover {
+  color: var(--accent-error);
+  border-color: rgba(199, 95, 95, 0.25);
+}
+
 .chat-form {
   display: flex;
   gap: 0.75rem;
@@ -318,7 +368,6 @@ footer {
   font-weight: 300;
   line-height: 1.4;
   resize: none;
-  overflow-y: hidden;
   min-height: 0;
   max-height: 25dvh;
   transition: all 0.3s ease;

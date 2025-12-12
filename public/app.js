@@ -1,11 +1,18 @@
 // DOM elements
 const cueDisplayEl = document.getElementById("cue-display");
-const connectionIndicator = document.getElementById("connection-indicator");
-const personaDescriptionEl = document.getElementById("persona-description");
+const connectionIndicator = document.getElementById(
+  "connection-indicator"
+);
+const personaDescriptionEl = document.getElementById(
+  "persona-description"
+);
 const streamTimerEl = document.getElementById("stream-timer");
 const chatForm = document.getElementById("chat-form");
 const messageInput = document.getElementById("message-input");
 const sendBtn = document.getElementById("send-btn");
+const exampleChicletsEl = document.getElementById(
+  "example-chiclets"
+);
 
 // Audio constants - OpenAI PCM is 24kHz, 16-bit signed, little-endian, mono
 const SAMPLE_RATE = 24000;
@@ -251,7 +258,8 @@ async function startAudioStream() {
 // Initialize session
 async function init() {
   try {
-    connectionIndicator.className = "connection-indicator disconnected";
+    connectionIndicator.className =
+      "connection-indicator disconnected";
 
     // Create new session
     const response = await fetch("/api/session", {
@@ -281,7 +289,8 @@ function connectSSE() {
   eventSource = new EventSource(`/api/chat/events/${sessionId}`);
 
   eventSource.addEventListener("connected", () => {
-    connectionIndicator.className = "connection-indicator connected";
+    connectionIndicator.className =
+      "connection-indicator connected";
   });
 
   eventSource.addEventListener("persona", (event) => {
@@ -352,7 +361,8 @@ function connectSSE() {
   });
 
   eventSource.onerror = () => {
-    connectionIndicator.className = "connection-indicator disconnected";
+    connectionIndicator.className =
+      "connection-indicator disconnected";
 
     // Attempt reconnection after a delay
     setTimeout(() => {
@@ -530,5 +540,41 @@ function autoResizeTextarea() {
 }
 messageInput.addEventListener("input", autoResizeTextarea);
 
+// Render example chiclets
+async function renderExampleChiclets() {
+  try {
+    const module = await import("./examples.js");
+    const examples = module.default;
+
+    examples.forEach((example) => {
+      const chiclet = document.createElement("button");
+      chiclet.type = "button";
+      chiclet.className = "chiclet";
+      chiclet.textContent = example.shortName;
+      chiclet.addEventListener("click", () => {
+        messageInput.value = example.content;
+        autoResizeTextarea();
+        messageInput.focus();
+      });
+      exampleChicletsEl.appendChild(chiclet);
+    });
+
+    // Add clear button
+    const clearBtn = document.createElement("button");
+    clearBtn.type = "button";
+    clearBtn.className = "chiclet chiclet-clear";
+    clearBtn.textContent = "✕";
+    clearBtn.addEventListener("click", () => {
+      messageInput.value = "";
+      autoResizeTextarea();
+      messageInput.focus();
+    });
+    exampleChicletsEl.appendChild(clearBtn);
+  } catch (error) {
+    console.error("Failed to load examples:", error);
+  }
+}
+
 // Initialize on load
+renderExampleChiclets();
 init();

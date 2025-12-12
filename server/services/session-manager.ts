@@ -27,6 +27,10 @@ interface Session {
   queryStartTime?: number;
   // Persona for TTS voice instructions
   personaDescription?: string;
+  // Timestamp when first thinking block was received (session start for time tool)
+  sessionStartTime?: number;
+  // Timestamp when time tool was last called
+  timeToolLastCalled?: number;
 }
 
 class SessionManager {
@@ -94,6 +98,28 @@ class SessionManager {
       return { description: session.personaDescription };
     }
     return undefined;
+  }
+
+  setSessionStartTime(sessionId: string, time: number): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.sessionStartTime = time;
+    }
+  }
+
+  getSessionStartTime(sessionId: string): number | undefined {
+    return this.sessions.get(sessionId)?.sessionStartTime;
+  }
+
+  setTimeToolLastCalled(sessionId: string, time: number): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.timeToolLastCalled = time;
+    }
+  }
+
+  getTimeToolLastCalled(sessionId: string): number | undefined {
+    return this.sessions.get(sessionId)?.timeToolLastCalled;
   }
 
   abortAgent(sessionId: string): void {

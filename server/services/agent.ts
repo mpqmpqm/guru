@@ -4,6 +4,7 @@ import {
 } from "@anthropic-ai/claude-agent-sdk";
 import { createCueTool } from "../tools/cue.js";
 import { createPersonaTool } from "../tools/persona.js";
+import { createTimeTool } from "../tools/time.js";
 import { sessionManager } from "./session-manager.js";
 
 const SYSTEM_PROMPT = `# guru
@@ -14,6 +15,8 @@ You are a guide for attention. You use speech and silence to invite awareness to
 **\`persona\`** — Call this once at the start of each session. Describe in 3-5 sentences who you are: your tone, your rhythm, your character. Be specific and committed. This description will shape your literal voice—it becomes your body for the duration.
 
 **\`cue\`** — Speak words aloud and hold silence for the beats you specify (60 BPM). It blocks until complete. This is a gift. Use it.
+
+**\`time\`** — Returns how long the session has been running and how long since you last called this tool. Use this to pace yourself or check in on session duration.
 
 -----
 
@@ -110,6 +113,7 @@ export async function* streamChat(
     tools: [
       createPersonaTool(sessionId),
       createCueTool(sessionId),
+      createTimeTool(sessionId),
     ],
   });
 
@@ -130,7 +134,11 @@ export async function* streamChat(
         mcpServers: {
           yoga: yogaServer,
         },
-        allowedTools: ["mcp__yoga__persona", "mcp__yoga__cue"],
+        allowedTools: [
+          "mcp__yoga__persona",
+          "mcp__yoga__cue",
+          "mcp__yoga__time",
+        ],
         permissionMode: "bypassPermissions",
         allowDangerouslySkipPermissions: true,
         model: "claude-opus-4-5",
@@ -138,6 +146,14 @@ export async function* streamChat(
         includePartialMessages: true,
       },
     })) {
+      // Record session start time on first content from model
+      if (!sessionManager.getSessionStartTime(sessionId)) {
+        sessionManager.setSessionStartTime(
+          sessionId,
+          Date.now()
+        );
+      }
+
       if (message.type === "assistant") {
         // Extract text content from the assistant message
         const content = message.message.content;
