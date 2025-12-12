@@ -235,7 +235,12 @@ main:has(.cue)::before {
   padding: 2.5rem;
   width: 100%;
   display: flex;
+  flex-direction: column;
+  align-items: center;
   text-wrap: pretty;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .cue-display .cue {
@@ -263,16 +268,15 @@ main:has(.cue)::before {
 }
 
 .pause-status {
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   font-size: 0.75rem;
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
+  min-height: 2rem;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -450,7 +454,7 @@ audio {
   }
 
   .cue-display .cue {
-    font-size: 1.5rem;
+    font-size: 1rem;
   }
 
   .cue-display {
