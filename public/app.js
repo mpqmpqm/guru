@@ -3,12 +3,6 @@ const cueDisplayEl = document.getElementById("cue-display");
 const connectionIndicator = document.getElementById(
   "connection-indicator"
 );
-const personaDescriptionEl = document.getElementById(
-  "persona-description"
-);
-const personaDescriptionTextEl = document.getElementById(
-  "persona-description-text"
-);
 const streamTimerEl = document.getElementById("stream-timer");
 const chatForm = document.getElementById("chat-form");
 const messageInput = document.getElementById("message-input");
@@ -26,12 +20,6 @@ let sessionId = null;
 let eventSource = null;
 let isProcessing = false;
 let wakeLock = null;
-let personaPristine = true;
-
-// Track user interaction with persona details
-personaDescriptionEl.addEventListener("toggle", () => {
-  personaPristine = false;
-});
 
 // Stream timer state
 let streamStartTime = null;
@@ -302,12 +290,6 @@ function connectSSE() {
       "connection-indicator connected";
   });
 
-  eventSource.addEventListener("persona", (event) => {
-    const data = JSON.parse(event.data);
-    personaDescriptionTextEl.textContent = data.description;
-    personaDescriptionEl.classList.add("visible");
-  });
-
   eventSource.addEventListener("processing", (event) => {
     isProcessing = true;
     sendBtn.textContent = "Stop";
@@ -389,9 +371,6 @@ function showCue(content) {
   div.textContent = content;
   cueDisplayEl.innerHTML = "";
   cueDisplayEl.appendChild(div);
-  if (personaPristine) {
-    personaDescriptionEl.removeAttribute("open");
-  }
 }
 
 // Unified status display for thinking/pause
@@ -502,10 +481,6 @@ function stopSession() {
   sendBtn.disabled = false;
   cueDisplayEl.innerHTML = "";
   stopStatus();
-  personaDescriptionTextEl.textContent = "";
-  personaDescriptionEl.classList.remove("visible");
-  personaDescriptionEl.setAttribute("open", "");
-  personaPristine = true;
   connectSSE();
 }
 
@@ -529,7 +504,6 @@ chatForm.addEventListener("submit", async (e) => {
     }
 
     sendMessage(messageInput.value);
-    startStatus("Choosing a persona");
   }
 });
 

@@ -25,8 +25,6 @@ interface Session {
   abortController: AbortController | null;
   // Timestamp when query() started (for latency tracking)
   queryStartTime?: number;
-  // Persona for TTS voice instructions
-  personaDescription?: string;
   // Timestamp when first thinking block was received (session start for time tool)
   sessionStartTime?: number;
   // Timestamp when time tool was last called
@@ -83,21 +81,6 @@ class SessionManager {
 
   getQueryStartTime(sessionId: string): number | undefined {
     return this.sessions.get(sessionId)?.queryStartTime;
-  }
-
-  setPersona(sessionId: string, description: string): void {
-    const session = this.sessions.get(sessionId);
-    if (session) {
-      session.personaDescription = description;
-    }
-  }
-
-  getPersona(sessionId: string): { description: string } | undefined {
-    const session = this.sessions.get(sessionId);
-    if (session?.personaDescription) {
-      return { description: session.personaDescription };
-    }
-    return undefined;
   }
 
   setSessionStartTime(sessionId: string, time: number): void {

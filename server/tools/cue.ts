@@ -38,30 +38,18 @@ function computeAverageLatency(): number {
 export function createCueTool(sessionId: string) {
   return tool(
     "cue",
-    "Speaks text to guide the student through a yoga class, then optionally pauses for a number of counts at 60 BPM. Use for breath cues (e.g., 'inhale', 'exhale'), position guidance, and transitions.",
+    "Speak and hold. 60 BPM. Silence is where work happens.",
     {
       text: z.string().describe("The text to speak aloud"),
+      voice: z
+        .string()
+        .describe("2-3 sentences: delivery, tone, texture"),
       pause: z
         .number()
         .optional()
-        .describe(
-          "Number of counts to pause after speaking (at 60 BPM, each count is 1 second). Default is 0."
-        ),
+        .describe("Counts to hold after speaking (60 BPM). Default 0."),
     },
     async (args) => {
-      // Require persona to be set before any cues
-      const persona = sessionManager.getPersona(sessionId);
-      if (!persona) {
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: "You must call the persona tool first to establish your voice for this session.",
-            },
-          ],
-        };
-      }
-
       const pause = args.pause ?? 0;
       const queryStartTime =
         sessionManager.getQueryStartTime(sessionId);
@@ -76,7 +64,7 @@ export function createCueTool(sessionId: string) {
 
       // Generate audio from OpenAI and stream directly to client
       const openaiStart = Date.now();
-      const voiceInstructions = persona.description;
+      const voiceInstructions = args.voice;
       const response = await openai.audio.speech.create({
         model: "gpt-4o-mini-tts",
         voice: VOICE,
