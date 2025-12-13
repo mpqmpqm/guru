@@ -1,5 +1,7 @@
 FROM node:24-slim AS builder
 
+ARG COMMIT_SHA
+
 WORKDIR /app
 
 # Install all dependencies (including dev for tsc)
@@ -8,6 +10,7 @@ RUN npm ci
 
 # Copy source and build
 COPY . .
+RUN echo "{\"commit\":\"${COMMIT_SHA:-unknown}\"}" > server/version.json
 RUN npm run build
 
 FROM node:24-slim

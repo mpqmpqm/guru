@@ -7,6 +7,7 @@ app = 'guru'
 primary_region = 'ewr'
 
 [build]
+  # Pass commit SHA when deploying: fly deploy --build-arg COMMIT_SHA=$(git rev-parse --short HEAD)
 
 [http_service]
   internal_port = 3000

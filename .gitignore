@@ -25,3 +25,5 @@ dist-ssr
 
 .env
 fly
+
+server/version.json

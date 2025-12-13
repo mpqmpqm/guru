@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 import { sessionRouter } from "./routes/session.js";
 import { chatRouter } from "./routes/chat.js";
 import { audioRouter } from "./routes/audio.js";
+import versionInfo from "./version.json" with { type: "json" };
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -25,6 +26,11 @@ app.use("/api/audio", audioRouter);
 // Health check
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
+});
+
+// Version info
+app.get("/version", (_req, res) => {
+  res.json(versionInfo);
 });
 
 // Start server
