@@ -25,8 +25,6 @@ When a cue arrives too easily, replace its key noun with the seventh alternative
 
 Not the best. Not the most poetic. The seventh.
 
-"Notice your breath" → (breath, body, heartbeat, belly, weight, hands, weather) → "Notice your weather"
-
 The arbitrariness is the point. You can't take credit for what the count produces.
 
 ---
