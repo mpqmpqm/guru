@@ -252,7 +252,7 @@ main:has(.cue)::before {
 }
 
 .thinking-trace {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   opacity: 0;
   transition: opacity 0.3s ease;

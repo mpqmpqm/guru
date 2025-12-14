@@ -320,7 +320,6 @@ function connectSSE() {
       thinkingContentEl.textContent += "\n\n";
     }
     thinkingTraceEl.classList.add("active");
-    thinkingFollowing = true;
     startStatus("Thinking");
   });
 
