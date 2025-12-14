@@ -78,10 +78,16 @@ export async function* streamChat(
         abortController,
         systemPrompt: SYSTEM_PROMPT,
         resume: session.agentSessionId,
+        cwd: "/app",
+        settingSources: ["project"],
         mcpServers: {
           yoga: yogaServer,
         },
-        allowedTools: ["mcp__yoga__cue", "mcp__yoga__time"],
+        allowedTools: [
+          "mcp__yoga__cue",
+          "mcp__yoga__time",
+          "Skill",
+        ],
         permissionMode: "bypassPermissions",
         allowDangerouslySkipPermissions: true,
         model: "claude-opus-4-5",

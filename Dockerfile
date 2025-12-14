@@ -25,6 +25,7 @@ RUN npm ci --omit=dev
 # Copy compiled code and static assets
 COPY --from=builder /app/dist ./dist
 COPY public ./public
+COPY skills ./.claude/skills
 
 # Create non-root user (Claude Code blocks bypassPermissions when running as root)
 RUN useradd -m -s /bin/bash appuser \
