@@ -1,6 +1,6 @@
 const metta = {
   shortName: "Metta",
-  livingInstruction: false,
+  livingInstruction: true,
   content: `Guided Metta meditation. 20 minutes.
 
 self → loved → unnoticed → difficult → all`,
