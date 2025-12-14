@@ -31,7 +31,7 @@ thinkingContentEl.addEventListener("scroll", () => {
 
 // Audio constants - OpenAI PCM is 24kHz, 16-bit signed, little-endian, mono
 const SAMPLE_RATE = 24000;
-const MIN_BUFFER_SIZE = SAMPLE_RATE * 0.25;
+const MIN_BUFFER_SIZE = SAMPLE_RATE * 0.35;
 
 // State
 let sessionId = null;
