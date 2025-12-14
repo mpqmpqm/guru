@@ -13,10 +13,25 @@ const exampleChicletsEl = document.getElementById(
 const livingInstructionToggle = document.getElementById(
   "living-instructions-toggle"
 );
+const thinkingTraceEl =
+  document.getElementById("thinking-trace");
+const thinkingContentEl = document.getElementById(
+  "thinking-content"
+);
+
+// Track if user is following the thinking trace (auto-scroll)
+let thinkingFollowing = true;
+thinkingContentEl.addEventListener("scroll", () => {
+  const atBottom =
+    thinkingContentEl.scrollHeight -
+      thinkingContentEl.scrollTop <=
+    thinkingContentEl.clientHeight + 10;
+  thinkingFollowing = atBottom;
+});
 
 // Audio constants - OpenAI PCM is 24kHz, 16-bit signed, little-endian, mono
 const SAMPLE_RATE = 24000;
-const MIN_BUFFER_SIZE = 12000; // 0.5 seconds of audio (24000 * 0.5) to buffer before playback
+const MIN_BUFFER_SIZE = SAMPLE_RATE * 0.25;
 
 // State
 let sessionId = null;
@@ -301,10 +316,29 @@ function connectSSE() {
   });
 
   eventSource.addEventListener("thinking_start", () => {
+    if (thinkingContentEl.textContent) {
+      thinkingContentEl.textContent += "\n\n";
+    }
+    thinkingTraceEl.classList.add("active");
+    thinkingFollowing = true;
     startStatus("Thinking");
   });
 
+  eventSource.addEventListener("thinking", (event) => {
+    const data = JSON.parse(event.data);
+    if (data.content) {
+      thinkingContentEl.textContent += data.content;
+
+      // Auto-scroll if following and details is open
+      if (thinkingFollowing && thinkingTraceEl.open) {
+        thinkingContentEl.scrollTop =
+          thinkingContentEl.scrollHeight;
+      }
+    }
+  });
+
   eventSource.addEventListener("thinking_end", () => {
+    // Keep content, just add separator for next block
     stopStatus();
   });
 
@@ -450,6 +484,9 @@ async function sendMessage(message) {
   if (!message.trim() || !sessionId || isProcessing) return;
 
   cueDisplayEl.innerHTML = "";
+  thinkingContentEl.textContent = "";
+  thinkingTraceEl.classList.remove("active");
+  thinkingFollowing = true;
 
   try {
     const response = await fetch(`/api/chat/${sessionId}`, {
@@ -484,6 +521,9 @@ function stopSession() {
   sendBtn.textContent = "Begin";
   sendBtn.disabled = false;
   cueDisplayEl.innerHTML = "";
+  thinkingContentEl.textContent = "";
+  thinkingTraceEl.classList.remove("active");
+  thinkingFollowing = true;
   stopStatus();
   connectSSE();
 }

@@ -251,6 +251,38 @@ main:has(.cue)::before {
   }
 }
 
+.thinking-trace {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.thinking-trace.active {
+  opacity: 1;
+}
+
+.thinking-trace summary {
+  cursor: pointer;
+  text-align: center;
+  user-select: none;
+  list-style: none;
+}
+
+.thinking-trace pre {
+  font-family:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    monospace;
+  font-size: 0.6rem;
+  max-height: 15vh;
+  overflow-y: auto;
+  margin: 0.5rem 0 0 0;
+  padding: 0.5rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  text-align: left;
+}
+
 .pause-status {
   position: relative;
   display: flex;

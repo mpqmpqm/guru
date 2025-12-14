@@ -37,6 +37,7 @@ interface ChatEvent {
     | "error"
     | "thinking_start"
     | "thinking_end"
+    | "thinking"
     | "skill_start";
   content?: string;
   sessionId?: string;
@@ -90,6 +91,7 @@ export async function* streamChat(
           "mcp__yoga__time",
           "Skill",
         ],
+        disallowedTools: ["TodoWrite"],
         permissionMode: "bypassPermissions",
         allowDangerouslySkipPermissions: true,
         model: "claude-opus-4-5",
@@ -131,6 +133,12 @@ export async function* streamChat(
         ) {
           thinkingBlockIndex = event.index;
           yield { type: "thinking_start" };
+        } else if (
+          event.type === "content_block_delta" &&
+          event.index === thinkingBlockIndex &&
+          event.delta.type === "thinking_delta"
+        ) {
+          yield { type: "thinking", content: event.delta.thinking };
         } else if (
           event.type === "content_block_stop" &&
           event.index === thinkingBlockIndex

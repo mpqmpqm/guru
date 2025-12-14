@@ -47,7 +47,9 @@ export function createCueTool(sessionId: string) {
       pause: z
         .number()
         .optional()
-        .describe("Counts to hold after speaking (60 BPM). Default 0."),
+        .describe(
+          "Counts to hold after speaking (60 BPM). Default 0."
+        ),
     },
     async (args) => {
       const pause = args.pause ?? 0;
@@ -107,7 +109,8 @@ export function createCueTool(sessionId: string) {
       // Send pause start/end events - client counts down from duration
       const adjusted = Math.max(
         0,
-        pause - computeAverageLatency()
+        pause - computeAverageLatency(),
+        pause // rm to adjust
       );
       if (pause > 0) {
         sessionManager.sendSSE(sessionId, "pause_start", {
