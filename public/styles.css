@@ -283,6 +283,64 @@ footer {
   padding-top: 1rem;
 }
 
+/* Toggle switch */
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  margin-bottom: 0.75rem;
+  user-select: none;
+}
+
+.toggle-switch input {
+  display: none;
+}
+
+.toggle-slider {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  left: 2px;
+  top: 2px;
+  background: var(--text-muted);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: var(--accent-amber-dim);
+  border-color: rgba(212, 168, 83, 0.3);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(16px);
+  background: var(--accent-amber);
+}
+
+.toggle-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+  transition: color 0.3s ease;
+}
+
+.toggle-switch input:checked ~ .toggle-label {
+  color: var(--text-secondary);
+}
+
 /* Example chiclets */
 .example-chiclets {
   display: flex;

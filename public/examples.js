@@ -1,6 +1,6 @@
 const metta = {
   shortName: "Metta",
-  content: `Metta. 20 minutes. Living instruction.
+  content: `Metta. 20 minutes.
 
 self → loved → unnoticed → difficult → all`,
 };
@@ -21,24 +21,24 @@ Get them into body fast. Stay with what works.`,
 
 const hyperassociation = {
   shortName: "Hyperassociation",
-  content: `Walking. Outside. Attention moves out and doesn't come back. Living instruction.`,
+  content: `Walking. Outside. Attention moves out and doesn't come back.`,
 };
 
 const listenToSpace = {
   shortName: "Listen to Space",
-  content: `Listening. Space. Living instruction.
+  content: `Listening. Space.
 
 You are sound pointing at not-sound.`,
 };
 
 const bodyScan = {
   shortName: "Body Scan",
-  content: `Body scan. Duration yours. Living instruction.`,
+  content: `Body scan. Duration yours.`,
 };
 
 const demo = {
   shortName: "Demo",
-  content: `3 minutes. Dealer's choice. Living instruction.`,
+  content: `3 minutes. Dealer's choice.`,
 };
 
 export default [

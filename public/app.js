@@ -10,6 +10,9 @@ const sendBtn = document.getElementById("send-btn");
 const exampleChicletsEl = document.getElementById(
   "example-chiclets"
 );
+const livingInstructionsToggle = document.getElementById(
+  "living-instructions-toggle"
+);
 
 // Audio constants - OpenAI PCM is 24kHz, 16-bit signed, little-endian, mono
 const SAMPLE_RATE = 24000;
@@ -504,7 +507,11 @@ chatForm.addEventListener("submit", async (e) => {
       startAudioStream();
     }
 
-    sendMessage(messageInput.value);
+    let message = messageInput.value;
+    if (livingInstructionsToggle.checked) {
+      message += "\n\nLiving instructions.";
+    }
+    sendMessage(message);
   }
 });
 
