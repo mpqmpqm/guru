@@ -48,6 +48,14 @@ const demo = {
   content: `3 minutes. Guided awareness practice. Dealer's choice.`,
 };
 
+const rosary = {
+  shortName: "Rosary",
+  livingInstruction: false,
+  content: `Guided rosary meditation. 20 minutes.
+
+10 decades. Traditional prayers.`,
+};
+
 export default [
   demo,
   vinyasa,
@@ -56,4 +64,5 @@ export default [
   deescalate,
   hyperassociation,
   listenToSpace,
+  rosary,
 ];
