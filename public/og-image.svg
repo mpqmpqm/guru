@@ -1,0 +1,132 @@
+<svg
+  width="1200"
+  height="630"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <defs>
+    <!-- Ambient glow gradient -->
+    <radialGradient
+      id="ambientGlow"
+      cx="50%"
+      cy="40%"
+      r="60%"
+      fx="50%"
+      fy="40%"
+    >
+      <stop
+        offset="0%"
+        stop-color="#d4a853"
+        stop-opacity="0.2"
+      />
+      <stop
+        offset="40%"
+        stop-color="#d4a853"
+        stop-opacity="0.08"
+      />
+      <stop
+        offset="100%"
+        stop-color="#0a0a0b"
+        stop-opacity="0"
+      />
+    </radialGradient>
+
+    <!-- Bottom left green glow -->
+    <radialGradient id="greenGlow" cx="10%" cy="90%" r="50%">
+      <stop
+        offset="0%"
+        stop-color="#6b8f71"
+        stop-opacity="0.08"
+      />
+      <stop
+        offset="100%"
+        stop-color="#0a0a0b"
+        stop-opacity="0"
+      />
+    </radialGradient>
+
+    <!-- Center glow gradient -->
+    <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+      <stop
+        offset="0%"
+        stop-color="#d4a853"
+        stop-opacity="0.4"
+      />
+      <stop
+        offset="50%"
+        stop-color="#d4a853"
+        stop-opacity="0.15"
+      />
+      <stop
+        offset="100%"
+        stop-color="#d4a853"
+        stop-opacity="0"
+      />
+    </radialGradient>
+
+    <!-- Strong text glow filter -->
+    <filter
+      id="textGlow"
+      x="-100%"
+      y="-100%"
+      width="300%"
+      height="300%"
+    >
+      <feGaussianBlur stdDeviation="16" result="blur1" />
+      <feGaussianBlur stdDeviation="8" result="blur2" />
+      <feMerge>
+        <feMergeNode in="blur1" />
+        <feMergeNode in="blur2" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Base background -->
+  <rect width="100%" height="100%" fill="#0a0a0b" />
+
+  <!-- Ambient glows -->
+  <rect width="100%" height="100%" fill="url(#ambientGlow)" />
+  <rect width="100%" height="100%" fill="url(#greenGlow)" />
+
+  <!-- Center glow behind text -->
+
+  <!-- Main title - maximum brightness -->
+  <text
+    x="600"
+    y="320"
+    font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+    font-size="120"
+    font-weight="500"
+    letter-spacing="0.1em"
+    fill="#ffffff"
+    text-anchor="middle"
+    filter="url(#textGlow)"
+  >
+    guru
+  </text>
+
+  <!-- Accent line under text -->
+  <line
+    x1="500"
+    y1="372"
+    x2="700"
+    y2="372"
+    stroke="#d4a853"
+    stroke-width="1"
+    opacity="0.5"
+  />
+
+  <!-- Tagline - brighter -->
+  <text
+    x="600"
+    y="415"
+    font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+    font-size="24"
+    font-weight="300"
+    letter-spacing="0.12em"
+    fill="#b8b0a8"
+    text-anchor="middle"
+  >
+    breathe with the machine
+  </text>
+</svg>
