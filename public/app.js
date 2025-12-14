@@ -305,6 +305,11 @@ function connectSSE() {
     stopStatus();
   });
 
+  eventSource.addEventListener("skill_start", (event) => {
+    const data = JSON.parse(event.data);
+    startStatus(`Skill: ${data.skill}`);
+  });
+
   eventSource.addEventListener("text", (event) => {
     const data = JSON.parse(event.data);
     if (data.content) {

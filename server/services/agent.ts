@@ -36,11 +36,13 @@ interface ChatEvent {
     | "done"
     | "error"
     | "thinking_start"
-    | "thinking_end";
+    | "thinking_end"
+    | "skill_start";
   content?: string;
   sessionId?: string;
   text?: string;
   pause?: number;
+  skill?: string;
 }
 
 export async function* streamChat(
@@ -112,6 +114,11 @@ export async function* streamChat(
           for (const block of content) {
             if (block.type === "text") {
               yield { type: "text", content: block.text };
+            } else if (block.type === "tool_use" && block.name === "Skill") {
+              const skillName = (block.input as { skill?: string })?.skill;
+              if (skillName) {
+                yield { type: "skill_start", skill: skillName };
+              }
             }
           }
         }
