@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import { sessionRouter } from "./routes/session.js";
 import { chatRouter } from "./routes/chat.js";
@@ -14,6 +15,20 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
+
+// Serve index.html with dynamic OG image URL
+const indexHtmlPath = path.join(__dirname, "../public/index.html");
+const indexHtmlTemplate = fs.readFileSync(indexHtmlPath, "utf-8");
+
+app.get("/", (req, res) => {
+  const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+  const host = req.headers["x-forwarded-host"] || req.headers.host;
+  const baseUrl = `${protocol}://${host}`;
+  const ogImageUrl = `${baseUrl}/og-image.png`;
+
+  const html = indexHtmlTemplate.replace(/__OG_IMAGE_URL__/g, ogImageUrl);
+  res.type("html").send(html);
+});
 
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, "../public")));
