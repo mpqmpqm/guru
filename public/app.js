@@ -10,7 +10,7 @@ const sendBtn = document.getElementById("send-btn");
 const exampleChicletsEl = document.getElementById(
   "example-chiclets"
 );
-const livingInstructionsToggle = document.getElementById(
+const livingInstructionToggle = document.getElementById(
   "living-instructions-toggle"
 );
 
@@ -508,8 +508,8 @@ chatForm.addEventListener("submit", async (e) => {
     }
 
     let message = messageInput.value;
-    if (livingInstructionsToggle.checked) {
-      message += "\n\nLiving instructions.";
+    if (livingInstructionToggle.checked) {
+      message += "\n\nLiving instruction.";
     }
     sendMessage(message);
   }
@@ -552,7 +552,8 @@ async function renderExampleChiclets() {
       chiclet.textContent = example.shortName;
       chiclet.addEventListener("click", () => {
         messageInput.value = example.content;
-        livingInstructionsToggle.checked = example.livingInstructions;
+        livingInstructionToggle.checked =
+          example.livingInstruction;
         autoResizeTextarea();
         messageInput.focus();
         messageInput.setSelectionRange(0, 0);
