@@ -329,10 +329,6 @@ function connectSSE() {
     startCountdown("Pause", data.duration);
   });
 
-  eventSource.addEventListener("pause_end", () => {
-    stopStatus();
-  });
-
   eventSource.addEventListener("done", () => {
     isProcessing = false;
     sendBtn.textContent = "Begin";

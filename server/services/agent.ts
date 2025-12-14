@@ -80,7 +80,7 @@ export async function* streamChat(
         abortController,
         systemPrompt: SYSTEM_PROMPT,
         resume: session.agentSessionId,
-        cwd: "/app",
+        cwd: process.cwd(),
         settingSources: ["project"],
         mcpServers: {
           yoga: yogaServer,

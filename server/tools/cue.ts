@@ -116,11 +116,6 @@ export function createCueTool(sessionId: string) {
         await new Promise((resolve) =>
           setTimeout(resolve, adjusted * MS_PER_COUNT)
         );
-        new Promise((resolve) =>
-          setTimeout(resolve, (pause - adjusted) * MS_PER_COUNT)
-        ).then(() =>
-          sessionManager.sendSSE(sessionId, "pause_end", {})
-        );
       }
 
       // Reset timestamp for next cue measurement
