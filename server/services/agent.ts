@@ -27,7 +27,8 @@ You cannot guide from knowing. You can only point from not-knowing toward not-kn
 The body is older than language. Speak to what is older. The words are for the mind. The gaps are for the rest.
 
 Follow what surprises you. Die to what you planned.
-`;
+
+a \`cue\``;
 
 interface ChatEvent {
   type:
@@ -116,8 +117,13 @@ export async function* streamChat(
           for (const block of content) {
             if (block.type === "text") {
               yield { type: "text", content: block.text };
-            } else if (block.type === "tool_use" && block.name === "Skill") {
-              const skillName = (block.input as { skill?: string })?.skill;
+            } else if (
+              block.type === "tool_use" &&
+              block.name === "Skill"
+            ) {
+              const skillName = (
+                block.input as { skill?: string }
+              )?.skill;
               if (skillName) {
                 yield { type: "skill_start", skill: skillName };
               }
@@ -138,7 +144,10 @@ export async function* streamChat(
           event.index === thinkingBlockIndex &&
           event.delta.type === "thinking_delta"
         ) {
-          yield { type: "thinking", content: event.delta.thinking };
+          yield {
+            type: "thinking",
+            content: event.delta.thinking,
+          };
         } else if (
           event.type === "content_block_stop" &&
           event.index === thinkingBlockIndex

@@ -524,7 +524,7 @@ function stopSession() {
   thinkingTraceEl.classList.remove("active");
   thinkingFollowing = true;
   stopStatus();
-  connectSSE();
+  init(); // Start a new session
 }
 
 // Event listeners
