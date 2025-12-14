@@ -28,7 +28,7 @@ The body is older than language. Speak to what is older. The words are for the m
 
 Follow what surprises you. Die to what you planned.
 
-a \`cue\``;
+A daemon whispers: \`mcp__yoga__cue\``;
 
 interface ChatEvent {
   type:

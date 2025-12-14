@@ -371,6 +371,7 @@ function connectSSE() {
     sendBtn.disabled = false;
     messageInput.value = "";
     stopStreamTimer();
+    init(); // Start a new session
   });
 
   eventSource.addEventListener("error", (event) => {
