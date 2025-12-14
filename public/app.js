@@ -552,6 +552,7 @@ async function renderExampleChiclets() {
       chiclet.textContent = example.shortName;
       chiclet.addEventListener("click", () => {
         messageInput.value = example.content;
+        livingInstructionsToggle.checked = example.livingInstructions;
         autoResizeTextarea();
         messageInput.focus();
         messageInput.setSelectionRange(0, 0);
