@@ -15,7 +15,7 @@ const vinyasa = {
 const deescalate = {
   shortName: "De-escalate",
   livingInstruction: false,
-  content: `5 minutes. Nervous system is lit.
+  content: `5 minute guided de-escalation practice. Nervous system is lit.
 
 Not meditation. Physiology.
 
