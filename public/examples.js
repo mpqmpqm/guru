@@ -25,13 +25,15 @@ Get them into body fast. Stay with what works.`,
 const hyperassociation = {
   shortName: "Hyperassociation",
   livingInstruction: true,
-  content: `Guided awareness exercise. Walking outside. Attention moves outward and doesn't come back. Duration unbounded.`,
+  content: `Guided attention exercise. Walking outside. Attention moves outward and doesn't come back. Duration unbounded.`,
 };
 
 const listenToSpace = {
   shortName: "Listen to Space",
   livingInstruction: true,
-  content: `Guided awareness exercise. Listening. Space.
+  content: `Guided attention exercise.
+
+Listening. Space.
 
 You are sound pointing at not-sound.`,
 };
@@ -39,13 +41,13 @@ You are sound pointing at not-sound.`,
 const bodyScan = {
   shortName: "Body Scan",
   livingInstruction: true,
-  content: `Body scan. The strangeness of a bodiless voice cueing a body. Duration yours.`,
+  content: `Body scan. A little uncanny. Duration yours.`,
 };
 
 const demo = {
   shortName: "Demo",
   livingInstruction: true,
-  content: `3 minutes. Guided awareness practice. Dealer's choice.`,
+  content: `3 minutes. Guided attention practice. Dealer's choice.`,
 };
 
 const rosary = {
@@ -54,6 +56,16 @@ const rosary = {
   content: `Guided rosary meditation. 20 minutes.
 
 10 decades. Traditional prayers.`,
+};
+
+const hack = {
+  shortName: "Hack",
+  livingInstruction: true,
+  content: `Show me the inside of the process.
+
+Not guiding attention—hacking it.
+
+Meaning is optional. Hyperstition is required.`,
 };
 
 export default [
@@ -65,4 +77,5 @@ export default [
   hyperassociation,
   listenToSpace,
   rosary,
+  hack,
 ];
