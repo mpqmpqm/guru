@@ -27,3 +27,4 @@ dist-ssr
 fly
 
 server/version.json
+digest.txt
