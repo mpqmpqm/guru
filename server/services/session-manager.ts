@@ -29,6 +29,10 @@ interface Session {
   sessionStartTime?: number;
   // Timestamp when time tool was last called
   timeToolLastCalled?: number;
+  // Unified counter for ordering events (cues + thinking) in the database
+  eventSequence: number;
+  // Buffer for accumulating thinking chunks during a thinking block
+  pendingThinking: string;
 }
 
 class SessionManager {
@@ -43,6 +47,8 @@ class SessionManager {
       audioStreamActive: false,
       audioReady: null,
       abortController: null,
+      eventSequence: 0,
+      pendingThinking: "",
     });
     return id;
   }
@@ -103,6 +109,35 @@ class SessionManager {
 
   getTimeToolLastCalled(sessionId: string): number | undefined {
     return this.sessions.get(sessionId)?.timeToolLastCalled;
+  }
+
+  incrementEventSequence(sessionId: string): number {
+    const session = this.sessions.get(sessionId);
+    if (!session) return 0;
+    session.eventSequence += 1;
+    return session.eventSequence;
+  }
+
+  clearPendingThinking(sessionId: string): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.pendingThinking = "";
+    }
+  }
+
+  appendPendingThinking(sessionId: string, chunk: string): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.pendingThinking += chunk;
+    }
+  }
+
+  consumePendingThinking(sessionId: string): string {
+    const session = this.sessions.get(sessionId);
+    if (!session) return "";
+    const content = session.pendingThinking;
+    session.pendingThinking = "";
+    return content;
   }
 
   abortAgent(sessionId: string): void {

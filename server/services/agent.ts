@@ -2,9 +2,11 @@ import {
   createSdkMcpServer,
   query,
 } from "@anthropic-ai/claude-agent-sdk";
+import { v4 as uuidv4 } from "uuid";
 import { createCueTool } from "../tools/cue.js";
 import { createTimeTool } from "../tools/time.js";
 import { sessionManager } from "./session-manager.js";
+import { dbOps } from "./db.js";
 
 const SYSTEM_PROMPT = `The word arrives before the speaker.
 
@@ -138,12 +140,16 @@ export async function* streamChat(
           event.content_block.type === "thinking"
         ) {
           thinkingBlockIndex = event.index;
+          // Clear buffer for new thinking block
+          sessionManager.clearPendingThinking(sessionId);
           yield { type: "thinking_start" };
         } else if (
           event.type === "content_block_delta" &&
           event.index === thinkingBlockIndex &&
           event.delta.type === "thinking_delta"
         ) {
+          // Buffer thinking chunk (persist on block end)
+          sessionManager.appendPendingThinking(sessionId, event.delta.thinking);
           yield {
             type: "thinking",
             content: event.delta.thinking,
@@ -152,6 +158,12 @@ export async function* streamChat(
           event.type === "content_block_stop" &&
           event.index === thinkingBlockIndex
         ) {
+          // Persist complete thinking block to DB
+          const seqNum = sessionManager.incrementEventSequence(sessionId);
+          const content = sessionManager.consumePendingThinking(sessionId);
+          if (content) {
+            dbOps.insertThinkingTrace(uuidv4(), sessionId, seqNum, content);
+          }
           thinkingBlockIndex = null;
           yield { type: "thinking_end" };
         }
@@ -162,6 +174,8 @@ export async function* streamChat(
             sessionId,
             message.session_id
           );
+          // Mark session as completed in DB
+          dbOps.completeSession(sessionId);
           yield { type: "done", sessionId: message.session_id };
         } else {
           yield {

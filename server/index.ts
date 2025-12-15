@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import { sessionRouter } from "./routes/session.js";
 import { chatRouter } from "./routes/chat.js";
 import { audioRouter } from "./routes/audio.js";
+import { inspectRouter } from "./routes/inspect.js";
 import versionInfo from "./version.json" with { type: "json" };
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -30,6 +31,15 @@ app.get("/", (req, res) => {
   res.type("html").send(html);
 });
 
+// Serve inspect pages
+app.get("/inspect", (_req, res) => {
+  res.sendFile(path.join(__dirname, "../public/inspect.html"));
+});
+
+app.get("/inspect/:sessionId", (_req, res) => {
+  res.sendFile(path.join(__dirname, "../public/inspect-session.html"));
+});
+
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, "../public")));
 
@@ -37,6 +47,7 @@ app.use(express.static(path.join(__dirname, "../public")));
 app.use("/api/session", sessionRouter);
 app.use("/api/chat", chatRouter);
 app.use("/api/audio", audioRouter);
+app.use("/api/inspect", inspectRouter);
 
 // Health check
 app.get("/health", (_req, res) => {

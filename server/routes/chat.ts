@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { streamChat } from "../services/agent.js";
 import { sessionManager } from "../services/session-manager.js";
+import { dbOps } from "../services/db.js";
 
 export const chatRouter = Router();
 
@@ -34,11 +35,12 @@ chatRouter.get("/events/:sessionId", (req, res) => {
     }
   }, 15000);
 
-  // Handle client disconnect - stop the agent
+  // Handle client disconnect - stop the agent and mark session closed
   req.on("close", () => {
     clearInterval(heartbeat);
     console.log(`SSE connection closed for session ${sessionId} - stopping agent`);
     sessionManager.abortAgent(sessionId);
+    dbOps.closeSession(sessionId);
   });
 });
 
@@ -56,6 +58,11 @@ chatRouter.post("/:sessionId", async (req, res) => {
   const session = sessionManager.getSession(sessionId);
   if (!session) {
     return res.status(404).json({ error: "Session not found" });
+  }
+
+  // Persist session to DB on first message
+  if (!session.agentSessionId) {
+    dbOps.createSession(sessionId, session.createdAt.toISOString(), message);
   }
 
   // Send "processing" event via SSE

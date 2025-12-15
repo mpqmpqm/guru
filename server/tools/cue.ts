@@ -2,6 +2,7 @@ import { tool } from "@anthropic-ai/claude-agent-sdk";
 import OpenAI from "openai";
 import { z } from "zod";
 import { sessionManager } from "../services/session-manager.js";
+import { dbOps } from "../services/db.js";
 
 const openai = new OpenAI();
 
@@ -53,6 +54,11 @@ export function createCueTool(sessionId: string) {
     },
     async (args) => {
       const pause = args.pause ?? 0;
+
+      // Persist cue to database
+      const seqNum = sessionManager.incrementEventSequence(sessionId);
+      dbOps.insertCue(sessionId, seqNum, args.text, args.voice, pause);
+
       const queryStartTime =
         sessionManager.getQueryStartTime(sessionId);
 

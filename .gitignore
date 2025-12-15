@@ -28,3 +28,6 @@ fly
 
 server/version.json
 digest.txt
+
+# Database
+data/

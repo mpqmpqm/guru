@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>session | guru</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌀</text></svg>"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+    <style>
+      body {
+        overflow: auto;
+      }
+
+      .inspect-container {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+        min-height: 100dvh;
+      }
+
+      .inspect-header {
+        margin-bottom: 2rem;
+      }
+
+      .inspect-header a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.875rem;
+        display: inline-block;
+        margin-bottom: 1rem;
+      }
+
+      .inspect-header a:hover {
+        color: var(--accent-amber);
+      }
+
+      .session-info {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .session-id {
+        font-family: monospace;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+      }
+
+      .session-prompt {
+        color: var(--text-primary);
+        font-size: 1rem;
+        line-height: 1.5;
+        margin-bottom: 0.75rem;
+      }
+
+      .session-meta {
+        color: var(--text-secondary);
+        font-size: 0.8125rem;
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      .session-status {
+        padding: 0.125rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .session-status.completed {
+        background: rgba(107, 143, 113, 0.2);
+        color: var(--accent-success);
+      }
+
+      .session-status.active {
+        background: rgba(212, 168, 83, 0.2);
+        color: var(--accent-amber);
+      }
+
+      .session-status.closed {
+        background: rgba(199, 95, 95, 0.2);
+        color: var(--accent-error);
+      }
+
+      .timeline {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .event {
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .event-thinking {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+      }
+
+      .event-thinking summary {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        color: var(--text-secondary);
+        font-size: 0.8125rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .event-thinking summary:hover {
+        color: var(--text-primary);
+      }
+
+      .event-thinking[open] summary {
+        border-bottom: 1px solid var(--border-subtle);
+      }
+
+      .event-thinking pre {
+        margin: 0;
+        padding: 1rem;
+        font-size: 0.8125rem;
+        line-height: 1.5;
+        color: var(--text-secondary);
+        white-space: pre-wrap;
+        word-break: break-word;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .event-cue {
+        background: var(--bg-elevated);
+        border: 1px solid var(--accent-amber);
+        border-left-width: 3px;
+        padding: 1rem;
+      }
+
+      .cue-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .cue-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--accent-amber);
+      }
+
+      .cue-seq {
+        font-size: 0.6875rem;
+        color: var(--text-secondary);
+        font-family: monospace;
+      }
+
+      .cue-text {
+        color: var(--text-primary);
+        font-size: 1.0625rem;
+        line-height: 1.5;
+        margin-bottom: 0.75rem;
+      }
+
+      .cue-details {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        font-size: 0.8125rem;
+        color: var(--text-secondary);
+      }
+
+      .cue-detail {
+        display: flex;
+        gap: 0.375rem;
+      }
+
+      .cue-detail-label {
+        opacity: 0.7;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--text-secondary);
+      }
+
+      .loading {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--text-secondary);
+      }
+
+      .seq-badge {
+        font-family: monospace;
+        font-size: 0.6875rem;
+        color: var(--text-secondary);
+        background: var(--bg-deep);
+        padding: 0.125rem 0.375rem;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="inspect-container">
+      <div class="inspect-header">
+        <a href="/inspect">← back to sessions</a>
+        <div id="session-info" class="session-info">
+          <div class="loading">Loading session...</div>
+        </div>
+      </div>
+
+      <div id="timeline" class="timeline"></div>
+    </div>
+
+    <script>
+      const sessionId = window.location.pathname
+        .split("/")
+        .pop();
+
+      async function loadSession() {
+        const infoContainer =
+          document.getElementById("session-info");
+        const timelineContainer =
+          document.getElementById("timeline");
+
+        try {
+          const response = await fetch(
+            `/api/inspect/sessions/${sessionId}`
+          );
+          if (!response.ok) {
+            throw new Error("Session not found");
+          }
+
+          const { session, events } = await response.json();
+
+          // Render session info
+          const date = new Date(session.created_at);
+          const formatted = date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+          });
+
+          infoContainer.innerHTML = `
+            <div class="session-id">${session.id}</div>
+            <div class="session-prompt">${escapeHtml(session.initial_prompt || "(no prompt)")}</div>
+            <div class="session-meta">
+              <span>${formatted}</span>
+              <span class="session-status ${session.status}">${session.status}</span>
+            </div>
+          `;
+
+          // Render timeline
+          if (events.length === 0) {
+            timelineContainer.innerHTML =
+              '<div class="empty-state">No events recorded</div>';
+            return;
+          }
+
+          timelineContainer.innerHTML = events
+            .map((event) => {
+              if (event.type === "thinking") {
+                return `
+                  <details class="event event-thinking" open>
+                    <summary>
+                      <span class="seq-badge">${event.sequence_num}</span>
+                      thinking
+                    </summary>
+                    <pre>${escapeHtml(event.content)}</pre>
+                  </details>
+                `;
+              } else {
+                return `
+                  <div class="event event-cue">
+                    <div class="cue-header">
+                      <span class="cue-label">cue</span>
+                      <span class="cue-seq">#${event.sequence_num}</span>
+                    </div>
+                    <div class="cue-text">${escapeHtml(event.text)}</div>
+                    <div class="cue-details">
+                      <div class="cue-detail">
+                        <span class="cue-detail-label">voice:</span>
+                        <span>${escapeHtml(event.voice)}</span>
+                      </div>
+                      ${event.pause ? `<div class="cue-detail"><span class="cue-detail-label">pause:</span><span>${event.pause}</span></div>` : ""}
+                    </div>
+                  </div>
+                `;
+              }
+            })
+            .join("");
+        } catch (error) {
+          infoContainer.innerHTML = `<div class="empty-state">Error: ${error.message}</div>`;
+          timelineContainer.innerHTML = "";
+        }
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      loadSession();
+    </script>
+  </body>
+</html>
