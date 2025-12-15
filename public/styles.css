@@ -221,7 +221,7 @@ main:has(.cue)::before {
   flex-direction: column;
   align-items: center;
   text-wrap: pretty;
-  overflow: hidden;
+  overflow: auto;
   overflow-wrap: break-word;
   word-break: break-word;
   flex: 1;

@@ -77,5 +77,5 @@ export default [
   hyperassociation,
   listenToSpace,
   rosary,
-  hack,
+  // hack,
 ];
