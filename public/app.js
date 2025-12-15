@@ -549,7 +549,7 @@ chatForm.addEventListener("submit", async (e) => {
 
     let message = messageInput.value;
     if (livingInstructionToggle.checked) {
-      message += "\n\nLiving instruction.";
+      message += "\n\nCue with living instruction.";
     }
     sendMessage(message);
   }
