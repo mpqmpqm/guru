@@ -74,9 +74,6 @@ export async function* streamChat(
     // Track thinking block to emit start/end events
     let thinkingBlockIndex: number | null = null;
 
-    // Record query start time for latency tracking
-    sessionManager.setQueryStartTime(sessionId, Date.now());
-
     // Query Claude with streaming
     for await (const message of query({
       prompt: userMessage,
@@ -142,6 +139,8 @@ export async function* streamChat(
           thinkingBlockIndex = event.index;
           // Clear buffer for new thinking block
           sessionManager.clearPendingThinking(sessionId);
+          // Record start time for latency tracking
+          sessionManager.setThinkingStartTime(sessionId, Date.now());
           yield { type: "thinking_start" };
         } else if (
           event.type === "content_block_delta" &&
@@ -158,6 +157,8 @@ export async function* streamChat(
           event.type === "content_block_stop" &&
           event.index === thinkingBlockIndex
         ) {
+          // Record thinking duration for latency tracking
+          sessionManager.completeThinkingBlock(sessionId);
           // Persist complete thinking block to DB
           const seqNum = sessionManager.incrementEventSequence(sessionId);
           const content = sessionManager.consumePendingThinking(sessionId);

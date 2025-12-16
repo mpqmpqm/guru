@@ -1,13 +1,12 @@
 import "dotenv/config";
 import express from "express";
-import path from "path";
 import fs from "fs";
+import path from "path";
 import { fileURLToPath } from "url";
-import { sessionRouter } from "./routes/session.js";
-import { chatRouter } from "./routes/chat.js";
 import { audioRouter } from "./routes/audio.js";
+import { chatRouter } from "./routes/chat.js";
 import { inspectRouter } from "./routes/inspect.js";
-import versionInfo from "./version.json" with { type: "json" };
+import { sessionRouter } from "./routes/session.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -18,16 +17,27 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 // Serve index.html with dynamic OG image URL
-const indexHtmlPath = path.join(__dirname, "../public/index.html");
-const indexHtmlTemplate = fs.readFileSync(indexHtmlPath, "utf-8");
+const indexHtmlPath = path.join(
+  __dirname,
+  "../public/index.html"
+);
+const indexHtmlTemplate = fs.readFileSync(
+  indexHtmlPath,
+  "utf-8"
+);
 
 app.get("/", (req, res) => {
-  const protocol = req.headers["x-forwarded-proto"] || req.protocol;
-  const host = req.headers["x-forwarded-host"] || req.headers.host;
+  const protocol =
+    req.headers["x-forwarded-proto"] || req.protocol;
+  const host =
+    req.headers["x-forwarded-host"] || req.headers.host;
   const baseUrl = `${protocol}://${host}`;
   const ogImageUrl = `${baseUrl}/og-image.png`;
 
-  const html = indexHtmlTemplate.replace(/__OG_IMAGE_URL__/g, ogImageUrl);
+  const html = indexHtmlTemplate.replace(
+    /__OG_IMAGE_URL__/g,
+    ogImageUrl
+  );
   res.type("html").send(html);
 });
 
@@ -37,7 +47,9 @@ app.get("/inspect", (_req, res) => {
 });
 
 app.get("/inspect/:sessionId", (_req, res) => {
-  res.sendFile(path.join(__dirname, "../public/inspect-session.html"));
+  res.sendFile(
+    path.join(__dirname, "../public/inspect-session.html")
+  );
 });
 
 // Serve static files from public directory
@@ -55,16 +67,24 @@ app.get("/health", (_req, res) => {
 });
 
 // Version info
-app.get("/version", (_req, res) => {
-  res.json(versionInfo);
+app.get("/version", async (req, res) => {
+  res.json(
+    await fs.promises
+      .readFile(path.join(__dirname, "../version.json"), "utf-8")
+      .catch(() => '{"version":"unknown"}')
+  );
 });
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Yoga Guide server running on http://localhost:${PORT}`);
+  console.log(
+    `Yoga Guide server running on http://localhost:${PORT}`
+  );
   console.log(`API endpoints:`);
   console.log(`  POST /api/session - Create new session`);
-  console.log(`  GET  /api/chat/events/:sessionId - SSE for chat events`);
+  console.log(
+    `  GET  /api/chat/events/:sessionId - SSE for chat events`
+  );
   console.log(`  POST /api/chat/:sessionId - Send message`);
   console.log(`  GET  /api/audio/:sessionId - Audio stream`);
 });

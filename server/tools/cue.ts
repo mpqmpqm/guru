@@ -1,8 +1,8 @@
 import { tool } from "@anthropic-ai/claude-agent-sdk";
 import OpenAI from "openai";
 import { z } from "zod";
-import { sessionManager } from "../services/session-manager.js";
 import { dbOps } from "../services/db.js";
+import { sessionManager } from "../services/session-manager.js";
 
 const openai = new OpenAI();
 
@@ -10,10 +10,10 @@ const VOICE = "alloy";
 const MS_PER_COUNT = 1000;
 
 // Track latencies separately for running averages (in seconds)
-const queryLatencies: number[] = [];
-const openaiLatencies: number[] = [];
+const thinkingLatencies: number[] = [];
+const openaiTtfbLatencies: number[] = [];
 const MAX_LATENCY_SAMPLES = 10;
-const INCLUDE_OPENAI_LATENCY = false;
+const INCLUDE_OPENAI_LATENCY = true;
 
 function recordLatency(arr: number[], value: number): void {
   arr.push(value);
@@ -28,11 +28,11 @@ function average(arr: number[]): number {
 }
 
 function computeAverageLatency(): number {
-  const queryAvg = average(queryLatencies);
+  const thinkingAvg = average(thinkingLatencies);
   const openaiAvg = INCLUDE_OPENAI_LATENCY
-    ? average(openaiLatencies)
+    ? average(openaiTtfbLatencies)
     : 0;
-  const total = queryAvg + openaiAvg;
+  const total = thinkingAvg + openaiAvg;
   return total;
 }
 
@@ -56,18 +56,21 @@ export function createCueTool(sessionId: string) {
       const pause = args.pause ?? 0;
 
       // Persist cue to database
-      const seqNum = sessionManager.incrementEventSequence(sessionId);
-      dbOps.insertCue(sessionId, seqNum, args.text, args.voice, pause);
+      const seqNum =
+        sessionManager.incrementEventSequence(sessionId);
+      dbOps.insertCue(
+        sessionId,
+        seqNum,
+        args.text,
+        args.voice,
+        pause
+      );
 
-      const queryStartTime =
-        sessionManager.getQueryStartTime(sessionId);
-
-      // Record query latency (time since last cue or query start)
-      if (queryStartTime) {
-        recordLatency(
-          queryLatencies,
-          (Date.now() - queryStartTime) / 1000
-        );
+      // Record thinking duration (time Claude spent in extended thinking)
+      const thinkingDuration =
+        sessionManager.consumeThinkingDuration(sessionId);
+      if (thinkingDuration !== undefined) {
+        recordLatency(thinkingLatencies, thinkingDuration);
       }
 
       // Generate audio from OpenAI and stream directly to client
@@ -80,10 +83,6 @@ export function createCueTool(sessionId: string) {
         instructions: voiceInstructions,
         response_format: "pcm",
       });
-      recordLatency(
-        openaiLatencies,
-        (Date.now() - openaiStart) / 1000
-      );
 
       // Notify the client via SSE immediately
       sessionManager.sendSSE(sessionId, "cue", {
@@ -91,7 +90,8 @@ export function createCueTool(sessionId: string) {
         pause,
       });
 
-      // Convert web ReadableStream to AsyncIterable<Uint8Array>
+      // Convert web ReadableStream to AsyncIterable<Uint8Array> and measure TTFB
+      let ttfbRecorded = false;
       async function* streamToAsyncIterable(
         stream: ReadableStream<Uint8Array>
       ): AsyncIterable<Uint8Array> {
@@ -100,6 +100,14 @@ export function createCueTool(sessionId: string) {
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
+            // Record time to first byte
+            if (!ttfbRecorded) {
+              recordLatency(
+                openaiTtfbLatencies,
+                (Date.now() - openaiStart) / 1000
+              );
+              ttfbRecorded = true;
+            }
             yield value;
           }
         } finally {
@@ -115,8 +123,7 @@ export function createCueTool(sessionId: string) {
       // Send pause start/end events - client counts down from duration
       const adjusted = Math.max(
         0,
-        pause - computeAverageLatency(),
-        pause // rm to adjust
+        pause - computeAverageLatency() - 1
       );
       if (pause > 0) {
         sessionManager.sendSSE(sessionId, "pause_start", {
@@ -127,8 +134,8 @@ export function createCueTool(sessionId: string) {
         );
       }
 
-      // Reset timestamp for next cue measurement
-      sessionManager.setQueryStartTime(sessionId, Date.now());
+      // Mark that a cue has been called (for thinking latency tracking)
+      sessionManager.markCueCalled(sessionId);
 
       return {
         content: [

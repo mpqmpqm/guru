@@ -23,8 +23,6 @@ interface Session {
   audioReady: (() => void) | null;
   // Abort controller for cancelling the agent
   abortController: AbortController | null;
-  // Timestamp when query() started (for latency tracking)
-  queryStartTime?: number;
   // Timestamp when first thinking block was received (session start for time tool)
   sessionStartTime?: number;
   // Timestamp when time tool was last called
@@ -33,6 +31,12 @@ interface Session {
   eventSequence: number;
   // Buffer for accumulating thinking chunks during a thinking block
   pendingThinking: string;
+  // Timestamp when current thinking block started
+  thinkingStartTime?: number;
+  // Duration of last completed thinking block (seconds)
+  lastThinkingDuration?: number;
+  // Whether a cue has been called (skip initial thinking for latency)
+  cueHasBeenCalled?: boolean;
 }
 
 class SessionManager {
@@ -76,17 +80,6 @@ class SessionManager {
     if (session) {
       session.abortController = controller;
     }
-  }
-
-  setQueryStartTime(sessionId: string, time: number): void {
-    const session = this.sessions.get(sessionId);
-    if (session) {
-      session.queryStartTime = time;
-    }
-  }
-
-  getQueryStartTime(sessionId: string): number | undefined {
-    return this.sessions.get(sessionId)?.queryStartTime;
   }
 
   setSessionStartTime(sessionId: string, time: number): void {
@@ -138,6 +131,39 @@ class SessionManager {
     const content = session.pendingThinking;
     session.pendingThinking = "";
     return content;
+  }
+
+  setThinkingStartTime(sessionId: string, time: number): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.thinkingStartTime = time;
+    }
+  }
+
+  completeThinkingBlock(sessionId: string): void {
+    const session = this.sessions.get(sessionId);
+    if (session?.thinkingStartTime) {
+      // Only record thinking duration after first cue (initial thinking is longer)
+      if (session.cueHasBeenCalled) {
+        session.lastThinkingDuration = (Date.now() - session.thinkingStartTime) / 1000;
+      }
+      session.thinkingStartTime = undefined;
+    }
+  }
+
+  markCueCalled(sessionId: string): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.cueHasBeenCalled = true;
+    }
+  }
+
+  consumeThinkingDuration(sessionId: string): number | undefined {
+    const session = this.sessions.get(sessionId);
+    if (!session) return undefined;
+    const duration = session.lastThinkingDuration;
+    session.lastThinkingDuration = undefined;
+    return duration;
   }
 
   abortAgent(sessionId: string): void {

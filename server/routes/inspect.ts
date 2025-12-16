@@ -22,3 +22,15 @@ inspectRouter.get("/sessions/:sessionId", (req, res) => {
 
   res.json({ session, events });
 });
+
+// Delete a session
+inspectRouter.delete("/sessions/:sessionId", (req, res) => {
+  const { sessionId } = req.params;
+
+  const deleted = dbOps.deleteSession(sessionId);
+  if (!deleted) {
+    return res.status(404).json({ error: "Session not found" });
+  }
+
+  res.json({ success: true });
+});

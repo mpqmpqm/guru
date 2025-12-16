@@ -187,6 +187,19 @@ export const dbOps = {
       .all(limit) as ReturnType<typeof dbOps.listSessions>;
   },
 
+  deleteSession(sessionId: string): boolean {
+    const database = getDb();
+    // Delete related records first (foreign key constraints)
+    database.prepare(`DELETE FROM cues WHERE session_id = ?`).run(sessionId);
+    database
+      .prepare(`DELETE FROM thinking_traces WHERE session_id = ?`)
+      .run(sessionId);
+    const result = database
+      .prepare(`DELETE FROM sessions WHERE id = ?`)
+      .run(sessionId);
+    return result.changes > 0;
+  },
+
   getSessionEvents(
     sessionId: string
   ): Array<
