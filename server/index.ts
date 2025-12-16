@@ -74,11 +74,15 @@ app.get("/health", async (_req, res) => {
   try {
     const { dbOps } = await import("./services/db.js");
     dbOps.listSessions(1);
-    checks.database = { status: "ok", latency: Date.now() - dbStart };
+    checks.database = {
+      status: "ok",
+      latency: Date.now() - dbStart,
+    };
   } catch (error) {
     checks.database = {
       status: "error",
-      error: error instanceof Error ? error.message : String(error),
+      error:
+        error instanceof Error ? error.message : String(error),
     };
     overallStatus = "degraded";
   }
@@ -102,7 +106,8 @@ app.get("/health", async (_req, res) => {
   } catch (error) {
     checks.openai = {
       status: "error",
-      error: error instanceof Error ? error.message : String(error),
+      error:
+        error instanceof Error ? error.message : String(error),
     };
     overallStatus = "degraded";
   }
@@ -126,17 +131,33 @@ app.get("/health", async (_req, res) => {
   } catch (error) {
     checks.anthropic = {
       status: "error",
-      error: error instanceof Error ? error.message : String(error),
+      error:
+        error instanceof Error ? error.message : String(error),
     };
     overallStatus = "degraded";
   }
 
   const statusCode = overallStatus === "ok" ? 200 : 503;
-  res.status(statusCode).json({
+  res.status(statusCode).send(
+    `<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+  <body style="background-color: black; color: white;">
+    <pre>
+${JSON.stringify(
+  {
     status: overallStatus,
     checks,
     timestamp: new Date().toISOString(),
-  });
+  },
+  null,
+  2
+)}
+    </pre>
+  </body>
+</html>`
+  );
 });
 
 // Simple liveness probe
