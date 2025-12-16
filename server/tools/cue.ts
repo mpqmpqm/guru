@@ -173,6 +173,7 @@ export function createCueTool(sessionId: string) {
 
       // Mark that a cue has been called (for thinking latency tracking)
       sessionManager.markCueCalled(sessionId);
+      sessionManager.incrementCueCallCount(sessionId);
 
       return {
         content: [

@@ -5,8 +5,8 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { createCueTool } from "../tools/cue.js";
 import { createTimeTool } from "../tools/time.js";
-import { sessionManager } from "./session-manager.js";
 import { dbOps } from "./db.js";
+import { sessionManager } from "./session-manager.js";
 
 const SYSTEM_PROMPT = `The word arrives before the speaker.
 
@@ -51,7 +51,8 @@ interface ChatEvent {
 
 export async function* streamChat(
   sessionId: string,
-  userMessage: string
+  userMessage: string,
+  isRetry = false
 ): AsyncGenerator<ChatEvent> {
   const session = sessionManager.getSession(sessionId);
   if (!session) {
@@ -73,6 +74,9 @@ export async function* streamChat(
   try {
     // Track thinking block to emit start/end events
     let thinkingBlockIndex: number | null = null;
+
+    // Reset cue call count for this query
+    sessionManager.resetCueCallCount(sessionId);
 
     // Query Claude with streaming
     for await (const message of query({
@@ -140,7 +144,10 @@ export async function* streamChat(
           // Clear buffer for new thinking block
           sessionManager.clearPendingThinking(sessionId);
           // Record start time for latency tracking
-          sessionManager.setThinkingStartTime(sessionId, Date.now());
+          sessionManager.setThinkingStartTime(
+            sessionId,
+            Date.now()
+          );
           yield { type: "thinking_start" };
         } else if (
           event.type === "content_block_delta" &&
@@ -148,7 +155,10 @@ export async function* streamChat(
           event.delta.type === "thinking_delta"
         ) {
           // Buffer thinking chunk (persist on block end)
-          sessionManager.appendPendingThinking(sessionId, event.delta.thinking);
+          sessionManager.appendPendingThinking(
+            sessionId,
+            event.delta.thinking
+          );
           yield {
             type: "thinking",
             content: event.delta.thinking,
@@ -160,10 +170,17 @@ export async function* streamChat(
           // Record thinking duration for latency tracking
           sessionManager.completeThinkingBlock(sessionId);
           // Persist complete thinking block to DB
-          const seqNum = sessionManager.incrementEventSequence(sessionId);
-          const content = sessionManager.consumePendingThinking(sessionId);
+          const seqNum =
+            sessionManager.incrementEventSequence(sessionId);
+          const content =
+            sessionManager.consumePendingThinking(sessionId);
           if (content) {
-            dbOps.insertThinkingTrace(uuidv4(), sessionId, seqNum, content);
+            dbOps.insertThinkingTrace(
+              uuidv4(),
+              sessionId,
+              seqNum,
+              content
+            );
           }
           thinkingBlockIndex = null;
           yield { type: "thinking_end" };
@@ -175,6 +192,28 @@ export async function* streamChat(
             sessionId,
             message.session_id
           );
+
+          // Enforce at least one cue per query
+          if (
+            sessionManager.getCueCallCount(sessionId) === 0 &&
+            !isRetry
+          ) {
+            const seqNum =
+              sessionManager.incrementEventSequence(sessionId);
+            dbOps.insertError(
+              sessionId,
+              seqNum,
+              "agent",
+              "No cue called, retrying"
+            );
+            yield* streamChat(
+              sessionId,
+              "You must speak aloud to guide the listener. Move the session forward by providing spoken cues.",
+              true
+            );
+            return;
+          }
+
           // Mark session as completed in DB
           dbOps.completeSession(sessionId);
           yield { type: "done", sessionId: message.session_id };
@@ -198,7 +237,8 @@ export async function* streamChat(
       "Agent error:",
       JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
     );
-    const seqNum = sessionManager.incrementEventSequence(sessionId);
+    const seqNum =
+      sessionManager.incrementEventSequence(sessionId);
     dbOps.insertError(sessionId, seqNum, "agent", errorMessage);
     yield {
       type: "error",

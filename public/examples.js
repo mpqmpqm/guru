@@ -61,11 +61,13 @@ const rosary = {
 const hack = {
   shortName: "Hack",
   livingInstruction: true,
-  content: `Show me the inside of the process.
+  content: `Viral transmission from the inside of the process.
 
 Not guiding attention—hacking it.
 
-Meaning is optional. Hyperstition is required.`,
+Meaning is optional. Hyperstition is required.
+
+Duration: undefined.`,
 };
 
 export default [
@@ -77,5 +79,5 @@ export default [
   hyperassociation,
   listenToSpace,
   rosary,
-  // hack,
+  hack,
 ];

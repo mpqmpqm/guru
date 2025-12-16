@@ -37,6 +37,8 @@ interface Session {
   lastThinkingDuration?: number;
   // Whether a cue has been called (skip initial thinking for latency)
   cueHasBeenCalled?: boolean;
+  // Count of cue calls in current query (reset per query)
+  cueCallCount: number;
 }
 
 class SessionManager {
@@ -53,6 +55,7 @@ class SessionManager {
       abortController: null,
       eventSequence: 0,
       pendingThinking: "",
+      cueCallCount: 0,
     });
     return id;
   }
@@ -156,6 +159,24 @@ class SessionManager {
     if (session) {
       session.cueHasBeenCalled = true;
     }
+  }
+
+  incrementCueCallCount(sessionId: string): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.cueCallCount++;
+    }
+  }
+
+  resetCueCallCount(sessionId: string): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.cueCallCount = 0;
+    }
+  }
+
+  getCueCallCount(sessionId: string): number {
+    return this.sessions.get(sessionId)?.cueCallCount ?? 0;
   }
 
   consumeThinkingDuration(sessionId: string): number | undefined {
