@@ -8,6 +8,19 @@ const openai = new OpenAI();
 
 const VOICE = "alloy";
 const MS_PER_COUNT = 1000;
+const OPENAI_TIMEOUT_MS = 10_000;
+
+// Timeout wrapper for promises
+async function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  errorMessage: string
+): Promise<T> {
+  const timeout = new Promise<never>((_, reject) => {
+    setTimeout(() => reject(new Error(errorMessage)), ms);
+  });
+  return Promise.race([promise, timeout]);
+}
 
 // Track latencies separately for running averages (in seconds)
 const thinkingLatencies: number[] = [];
@@ -78,13 +91,35 @@ export function createCueTool(sessionId: string) {
       // Generate audio from OpenAI and stream directly to client
       const openaiStart = Date.now();
       const voiceInstructions = args.voice;
-      const response = await openai.audio.speech.create({
-        model: "gpt-4o-mini-tts",
-        voice: VOICE,
-        input: args.text,
-        instructions: voiceInstructions,
-        response_format: "pcm",
-      });
+
+      let response;
+      try {
+        response = await withTimeout(
+          openai.audio.speech.create({
+            model: "gpt-4o-mini-tts",
+            voice: VOICE,
+            input: args.text,
+            instructions: voiceInstructions,
+            response_format: "pcm",
+          }),
+          OPENAI_TIMEOUT_MS,
+          `OpenAI TTS timed out after ${OPENAI_TIMEOUT_MS}ms`
+        );
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : String(error);
+        console.error(`[cue] OpenAI error: ${message}`);
+        dbOps.insertError(sessionId, seqNum, "openai", message);
+        return {
+          content: [
+            {
+              type: "text" as const,
+              text: `Error generating audio: ${message}. Continuing without audio.`,
+            },
+          ],
+          isError: true,
+        };
+      }
 
       // Notify the client via SSE immediately
       sessionManager.sendSSE(sessionId, "cue", {

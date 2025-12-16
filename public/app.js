@@ -39,6 +39,46 @@ let eventSource = null;
 let isProcessing = false;
 let wakeLock = null;
 
+// Network resilience state
+let isOnline = navigator.onLine;
+let sseReconnectAttempts = 0;
+let audioReconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 10;
+const BASE_RECONNECT_DELAY = 1000;
+
+// Calculate exponential backoff with jitter
+function getReconnectDelay(attempts) {
+  const delay = Math.min(
+    BASE_RECONNECT_DELAY * Math.pow(2, attempts),
+    30000
+  );
+  const jitter = delay * 0.2 * Math.random();
+  return delay + jitter;
+}
+
+// Recover session when server returns 404 (session not found)
+async function recoverSession() {
+  console.log("Session not found, recovering...");
+
+  // Close existing connections
+  if (eventSource) {
+    eventSource.close();
+    eventSource = null;
+  }
+  if (audioFetchController) {
+    audioFetchController.abort();
+    audioFetchController = null;
+  }
+
+  // Reset state
+  sessionId = null;
+  sseReconnectAttempts = 0;
+  audioReconnectAttempts = 0;
+
+  // Create new session
+  await init();
+}
+
 // Stream timer state
 let streamStartTime = null;
 let streamTimerInterval = null;
@@ -232,8 +272,14 @@ async function startAudioStream() {
       signal: audioFetchController.signal,
     });
 
-    if (!response.ok) return;
+    if (!response.ok) {
+      if (response.status === 404) {
+        recoverSession();
+      }
+      return;
+    }
 
+    audioReconnectAttempts = 0; // Reset on successful connection
     const reader = response.body.getReader();
 
     while (true) {
@@ -261,12 +307,23 @@ async function startAudioStream() {
   } catch (error) {
     if (error.name === "AbortError") return;
 
-    // Reconnect on error
+    // Don't retry while offline
+    if (!isOnline) return;
+
+    audioReconnectAttempts++;
+
+    if (audioReconnectAttempts > MAX_RECONNECT_ATTEMPTS) {
+      console.error("Audio stream unavailable after max retries");
+      return;
+    }
+
+    // Exponential backoff reconnection
+    const delay = getReconnectDelay(audioReconnectAttempts);
     setTimeout(() => {
-      if (sessionId && isAudioUnlocked) {
+      if (sessionId && isAudioUnlocked && isOnline) {
         startAudioStream();
       }
-    }, 2000);
+    }, delay);
   }
 }
 
@@ -306,6 +363,7 @@ function connectSSE() {
   eventSource.addEventListener("connected", () => {
     connectionIndicator.className =
       "connection-indicator connected";
+    sseReconnectAttempts = 0; // Reset on successful connection
   });
 
   eventSource.addEventListener("processing", (event) => {
@@ -393,12 +451,31 @@ function connectSSE() {
     connectionIndicator.className =
       "connection-indicator disconnected";
 
-    // Attempt reconnection after a delay
+    if (eventSource) {
+      eventSource.close();
+      eventSource = null;
+    }
+
+    // Don't retry while offline - network listener will reconnect
+    if (!isOnline) {
+      return;
+    }
+
+    sseReconnectAttempts++;
+
+    if (sseReconnectAttempts > MAX_RECONNECT_ATTEMPTS) {
+      // Session may be gone, recover with a new one
+      recoverSession();
+      return;
+    }
+
+    // Exponential backoff reconnection
+    const delay = getReconnectDelay(sseReconnectAttempts);
     setTimeout(() => {
-      if (sessionId) {
+      if (sessionId && isOnline) {
         connectSSE();
       }
-    }, 3000);
+    }, delay);
   };
 }
 
@@ -496,6 +573,10 @@ async function sendMessage(message) {
     });
 
     if (!response.ok) {
+      if (response.status === 404) {
+        await recoverSession();
+        return;
+      }
       const error = await response.json();
       throw new Error(error.error || "Failed to send message");
     }
@@ -557,18 +638,62 @@ chatForm.addEventListener("submit", async (e) => {
 
 // Resume AudioContext and wake lock when page becomes visible (e.g., phone unlocked)
 document.addEventListener("visibilitychange", () => {
-  if (
-    document.visibilityState === "visible" &&
-    audioContext &&
-    isAudioUnlocked
-  ) {
-    if (audioContext.state === "suspended") {
-      audioContext.resume();
+  if (document.visibilityState === "visible") {
+    // Resume AudioContext if needed
+    if (audioContext && isAudioUnlocked) {
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
     }
+
     // Re-acquire wake lock if stream is still active
     if (isProcessing && !wakeLock) {
       requestWakeLock();
     }
+
+    // Check SSE connection health after becoming visible
+    if (sessionId && eventSource) {
+      if (eventSource.readyState === EventSource.CLOSED) {
+        eventSource = null;
+        sseReconnectAttempts = 0;
+        connectSSE();
+      }
+    }
+
+    // Restart audio stream if it died while backgrounded
+    if (sessionId && isAudioUnlocked && !audioFetchController) {
+      audioReconnectAttempts = 0;
+      startAudioStream();
+    }
+  }
+});
+
+// Network change detection
+window.addEventListener("online", () => {
+  isOnline = true;
+  connectionIndicator.className = "connection-indicator disconnected";
+
+  // Reconnect SSE on network restoration
+  if (sessionId && !eventSource) {
+    sseReconnectAttempts = 0;
+    connectSSE();
+  }
+
+  // Restart audio stream if it was active
+  if (sessionId && isAudioUnlocked && !audioFetchController) {
+    audioReconnectAttempts = 0;
+    startAudioStream();
+  }
+});
+
+window.addEventListener("offline", () => {
+  isOnline = false;
+  connectionIndicator.className = "connection-indicator error";
+
+  // Proactively close stale connections
+  if (eventSource) {
+    eventSource.close();
+    eventSource = null;
   }
 });
 

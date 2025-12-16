@@ -31,3 +31,5 @@ digest.txt
 
 # Database
 data/
+
+*.tsbuildinfo

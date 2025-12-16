@@ -61,13 +61,91 @@ app.use("/api/chat", chatRouter);
 app.use("/api/audio", audioRouter);
 app.use("/api/inspect", inspectRouter);
 
-// Health check
-app.get("/health", (_req, res) => {
-  res.json({ status: "ok" });
+// Health check with dependency validation
+app.get("/health", async (_req, res) => {
+  const checks: Record<
+    string,
+    { status: string; latency?: number; error?: string }
+  > = {};
+  let overallStatus = "ok";
+
+  // Check SQLite database
+  const dbStart = Date.now();
+  try {
+    const { dbOps } = await import("./services/db.js");
+    dbOps.listSessions(1);
+    checks.database = { status: "ok", latency: Date.now() - dbStart };
+  } catch (error) {
+    checks.database = {
+      status: "error",
+      error: error instanceof Error ? error.message : String(error),
+    };
+    overallStatus = "degraded";
+  }
+
+  // Check OpenAI status
+  const openaiStart = Date.now();
+  try {
+    const openaiRes = await fetch(
+      "https://status.openai.com/api/v2/status.json",
+      { signal: AbortSignal.timeout(5000) }
+    );
+    const openaiData = (await openaiRes.json()) as {
+      status: { indicator: string; description: string };
+    };
+    const indicator = openaiData.status.indicator;
+    checks.openai = {
+      status: indicator === "none" ? "ok" : indicator,
+      latency: Date.now() - openaiStart,
+    };
+    if (indicator !== "none") overallStatus = "degraded";
+  } catch (error) {
+    checks.openai = {
+      status: "error",
+      error: error instanceof Error ? error.message : String(error),
+    };
+    overallStatus = "degraded";
+  }
+
+  // Check Anthropic/Claude status
+  const anthropicStart = Date.now();
+  try {
+    const anthropicRes = await fetch(
+      "https://status.claude.com/api/v2/status.json",
+      { signal: AbortSignal.timeout(5000) }
+    );
+    const anthropicData = (await anthropicRes.json()) as {
+      status: { indicator: string; description: string };
+    };
+    const indicator = anthropicData.status.indicator;
+    checks.anthropic = {
+      status: indicator === "none" ? "ok" : indicator,
+      latency: Date.now() - anthropicStart,
+    };
+    if (indicator !== "none") overallStatus = "degraded";
+  } catch (error) {
+    checks.anthropic = {
+      status: "error",
+      error: error instanceof Error ? error.message : String(error),
+    };
+    overallStatus = "degraded";
+  }
+
+  const statusCode = overallStatus === "ok" ? 200 : 503;
+  res.status(statusCode).json({
+    status: overallStatus,
+    checks,
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Simple liveness probe
+app.get("/healthz", (_req, res) => {
+  res.status(200).send("OK");
 });
 
 // Version info
-app.get("/version", async (req, res) => {
+app.get("/version", async (_req, res) => {
   res.json(
     await fs.promises
       .readFile(path.join(__dirname, "../version.json"), "utf-8")

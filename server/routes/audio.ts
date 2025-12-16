@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { sessionManager } from "../services/session-manager.js";
+import { dbOps } from "../services/db.js";
 
 export const audioRouter = Router();
 
@@ -36,7 +37,11 @@ audioRouter.get("/:sessionId", async (req, res) => {
       // flush signals are just markers, no action needed now
     }
   } catch (error) {
-    console.error(`Audio stream error for session ${sessionId}:`, error);
+    const errorMessage =
+      error instanceof Error ? error.message : String(error);
+    console.error(`Audio stream error for session ${sessionId}:`, errorMessage);
+    const seqNum = sessionManager.incrementEventSequence(sessionId);
+    dbOps.insertError(sessionId, seqNum, "audio", errorMessage);
   }
 
   res.end();

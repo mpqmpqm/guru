@@ -192,10 +192,14 @@ export async function* streamChat(
       console.log(`Agent aborted for session ${sessionId}`);
       return;
     }
+    const errorMessage =
+      error instanceof Error ? error.message : String(error);
     console.error(
       "Agent error:",
       JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
     );
+    const seqNum = sessionManager.incrementEventSequence(sessionId);
+    dbOps.insertError(sessionId, seqNum, "agent", errorMessage);
     yield {
       type: "error",
       content: `Error: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,

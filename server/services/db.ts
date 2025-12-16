@@ -55,20 +55,54 @@ function initSchema(database: Database.Database): void {
       FOREIGN KEY (session_id) REFERENCES sessions(id)
     );
 
+    CREATE TABLE IF NOT EXISTS errors (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      session_id TEXT NOT NULL,
+      sequence_num INTEGER NOT NULL,
+      source TEXT NOT NULL,
+      message TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (session_id) REFERENCES sessions(id)
+    );
+
     CREATE INDEX IF NOT EXISTS idx_cues_session ON cues(session_id, sequence_num);
     CREATE INDEX IF NOT EXISTS idx_thinking_session ON thinking_traces(session_id, sequence_num);
+    CREATE INDEX IF NOT EXISTS idx_errors_session ON errors(session_id, sequence_num);
   `);
+}
+
+// Safe database operation wrapper - logs errors but doesn't crash
+function safeDbOperation<T>(
+  operation: () => T,
+  operationName: string,
+  fallback: T
+): T {
+  try {
+    return operation();
+  } catch (error) {
+    console.error(
+      `[db] ${operationName} failed:`,
+      error instanceof Error ? error.message : String(error)
+    );
+    return fallback;
+  }
 }
 
 // Prepared statements
 export const dbOps = {
   createSession(id: string, createdAt: string, initialPrompt: string): void {
-    const database = getDb();
-    database
-      .prepare(
-        `INSERT INTO sessions (id, created_at, initial_prompt) VALUES (?, ?, ?)`
-      )
-      .run(id, createdAt, initialPrompt);
+    safeDbOperation(
+      () => {
+        const database = getDb();
+        database
+          .prepare(
+            `INSERT INTO sessions (id, created_at, initial_prompt) VALUES (?, ?, ?)`
+          )
+          .run(id, createdAt, initialPrompt);
+      },
+      "createSession",
+      undefined
+    );
   },
 
   insertThinkingTrace(
@@ -77,12 +111,18 @@ export const dbOps = {
     seqNum: number,
     content: string
   ): void {
-    const database = getDb();
-    database
-      .prepare(
-        `INSERT INTO thinking_traces (id, session_id, sequence_num, content, created_at) VALUES (?, ?, ?, ?, ?)`
-      )
-      .run(id, sessionId, seqNum, content, new Date().toISOString());
+    safeDbOperation(
+      () => {
+        const database = getDb();
+        database
+          .prepare(
+            `INSERT INTO thinking_traces (id, session_id, sequence_num, content, created_at) VALUES (?, ?, ?, ?, ?)`
+          )
+          .run(id, sessionId, seqNum, content, new Date().toISOString());
+      },
+      "insertThinkingTrace",
+      undefined
+    );
   },
 
   insertCue(
@@ -92,31 +132,69 @@ export const dbOps = {
     voice: string,
     pause: number
   ): void {
-    const database = getDb();
-    database
-      .prepare(
-        `INSERT INTO cues (session_id, sequence_num, text, voice, pause, created_at) VALUES (?, ?, ?, ?, ?, ?)`
-      )
-      .run(sessionId, seqNum, text, voice, pause, new Date().toISOString());
+    safeDbOperation(
+      () => {
+        const database = getDb();
+        database
+          .prepare(
+            `INSERT INTO cues (session_id, sequence_num, text, voice, pause, created_at) VALUES (?, ?, ?, ?, ?, ?)`
+          )
+          .run(sessionId, seqNum, text, voice, pause, new Date().toISOString());
+      },
+      "insertCue",
+      undefined
+    );
+  },
+
+  insertError(
+    sessionId: string,
+    seqNum: number,
+    source: string,
+    message: string
+  ): void {
+    safeDbOperation(
+      () => {
+        const database = getDb();
+        database
+          .prepare(
+            `INSERT INTO errors (session_id, sequence_num, source, message, created_at) VALUES (?, ?, ?, ?, ?)`
+          )
+          .run(sessionId, seqNum, source, message, new Date().toISOString());
+      },
+      "insertError",
+      undefined
+    );
   },
 
   completeSession(sessionId: string): void {
-    const database = getDb();
-    database
-      .prepare(
-        `UPDATE sessions SET completed_at = ?, status = 'completed' WHERE id = ?`
-      )
-      .run(new Date().toISOString(), sessionId);
+    safeDbOperation(
+      () => {
+        const database = getDb();
+        database
+          .prepare(
+            `UPDATE sessions SET completed_at = ?, status = 'completed' WHERE id = ?`
+          )
+          .run(new Date().toISOString(), sessionId);
+      },
+      "completeSession",
+      undefined
+    );
   },
 
   closeSession(sessionId: string): void {
-    const database = getDb();
-    // Only close if not already completed
-    database
-      .prepare(
-        `UPDATE sessions SET completed_at = ?, status = 'closed' WHERE id = ? AND status != 'completed'`
-      )
-      .run(new Date().toISOString(), sessionId);
+    safeDbOperation(
+      () => {
+        const database = getDb();
+        // Only close if not already completed
+        database
+          .prepare(
+            `UPDATE sessions SET completed_at = ?, status = 'closed' WHERE id = ? AND status != 'completed'`
+          )
+          .run(new Date().toISOString(), sessionId);
+      },
+      "closeSession",
+      undefined
+    );
   },
 
   getSession(
@@ -128,10 +206,16 @@ export const dbOps = {
     completed_at: string | null;
     status: string;
   } | null {
-    const database = getDb();
-    return database
-      .prepare(`SELECT * FROM sessions WHERE id = ?`)
-      .get(sessionId) as ReturnType<typeof dbOps.getSession>;
+    return safeDbOperation(
+      () => {
+        const database = getDb();
+        return database
+          .prepare(`SELECT * FROM sessions WHERE id = ?`)
+          .get(sessionId) as ReturnType<typeof dbOps.getSession>;
+      },
+      "getSession",
+      null
+    );
   },
 
   getCues(
@@ -145,12 +229,18 @@ export const dbOps = {
     pause: number;
     created_at: string;
   }> {
-    const database = getDb();
-    return database
-      .prepare(
-        `SELECT * FROM cues WHERE session_id = ? ORDER BY sequence_num`
-      )
-      .all(sessionId) as ReturnType<typeof dbOps.getCues>;
+    return safeDbOperation(
+      () => {
+        const database = getDb();
+        return database
+          .prepare(
+            `SELECT * FROM cues WHERE session_id = ? ORDER BY sequence_num`
+          )
+          .all(sessionId) as ReturnType<typeof dbOps.getCues>;
+      },
+      "getCues",
+      []
+    );
   },
 
   getThinkingTraces(
@@ -162,12 +252,42 @@ export const dbOps = {
     content: string;
     created_at: string;
   }> {
-    const database = getDb();
-    return database
-      .prepare(
-        `SELECT * FROM thinking_traces WHERE session_id = ? ORDER BY sequence_num`
-      )
-      .all(sessionId) as ReturnType<typeof dbOps.getThinkingTraces>;
+    return safeDbOperation(
+      () => {
+        const database = getDb();
+        return database
+          .prepare(
+            `SELECT * FROM thinking_traces WHERE session_id = ? ORDER BY sequence_num`
+          )
+          .all(sessionId) as ReturnType<typeof dbOps.getThinkingTraces>;
+      },
+      "getThinkingTraces",
+      []
+    );
+  },
+
+  getErrors(
+    sessionId: string
+  ): Array<{
+    id: number;
+    session_id: string;
+    sequence_num: number;
+    source: string;
+    message: string;
+    created_at: string;
+  }> {
+    return safeDbOperation(
+      () => {
+        const database = getDb();
+        return database
+          .prepare(
+            `SELECT * FROM errors WHERE session_id = ? ORDER BY sequence_num`
+          )
+          .all(sessionId) as ReturnType<typeof dbOps.getErrors>;
+      },
+      "getErrors",
+      []
+    );
   },
 
   listSessions(
@@ -179,25 +299,40 @@ export const dbOps = {
     status: string;
     completed_at: string | null;
   }> {
-    const database = getDb();
-    return database
-      .prepare(
-        `SELECT id, created_at, initial_prompt, status, completed_at FROM sessions ORDER BY created_at DESC LIMIT ?`
-      )
-      .all(limit) as ReturnType<typeof dbOps.listSessions>;
+    return safeDbOperation(
+      () => {
+        const database = getDb();
+        return database
+          .prepare(
+            `SELECT id, created_at, initial_prompt, status, completed_at FROM sessions ORDER BY created_at DESC LIMIT ?`
+          )
+          .all(limit) as ReturnType<typeof dbOps.listSessions>;
+      },
+      "listSessions",
+      []
+    );
   },
 
   deleteSession(sessionId: string): boolean {
-    const database = getDb();
-    // Delete related records first (foreign key constraints)
-    database.prepare(`DELETE FROM cues WHERE session_id = ?`).run(sessionId);
-    database
-      .prepare(`DELETE FROM thinking_traces WHERE session_id = ?`)
-      .run(sessionId);
-    const result = database
-      .prepare(`DELETE FROM sessions WHERE id = ?`)
-      .run(sessionId);
-    return result.changes > 0;
+    return safeDbOperation(
+      () => {
+        const database = getDb();
+        // Delete related records first (foreign key constraints)
+        database.prepare(`DELETE FROM cues WHERE session_id = ?`).run(sessionId);
+        database
+          .prepare(`DELETE FROM thinking_traces WHERE session_id = ?`)
+          .run(sessionId);
+        database
+          .prepare(`DELETE FROM errors WHERE session_id = ?`)
+          .run(sessionId);
+        const result = database
+          .prepare(`DELETE FROM sessions WHERE id = ?`)
+          .run(sessionId);
+        return result.changes > 0;
+      },
+      "deleteSession",
+      false
+    );
   },
 
   getSessionEvents(
@@ -205,46 +340,66 @@ export const dbOps = {
   ): Array<
     | { type: "thinking"; sequence_num: number; content: string; created_at: string }
     | { type: "cue"; sequence_num: number; text: string; voice: string; pause: number; created_at: string }
+    | { type: "error"; sequence_num: number; source: string; message: string; created_at: string }
   > {
-    const database = getDb();
-    // Query both tables and union them, ordered by sequence_num
-    const results = database
-      .prepare(
-        `SELECT 'thinking' as type, sequence_num, content, NULL as text, NULL as voice, NULL as pause, created_at
-         FROM thinking_traces WHERE session_id = ?
-         UNION ALL
-         SELECT 'cue' as type, sequence_num, NULL as content, text, voice, pause, created_at
-         FROM cues WHERE session_id = ?
-         ORDER BY sequence_num`
-      )
-      .all(sessionId, sessionId) as Array<{
-        type: string;
-        sequence_num: number;
-        content: string | null;
-        text: string | null;
-        voice: string | null;
-        pause: number | null;
-        created_at: string;
-      }>;
+    return safeDbOperation(
+      () => {
+        const database = getDb();
+        // Query all tables and union them, ordered by sequence_num
+        const results = database
+          .prepare(
+            `SELECT 'thinking' as type, sequence_num, content, NULL as text, NULL as voice, NULL as pause, NULL as source, NULL as message, created_at
+             FROM thinking_traces WHERE session_id = ?
+             UNION ALL
+             SELECT 'cue' as type, sequence_num, NULL as content, text, voice, pause, NULL as source, NULL as message, created_at
+             FROM cues WHERE session_id = ?
+             UNION ALL
+             SELECT 'error' as type, sequence_num, NULL as content, NULL as text, NULL as voice, NULL as pause, source, message, created_at
+             FROM errors WHERE session_id = ?
+             ORDER BY sequence_num`
+          )
+          .all(sessionId, sessionId, sessionId) as Array<{
+            type: string;
+            sequence_num: number;
+            content: string | null;
+            text: string | null;
+            voice: string | null;
+            pause: number | null;
+            source: string | null;
+            message: string | null;
+            created_at: string;
+          }>;
 
-    return results.map((row) => {
-      if (row.type === "thinking") {
-        return {
-          type: "thinking" as const,
-          sequence_num: row.sequence_num,
-          content: row.content!,
-          created_at: row.created_at,
-        };
-      } else {
-        return {
-          type: "cue" as const,
-          sequence_num: row.sequence_num,
-          text: row.text!,
-          voice: row.voice!,
-          pause: row.pause!,
-          created_at: row.created_at,
-        };
-      }
-    });
+        return results.map((row) => {
+          if (row.type === "thinking") {
+            return {
+              type: "thinking" as const,
+              sequence_num: row.sequence_num,
+              content: row.content!,
+              created_at: row.created_at,
+            };
+          } else if (row.type === "error") {
+            return {
+              type: "error" as const,
+              sequence_num: row.sequence_num,
+              source: row.source!,
+              message: row.message!,
+              created_at: row.created_at,
+            };
+          } else {
+            return {
+              type: "cue" as const,
+              sequence_num: row.sequence_num,
+              text: row.text!,
+              voice: row.voice!,
+              pause: row.pause!,
+              created_at: row.created_at,
+            };
+          }
+        });
+      },
+      "getSessionEvents",
+      []
+    );
   },
 };

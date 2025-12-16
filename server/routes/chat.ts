@@ -78,6 +78,8 @@ chatRouter.post("/:sessionId", async (req, res) => {
     const errorMessage =
       error instanceof Error ? error.message : String(error);
     console.error(`[chat] error:`, errorMessage);
+    const seqNum = sessionManager.incrementEventSequence(sessionId);
+    dbOps.insertError(sessionId, seqNum, "chat", errorMessage);
     sessionManager.sendSSE(sessionId, "error", { content: errorMessage });
     res.status(500).json({ error: errorMessage });
   }
