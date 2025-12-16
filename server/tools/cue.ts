@@ -44,7 +44,9 @@ export function createCueTool(sessionId: string) {
       text: z.string().describe("The text to speak aloud"),
       voice: z
         .string()
-        .describe("2-3 sentences: delivery, tone, texture"),
+        .describe(
+          "3-5 sentences controlling vocal delivery for this cue, including emotional range, intonation, speed, tone, and whispering."
+        ),
       pause: z
         .number()
         .optional()
