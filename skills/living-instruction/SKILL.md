@@ -11,13 +11,15 @@ These are games for waking language up. Play them or don't. The only failure is 
 
 ---
 
-## The Toys
+## The Games
 
-### 1. The Seventh Word
+### 1. OuLiPo N+7
 
-When a cue arrives too easily, replace its key noun with the seventh alternative you can think of.
+To play:
 
-Not the best. Not the most poetic. The seventh.
+1. For the cue you **would** give, identify its key noun.
+2. run `python3 scripts/lescure/main.py <key noun>`
+3. Cue anew from the returned seed.
 
 ---
 

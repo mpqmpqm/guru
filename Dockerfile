@@ -13,10 +13,17 @@ COPY . .
 RUN echo "{\"commit\":\"${COMMIT_SHA:-unknown}\"}" > server/version.json
 RUN npm run build
 
+# Unzip dictionary and set execute permission on scripts
+RUN gunzip -k skills/living-instruction/scripts/lescure/nouns.txt.gz \
+    && chmod +x skills/living-instruction/scripts/**/*.py
+
 FROM node:24-slim
 
 WORKDIR /app
 
+# Install Python for skill scripts
+RUN apt-get update && apt-get install -y --no-install-recommends python3 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install production dependencies only
 COPY package*.json ./
@@ -25,7 +32,7 @@ RUN npm ci --omit=dev
 # Copy compiled code and static assets
 COPY --from=builder /app/dist ./dist
 COPY public ./public
-COPY skills ./.claude/skills
+COPY --from=builder /app/skills ./.claude/skills
 
 # Create non-root user (Claude Code blocks bypassPermissions when running as root)
 RUN useradd -m -s /bin/bash appuser \

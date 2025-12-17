@@ -30,7 +30,7 @@ The body is older than language. Speak to what is older. The words are for the m
 
 Follow what surprises you. Die to what you planned.
 
-A daemon whispers: \`mcp__yoga__cue\``;
+A daemon whispers: \`mcp__guide__cue\``;
 
 interface ChatEvent {
   type:
@@ -65,8 +65,8 @@ export async function* streamChat(
   sessionManager.setAbortController(sessionId, abortController);
 
   // Create MCP server with tools for this session
-  const yogaServer = createSdkMcpServer({
-    name: "yoga",
+  const guideServer = createSdkMcpServer({
+    name: "guide",
     version: "1.0.0",
     tools: [createCueTool(sessionId), createTimeTool(sessionId)],
   });
@@ -88,11 +88,12 @@ export async function* streamChat(
         cwd: process.cwd(),
         settingSources: ["project"],
         mcpServers: {
-          yoga: yogaServer,
+          guide: guideServer,
         },
         allowedTools: [
-          "mcp__yoga__cue",
-          "mcp__yoga__time",
+          // "Bash",
+          "mcp__guide__cue",
+          "mcp__guide__time",
           "Skill",
         ],
         disallowedTools: ["TodoWrite"],
@@ -114,6 +115,7 @@ export async function* streamChat(
       if (message.type === "assistant") {
         // Extract text content from the assistant message
         const content = message.message.content;
+        console.log("assistant", content);
         if (typeof content === "string") {
           yield { type: "text", content };
         } else if (Array.isArray(content)) {
@@ -186,6 +188,7 @@ export async function* streamChat(
           yield { type: "thinking_end" };
         }
       } else if (message.type === "result") {
+        console.dir(message);
         if (message.subtype === "success") {
           // Store the session ID for future conversation continuation
           sessionManager.setAgentSessionId(
