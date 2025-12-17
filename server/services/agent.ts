@@ -115,7 +115,6 @@ export async function* streamChat(
       if (message.type === "assistant") {
         // Extract text content from the assistant message
         const content = message.message.content;
-        console.log("assistant", content);
         if (typeof content === "string") {
           yield { type: "text", content };
         } else if (Array.isArray(content)) {
