@@ -39,6 +39,8 @@ interface Session {
   cueHasBeenCalled?: boolean;
   // Count of cue calls in current query (reset per query)
   cueCallCount: number;
+  // Timestamp when last cue handler returned (for inter-cue latency tracking)
+  lastCueReturnTime?: number;
 }
 
 class SessionManager {
@@ -185,6 +187,17 @@ class SessionManager {
     const duration = session.lastThinkingDuration;
     session.lastThinkingDuration = undefined;
     return duration;
+  }
+
+  setLastCueReturnTime(sessionId: string, time: number): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.lastCueReturnTime = time;
+    }
+  }
+
+  getLastCueReturnTime(sessionId: string): number | undefined {
+    return this.sessions.get(sessionId)?.lastCueReturnTime;
   }
 
   abortAgent(sessionId: string): void {

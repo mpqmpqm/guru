@@ -23,10 +23,9 @@ async function withTimeout<T>(
 }
 
 // Track latencies separately for running averages (in seconds)
-const thinkingLatencies: number[] = [];
+const interCueLatencies: number[] = []; // Time from cue return to next cue invocation
 const openaiTtfbLatencies: number[] = [];
 const MAX_LATENCY_SAMPLES = 10;
-const INCLUDE_OPENAI_LATENCY = true;
 
 function recordLatency(arr: number[], value: number): void {
   arr.push(value);
@@ -41,12 +40,9 @@ function average(arr: number[]): number {
 }
 
 function computeAverageLatency(): number {
-  const thinkingAvg = average(thinkingLatencies);
-  const openaiAvg = INCLUDE_OPENAI_LATENCY
-    ? average(openaiTtfbLatencies)
-    : 0;
-  const total = thinkingAvg + openaiAvg;
-  return total;
+  const interCueAvg = average(interCueLatencies);
+  const openaiAvg = average(openaiTtfbLatencies);
+  return interCueAvg + openaiAvg;
 }
 
 export function createCueTool(sessionId: string) {
@@ -81,11 +77,13 @@ export function createCueTool(sessionId: string) {
         pause
       );
 
-      // Record thinking duration (time Claude spent in extended thinking)
-      const thinkingDuration =
-        sessionManager.consumeThinkingDuration(sessionId);
-      if (thinkingDuration !== undefined) {
-        recordLatency(thinkingLatencies, thinkingDuration);
+      // Record inter-cue latency (time from last cue return to this invocation)
+      const lastReturnTime =
+        sessionManager.getLastCueReturnTime(sessionId);
+      if (lastReturnTime !== undefined) {
+        const interCueLatency =
+          (Date.now() - lastReturnTime) / 1000;
+        recordLatency(interCueLatencies, interCueLatency);
       }
 
       // Generate audio from OpenAI and stream directly to client
@@ -160,7 +158,7 @@ export function createCueTool(sessionId: string) {
       // Send pause start/end events - client counts down from duration
       const adjusted = Math.max(
         0,
-        pause - computeAverageLatency() - 1
+        pause - computeAverageLatency()
       );
       if (pause > 0) {
         sessionManager.sendSSE(sessionId, "pause_start", {
@@ -171,9 +169,12 @@ export function createCueTool(sessionId: string) {
         );
       }
 
-      // Mark that a cue has been called (for thinking latency tracking)
+      // Mark that a cue has been called
       sessionManager.markCueCalled(sessionId);
       sessionManager.incrementCueCallCount(sessionId);
+
+      // Record return time for inter-cue latency tracking
+      sessionManager.setLastCueReturnTime(sessionId, Date.now());
 
       return {
         content: [
