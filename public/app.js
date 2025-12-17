@@ -333,6 +333,14 @@ async function init() {
     connectionIndicator.className =
       "connection-indicator disconnected";
 
+    // Reset audio state for new session
+    if (audioFetchController) {
+      audioFetchController.abort();
+      audioFetchController = null;
+    }
+    isAudioUnlocked = false;
+    pcmBuffer = new Uint8Array(0);
+
     // Create new session
     const response = await fetch("/api/session", {
       method: "POST",
