@@ -47,7 +47,7 @@ const bodyScan = {
 const demo = {
   shortName: "Demo",
   livingInstruction: true,
-  content: `3 minutes. Guided attention practice. Dealer's choice.`,
+  content: `3 minutes. Guided attention practice, starting in the middle. Leave 'em wanting more.`,
 };
 
 const rosary = {
