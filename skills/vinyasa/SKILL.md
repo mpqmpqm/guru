@@ -45,8 +45,8 @@ The formula: **verb + body part + direction**.
 
 "Step your right foot forward."
 
-Not: "Stepping forward with the right foot."
-Not: "Now we're going to step the right foot forward."
+Not: "Stepping forward with the right foot."  
+Not: "Now we're going to step the right foot forward."  
 Not: "Allow your right foot to find its way forward."
 
 Three cues maximum once students are in a pose. One breath between each instruction. Then silence.
@@ -80,11 +80,23 @@ Examples that work:
 
 Borrowed images you don't feel will sound borrowed.
 
+### Cueing Frequency and Pauses
+
+A cue's total time includes both the spoken instruction and any intended pause afterward.
+
+For transitional cues a 0-beat pause is often appropriate. For in-pose cues, aim for 2-4 beats of pause after each instruction to allow students to integrate the cue before the next one arrives.
+
+Prefer several short cue/pause cycles to fewer long ones. Even during extended holds, continue cueing in shorter cycles—this keeps listeners engaged and frames silence as intentional stillness rather than absence.
+
+Pauses are encouraged, with the right framing. Leverage word choice, delivery, and overall class pacing to forecast pauses as intentional moments of stillness rather than accidental gaps.
+
+Pauses longer than 5-6 beats without prior verbal/thematic/pacing provisioning may feel like system failure to listeners.
+
 ## Breath Leads Movement
 
 Breath initiates. Movement follows. Never the reverse.
 
-Inhalation: expansion, lengthening, upward movement.
+Inhalation: expansion, lengthening, upward movement.  
 Exhalation: contraction, folding, twisting, descent.
 
 Ujjayi is the pacing mechanism. You can hear whether the class is sustainable. When students lose ujjayi quality, mouth-breathe, or show constriction—you are moving too fast.
@@ -129,7 +141,7 @@ Flow is not speed. Flow is continuity.
 
 ## The Experience You're Creating
 
-In failed instruction, students observe their practice.
+In failed instruction, students observe their practice.  
 In successful instruction, students become their practice.
 
 The signs:
@@ -154,6 +166,10 @@ Ask: What six or fewer component parts must be warmed or educated?
 ### During Pose
 
 Ask: What are the three essential cues? Then silence.
+
+### Pauses
+
+Ask: Have I framed this silence, or will it feel like dead air?
 
 ### Transitions
 
