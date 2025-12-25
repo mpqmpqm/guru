@@ -610,8 +610,20 @@ function updateStatusDisplay(label) {
   const display = statusDuration
     ? Math.max(0, statusDuration - elapsed)
     : elapsed;
-  // pauseStatusEl.innerHTML = `<span class="status-dot"></span>${label} ${display}s`;
-  pauseStatusEl.innerHTML = `<span class="status-dot"></span>${label}`;
+  // Only create elements if they don't exist (preserves animation)
+  let dot = pauseStatusEl.querySelector(".status-dot");
+  let labelSpan = pauseStatusEl.querySelector(".status-label");
+  if (!dot) {
+    dot = document.createElement("span");
+    dot.className = "status-dot";
+    pauseStatusEl.appendChild(dot);
+  }
+  if (!labelSpan) {
+    labelSpan = document.createElement("span");
+    labelSpan.className = "status-label";
+    pauseStatusEl.appendChild(labelSpan);
+  }
+  labelSpan.textContent = label;
 }
 
 // Display error in collapsible details
