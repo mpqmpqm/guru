@@ -31,7 +31,11 @@ thinkingContentEl.addEventListener("scroll", () => {
 
 // Audio constants - OpenAI PCM is 24kHz, 16-bit signed, little-endian, mono
 const SAMPLE_RATE = 24000;
-const MIN_BUFFER_SIZE = SAMPLE_RATE * 0.35;
+const MIN_BUFFER_SECONDS = 0.12;
+const MIN_BUFFER_SIZE = SAMPLE_RATE * MIN_BUFFER_SECONDS;
+const FRAME_HEADER_SIZE = 5;
+const FRAME_TYPE_DATA = 1;
+const FRAME_TYPE_FLUSH = 2;
 
 // State
 let sessionId = null;
@@ -89,6 +93,7 @@ let nextStartTime = 0;
 let isAudioUnlocked = false;
 let audioFetchController = null;
 let pcmBuffer = new Uint8Array(0); // Buffer for incomplete samples
+let frameBuffer = new Uint8Array(0); // Buffer for framed audio parsing
 
 // Initialize AudioContext (but don't unlock yet - needs user gesture)
 function initAudioContext() {
@@ -253,6 +258,51 @@ function scheduleAudioBuffer(pcmData, flush = false) {
   nextStartTime = startTime + audioBuffer.duration;
 }
 
+function processAudioFrames(chunk) {
+  if (!chunk || chunk.length === 0) return;
+
+  const newBuffer = new Uint8Array(
+    frameBuffer.length + chunk.length
+  );
+  newBuffer.set(frameBuffer);
+  newBuffer.set(chunk, frameBuffer.length);
+  frameBuffer = newBuffer;
+
+  let offset = 0;
+  while (frameBuffer.length - offset >= FRAME_HEADER_SIZE) {
+    const view = new DataView(
+      frameBuffer.buffer,
+      frameBuffer.byteOffset + offset,
+      FRAME_HEADER_SIZE
+    );
+    const type = view.getUint8(0);
+    const length = view.getUint32(1, false);
+    const frameSize = FRAME_HEADER_SIZE + length;
+
+    if (frameBuffer.length - offset < frameSize) break;
+
+    if (type === FRAME_TYPE_DATA) {
+      const payload = frameBuffer.subarray(
+        offset + FRAME_HEADER_SIZE,
+        offset + frameSize
+      );
+      if (payload.length > 0) {
+        scheduleAudioBuffer(payload);
+      }
+    } else if (type === FRAME_TYPE_FLUSH) {
+      scheduleAudioBuffer(new Uint8Array(0), true);
+    } else {
+      console.warn("Unknown audio frame type:", type);
+    }
+
+    offset += frameSize;
+  }
+
+  if (offset > 0) {
+    frameBuffer = frameBuffer.subarray(offset);
+  }
+}
+
 // Fetch and play audio for the current session
 async function startAudioStream() {
   if (!sessionId || !isAudioUnlocked) return;
@@ -262,14 +312,16 @@ async function startAudioStream() {
     audioFetchController.abort();
   }
 
-  // Reset buffer for new audio stream
+  // Reset buffers for new audio stream
   pcmBuffer = new Uint8Array(0);
+  frameBuffer = new Uint8Array(0);
 
-  audioFetchController = new AbortController();
+  const controller = new AbortController();
+  audioFetchController = controller;
 
   try {
     const response = await fetch(`/api/audio/${sessionId}`, {
-      signal: audioFetchController.signal,
+      signal: controller.signal,
     });
 
     if (!response.ok) {
@@ -286,24 +338,18 @@ async function startAudioStream() {
       const { done, value } = await reader.read();
       if (done) break;
 
-      // Schedule this chunk for playback
-      if (value && value.length > 0) {
-        scheduleAudioBuffer(value);
-      }
+      processAudioFrames(value);
+    }
+
+    if (frameBuffer.length > 0) {
+      console.warn("Dropping incomplete audio frame");
+      frameBuffer = new Uint8Array(0);
     }
 
     // Flush any remaining buffered audio
     if (pcmBuffer.length > 0) {
       scheduleAudioBuffer(new Uint8Array(0), true);
     }
-
-    // Audio stream ended, start a new one for the next cue
-    // Small delay to avoid hammering the server
-    setTimeout(() => {
-      if (sessionId && isAudioUnlocked) {
-        startAudioStream();
-      }
-    }, 100);
   } catch (error) {
     if (error.name === "AbortError") return;
 
@@ -322,10 +368,19 @@ async function startAudioStream() {
     // Exponential backoff reconnection
     const delay = getReconnectDelay(audioReconnectAttempts);
     setTimeout(() => {
-      if (sessionId && isAudioUnlocked && isOnline) {
+      if (
+        sessionId &&
+        isAudioUnlocked &&
+        isOnline &&
+        !audioFetchController
+      ) {
         startAudioStream();
       }
     }, delay);
+  } finally {
+    if (audioFetchController === controller) {
+      audioFetchController = null;
+    }
   }
 }
 
@@ -342,6 +397,7 @@ async function init() {
     }
     isAudioUnlocked = false;
     pcmBuffer = new Uint8Array(0);
+    frameBuffer = new Uint8Array(0);
 
     // Create new session
     const response = await fetch("/api/session", {

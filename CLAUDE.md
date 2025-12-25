@@ -19,11 +19,11 @@ npm run start        # Run production build (node dist/index.js)
 
 ### Server (`server/`)
 
-Express server with SSE for events and raw PCM streaming for audio.
+Express server with SSE for events and framed PCM streaming for audio.
 
 - `index.ts` - Express app setup, routes, health checks
 - `routes/chat.ts` - SSE endpoint for streaming events, POST for sending messages
-- `routes/audio.ts` - PCM audio stream endpoint ("radio station" model)
+- `routes/audio.ts` - Framed PCM audio stream endpoint ("radio station" model)
 - `services/agent.ts` - Claude Agent SDK integration, `streamChat()` generator
 - `services/session-manager.ts` - In-memory session state, audio queue management
 - `services/db.ts` - SQLite persistence (better-sqlite3) for sessions, cues, thinking traces, errors
@@ -48,7 +48,7 @@ Vanilla JS frontend that connects via SSE for events and fetches PCM audio strea
 
 **Agent Communication**: The agent speaks only through `mcp__guide__cue`. Every response must include at least one cue. The system auto-retries if no cue is called.
 
-**Audio Flow**: OpenAI TTS → PCM chunks → session audio queue → streamed at playback rate (24kHz, 16-bit mono). The queue throttles to real-time to sync `onComplete` with actual playback.
+**Audio Flow**: OpenAI TTS → PCM chunks → session audio queue → framed stream at playback rate (24kHz, 16-bit mono). The queue throttles to real-time to sync `onComplete` with actual playback.
 
 **Session State**: In-memory `SessionManager` tracks active sessions. SQLite persists cues/thinking/errors for inspection. Sessions auto-cleanup after 30 minutes.
 

@@ -221,51 +221,63 @@ class SessionManager {
     session.sseResponse.write(`data: ${JSON.stringify(data)}\n\n`);
   }
 
-  // Async generator that yields audio chunks from the queue
-  // Closes after each audio item - browser reconnects for next item
+  // Async generator that yields audio chunks from the queue.
+  // Stays open until the client disconnects.
   async *consumeAudioQueue(
     sessionId: string
   ): AsyncGenerator<{ type: "data"; data: Buffer } | { type: "flush" }> {
     const session = this.sessions.get(sessionId);
     if (!session) return;
 
-    // Wait for audio if queue is empty
-    if (session.audioQueue.length === 0) {
-      await new Promise<void>((resolve) => {
-        session.audioReady = resolve;
-      });
+    session.audioStreamActive = true;
+
+    try {
+      while (session.audioStreamActive) {
+        // Wait for audio if queue is empty
+        if (session.audioQueue.length === 0) {
+          await new Promise<void>((resolve) => {
+            session.audioReady = resolve;
+          });
+          session.audioReady = null;
+
+          if (!session.audioStreamActive) break;
+          if (session.audioQueue.length === 0) continue;
+        }
+
+        const item = session.audioQueue.shift();
+        if (!item) continue;
+
+        if (item.type === "audio") {
+          // "Radio station" model: stream audio at playback rate
+          // This ensures onComplete fires after audio has "played" on the server
+          const streamStartTime = Date.now();
+          let totalBytes = 0;
+
+          for await (const chunk of item.stream) {
+            if (!session.audioStreamActive) break;
+            totalBytes += chunk.length;
+            yield { type: "data" as const, data: Buffer.from(chunk) };
+
+            // Calculate how much audio we've sent and how long that should take
+            const expectedDurationMs = (totalBytes / BYTES_PER_SECOND) * 1000;
+            const elapsed = Date.now() - streamStartTime;
+            const waitTime = expectedDurationMs - elapsed;
+
+            // Throttle to real-time playback rate
+            if (waitTime > 0) {
+              await new Promise((resolve) => setTimeout(resolve, waitTime));
+            }
+          }
+
+          yield { type: "flush" as const };
+          item.onComplete();
+        }
+        // Silence items are no longer used - timing handled by setTimeout in cue tool
+      }
+    } finally {
+      session.audioStreamActive = false;
       session.audioReady = null;
     }
-
-    // Process one audio item then close (browser will reconnect)
-    const item = session.audioQueue.shift();
-    if (!item) return;
-
-    if (item.type === "audio") {
-      // "Radio station" model: stream audio at playback rate
-      // This ensures onComplete fires after audio has "played" on the server
-      const streamStartTime = Date.now();
-      let totalBytes = 0;
-
-      for await (const chunk of item.stream) {
-        totalBytes += chunk.length;
-        yield { type: "data" as const, data: Buffer.from(chunk) };
-
-        // Calculate how much audio we've sent and how long that should take
-        const expectedDurationMs = (totalBytes / BYTES_PER_SECOND) * 1000;
-        const elapsed = Date.now() - streamStartTime;
-        const waitTime = expectedDurationMs - elapsed;
-
-        // Throttle to real-time playback rate
-        if (waitTime > 0) {
-          await new Promise((resolve) => setTimeout(resolve, waitTime));
-        }
-      }
-
-      yield { type: "flush" as const };
-      item.onComplete();
-    }
-    // Silence items are no longer used - timing handled by setTimeout in cue tool
   }
 
   closeAudioStream(sessionId: string): void {
