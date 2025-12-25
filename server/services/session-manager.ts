@@ -15,6 +15,7 @@ type AudioItem = {
 interface Session {
   id: string;
   createdAt: Date;
+  timezone?: string;
   audioQueue: AudioItem[];
   audioStreamActive: boolean;
   agentSessionId?: string;
@@ -46,11 +47,12 @@ interface Session {
 class SessionManager {
   private sessions = new Map<string, Session>();
 
-  createSession(): string {
+  createSession(timezone?: string): string {
     const id = uuidv4();
     this.sessions.set(id, {
       id,
       createdAt: new Date(),
+      timezone,
       audioQueue: [],
       audioStreamActive: false,
       audioReady: null,
@@ -96,6 +98,10 @@ class SessionManager {
 
   getSessionStartTime(sessionId: string): number | undefined {
     return this.sessions.get(sessionId)?.sessionStartTime;
+  }
+
+  getTimezone(sessionId: string): string | undefined {
+    return this.sessions.get(sessionId)?.timezone;
   }
 
   setTimeToolLastCalled(sessionId: string, time: number): void {

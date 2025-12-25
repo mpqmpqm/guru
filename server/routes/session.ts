@@ -4,8 +4,9 @@ import { sessionManager } from "../services/session-manager.js";
 export const sessionRouter = Router();
 
 // Create a new session
-sessionRouter.post("/", (_req, res) => {
-  const sessionId = sessionManager.createSession();
+sessionRouter.post("/", (req, res) => {
+  const { timezone } = req.body ?? {};
+  const sessionId = sessionManager.createSession(timezone);
   res.json({ sessionId });
 });
 
