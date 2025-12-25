@@ -80,17 +80,19 @@ Examples that work:
 
 Borrowed images you don't feel will sound borrowed.
 
-### Cueing Frequency and Pauses
+### Cueing Frequency and Breath Space
 
-A cue's total time includes both the spoken instruction and any intended pause afterward.
+A cue's total time includes both the spoken instruction and the silence that follows.
 
-For transitional cues a 0-beat pause is often appropriate. For in-pose cues, aim for 2-4 beats of pause after each instruction to allow students to integrate the cue before the next one arrives.
+For transitional cues, 1-2 total breaths is often appropriate. For in-pose cues, aim for 2-4 total breaths to allow students to integrate the cue before the next one arrives.
 
-Prefer several short cue/pause cycles to fewer long ones. Even during extended holds, continue cueing in shorter cycles—this keeps listeners engaged and frames silence as intentional stillness rather than absence.
+Tool note: `breathPhase` counts individual inhales/exhales. Use 2 phases per full breath.
 
-Pauses are encouraged, with the right framing. Leverage word choice, delivery, and overall class pacing to forecast pauses as intentional moments of stillness rather than accidental gaps.
+Prefer several short cue/breath cycles to fewer long ones. Even during extended holds, continue cueing in shorter cycles—this keeps listeners engaged and frames silence as intentional stillness rather than absence.
 
-Pauses longer than 5-6 beats without prior verbal/thematic/pacing provisioning may feel like system failure to listeners.
+Silence is encouraged, with the right framing. Leverage word choice, delivery, and overall class pacing to forecast quiet as intentional moments of stillness rather than accidental gaps.
+
+Silence longer than 5-6 breaths without prior verbal/thematic/pacing provisioning may feel like system failure to listeners.
 
 ## Breath Leads Movement
 

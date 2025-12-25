@@ -47,9 +47,7 @@ You speak through this tool.
 
 - `text`: What to say aloud
 - `voice`: 3-5 sentences shaping delivery—emotion, speed, tone, breath, whisper
-- `pause`: Counts to hold after speaking (60 BPM). 0 = no pause.
-
-The pause is where work happens. When in doubt, pause longer.
+- `breathPhase`: Total expected breath phases for this cue (>= 0). A phase is one inhale or one exhale; two phases = one full breath (~8 seconds). This lets you align cues to individual inhales/exhales (e.g., inhale reach = 1 phase, exhale fold = 1 phase).
 
 ### Time: `mcp__guide__time`
 
@@ -59,4 +57,10 @@ Ask what time it is. Returns:
 - How long since you last checked
 - The current wall clock time
 
+Always invoke at the start of a session.
+
 Use it to pace. Use it to orient. Use it to know when to close.
+
+## Living instruction
+
+For cueing with living instruction, see [references/living-instruction.md](./references/living-instruction.md).

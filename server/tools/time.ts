@@ -5,7 +5,8 @@ function formatDuration(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   if (mins === 0) return `${secs} seconds`;
-  if (secs === 0) return `${mins} minute${mins !== 1 ? "s" : ""}`;
+  if (secs === 0)
+    return `${mins} minute${mins !== 1 ? "s" : ""}`;
   return `${mins} minute${mins !== 1 ? "s" : ""} and ${secs} seconds`;
 }
 
@@ -36,7 +37,9 @@ export function createTimeTool(sessionId: string) {
       sessionManager.setTimeToolLastCalled(sessionId, now);
 
       const elapsedMs = sessionStart ? now - sessionStart : 0;
-      const sinceLastCallMs = lastCalled ? now - lastCalled : null;
+      const sinceLastCallMs = lastCalled
+        ? now - lastCalled
+        : null;
 
       const elapsed = formatDuration(elapsedMs / 1000);
       const sinceLast =
@@ -48,6 +51,8 @@ export function createTimeTool(sessionId: string) {
       const prose = sinceLast
         ? `${elapsed} into the session. ${sinceLast} since last check. The time is ${wallClock}.`
         : `${elapsed} into the session. First time check. The time is ${wallClock}.`;
+
+      console.log(`[time] ${prose}`);
 
       return {
         content: [

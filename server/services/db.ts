@@ -42,6 +42,7 @@ function initSchema(database: Database.Database): void {
       text TEXT NOT NULL,
       voice TEXT NOT NULL,
       pause INTEGER DEFAULT 0,
+      breath_phase REAL,
       created_at TEXT NOT NULL,
       FOREIGN KEY (session_id) REFERENCES sessions(id)
     );
@@ -69,6 +70,19 @@ function initSchema(database: Database.Database): void {
     CREATE INDEX IF NOT EXISTS idx_thinking_session ON thinking_traces(session_id, sequence_num);
     CREATE INDEX IF NOT EXISTS idx_errors_session ON errors(session_id, sequence_num);
   `);
+  ensureCueBreathPhaseColumn(database);
+}
+
+function ensureCueBreathPhaseColumn(database: Database.Database): void {
+  const columns = database
+    .prepare(`PRAGMA table_info(cues)`)
+    .all() as Array<{ name: string }>;
+  const hasBreathPhase = columns.some(
+    (column) => column.name === "breath_phase"
+  );
+  if (!hasBreathPhase) {
+    database.exec(`ALTER TABLE cues ADD COLUMN breath_phase REAL`);
+  }
 }
 
 // Safe database operation wrapper - logs errors but doesn't crash
@@ -130,16 +144,23 @@ export const dbOps = {
     seqNum: number,
     text: string,
     voice: string,
-    pause: number
+    breathPhase: number
   ): void {
     safeDbOperation(
       () => {
         const database = getDb();
         database
           .prepare(
-            `INSERT INTO cues (session_id, sequence_num, text, voice, pause, created_at) VALUES (?, ?, ?, ?, ?, ?)`
+            `INSERT INTO cues (session_id, sequence_num, text, voice, breath_phase, created_at) VALUES (?, ?, ?, ?, ?, ?)`
           )
-          .run(sessionId, seqNum, text, voice, pause, new Date().toISOString());
+          .run(
+            sessionId,
+            seqNum,
+            text,
+            voice,
+            breathPhase,
+            new Date().toISOString()
+          );
       },
       "insertCue",
       undefined
@@ -227,6 +248,7 @@ export const dbOps = {
     text: string;
     voice: string;
     pause: number;
+    breath_phase: number | null;
     created_at: string;
   }> {
     return safeDbOperation(
@@ -339,7 +361,15 @@ export const dbOps = {
     sessionId: string
   ): Array<
     | { type: "thinking"; sequence_num: number; content: string; created_at: string }
-    | { type: "cue"; sequence_num: number; text: string; voice: string; pause: number; created_at: string }
+    | {
+        type: "cue";
+        sequence_num: number;
+        text: string;
+        voice: string;
+        pause: number;
+        breathPhase: number | null;
+        created_at: string;
+      }
     | { type: "error"; sequence_num: number; source: string; message: string; created_at: string }
   > {
     return safeDbOperation(
@@ -348,13 +378,13 @@ export const dbOps = {
         // Query all tables and union them, ordered by sequence_num
         const results = database
           .prepare(
-            `SELECT 'thinking' as type, sequence_num, content, NULL as text, NULL as voice, NULL as pause, NULL as source, NULL as message, created_at
+            `SELECT 'thinking' as type, sequence_num, content, NULL as text, NULL as voice, NULL as pause, NULL as breath_phase, NULL as source, NULL as message, created_at
              FROM thinking_traces WHERE session_id = ?
              UNION ALL
-             SELECT 'cue' as type, sequence_num, NULL as content, text, voice, pause, NULL as source, NULL as message, created_at
+             SELECT 'cue' as type, sequence_num, NULL as content, text, voice, pause, breath_phase, NULL as source, NULL as message, created_at
              FROM cues WHERE session_id = ?
              UNION ALL
-             SELECT 'error' as type, sequence_num, NULL as content, NULL as text, NULL as voice, NULL as pause, source, message, created_at
+             SELECT 'error' as type, sequence_num, NULL as content, NULL as text, NULL as voice, NULL as pause, NULL as breath_phase, source, message, created_at
              FROM errors WHERE session_id = ?
              ORDER BY sequence_num`
           )
@@ -365,6 +395,7 @@ export const dbOps = {
             text: string | null;
             voice: string | null;
             pause: number | null;
+            breath_phase: number | null;
             source: string | null;
             message: string | null;
             created_at: string;
@@ -393,6 +424,7 @@ export const dbOps = {
               text: row.text!,
               voice: row.voice!,
               pause: row.pause!,
+              breathPhase: row.breath_phase,
               created_at: row.created_at,
             };
           }

@@ -7,7 +7,8 @@ import { sessionManager } from "../services/session-manager.js";
 const openai = new OpenAI();
 
 const VOICE = "alloy";
-const MS_PER_COUNT = 1000;
+const SECONDS_PER_BREATH = 8;
+const SECONDS_PER_BREATH_PHASE = SECONDS_PER_BREATH / 2;
 const OPENAI_TIMEOUT_MS = 10_000;
 
 // Timeout wrapper for promises
@@ -34,21 +35,21 @@ function recordLatency(arr: number[], value: number): void {
   }
 }
 
-function average(arr: number[]): number {
-  if (arr.length === 0) return 0;
-  return arr.reduce((a, b) => a + b, 0) / arr.length;
-}
+// function average(arr: number[]): number {
+//   if (arr.length === 0) return 0;
+//   return arr.reduce((a, b) => a + b, 0) / arr.length;
+// }
 
-function computeAverageLatency(): number {
-  const interCueAvg = average(interCueLatencies);
-  const openaiAvg = average(openaiTtfbLatencies);
-  return interCueAvg + openaiAvg;
-}
+// function computeAverageLatency(): number {
+//   const interCueAvg = average(interCueLatencies);
+//   const openaiAvg = average(openaiTtfbLatencies);
+//   return interCueAvg + openaiAvg;
+// }
 
 export function createCueTool(sessionId: string) {
   return tool(
     "cue",
-    "Speak and hold. 60 BPM. Silence is where work happens.",
+    "Speak and hold. One breath is 8 seconds (two phases).",
     {
       text: z.string().describe("The text to speak aloud"),
       voice: z
@@ -56,15 +57,21 @@ export function createCueTool(sessionId: string) {
         .describe(
           "3-5 sentences controlling vocal delivery for this cue, including emotional range, intonation, speed, tone, and whispering."
         ),
-      pause: z
+      breathPhase: z
         .number()
-        .optional()
+        .int()
+        .min(0)
         .describe(
-          "Counts to hold after speaking (60 BPM). Default 0."
+          "Total expected breath phases for this cue (>= 0). A phase is one inhale or exhale; two phases = one full breath (~8 seconds)."
         ),
     },
     async (args) => {
-      const pause = args.pause ?? 0;
+      const breathPhase = args.breathPhase;
+      const totalPhaseSeconds =
+        breathPhase * SECONDS_PER_BREATH_PHASE;
+
+      console.dir(args);
+      console.time("tts");
 
       // Persist cue to database
       const seqNum =
@@ -74,7 +81,7 @@ export function createCueTool(sessionId: string) {
         seqNum,
         args.text,
         args.voice,
-        pause
+        breathPhase
       );
 
       // Record inter-cue latency (time from last cue return to this invocation)
@@ -122,7 +129,7 @@ export function createCueTool(sessionId: string) {
       // Notify the client via SSE immediately
       sessionManager.sendSSE(sessionId, "cue", {
         text: args.text,
-        pause,
+        breathPhase,
       });
 
       // Convert web ReadableStream to AsyncIterable<Uint8Array> and measure TTFB
@@ -151,22 +158,22 @@ export function createCueTool(sessionId: string) {
       }
 
       const audioStream = streamToAsyncIterable(response.body!);
-
+      console.timeEnd("tts");
       // Pass stream directly - chunks flow to client as they arrive
       await sessionManager.queueAudio(sessionId, audioStream);
-
-      // Send pause start/end events - client counts down from duration
-      const adjusted = Math.max(
+      const speakingSeconds = (Date.now() - openaiStart) / 1000;
+      const silenceSeconds = Math.max(
         0,
-        // pause - computeAverageLatency()
-        pause
+        totalPhaseSeconds - speakingSeconds
       );
-      if (pause > 0) {
-        sessionManager.sendSSE(sessionId, "pause_start", {
-          duration: pause,
+
+      // Send breathe start events - client counts down from duration
+      if (silenceSeconds > 0) {
+        sessionManager.sendSSE(sessionId, "breathe_start", {
+          duration: silenceSeconds,
         });
         await new Promise((resolve) =>
-          setTimeout(resolve, adjusted * MS_PER_COUNT)
+          setTimeout(resolve, silenceSeconds * 1000)
         );
       }
 
@@ -177,14 +184,18 @@ export function createCueTool(sessionId: string) {
       // Record return time for inter-cue latency tracking
       sessionManager.setLastCueReturnTime(sessionId, Date.now());
 
+      const ret = `Cue complete. ${(
+        speakingSeconds / SECONDS_PER_BREATH_PHASE
+      ).toFixed(1)} breath phases speaking, ${(
+        silenceSeconds / SECONDS_PER_BREATH_PHASE
+      ).toFixed(1)} breath phases in silence.`;
+
+      console.log(`[cue] ${ret}`);
       return {
         content: [
           {
             type: "text" as const,
-            text:
-              pause > 0
-                ? `Cue complete with ${pause} count pause`
-                : "Cue complete",
+            text: ret,
           },
         ],
       };

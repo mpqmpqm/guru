@@ -430,9 +430,9 @@ function connectSSE() {
     showCue(data.text);
   });
 
-  eventSource.addEventListener("pause_start", (event) => {
+  eventSource.addEventListener("breathe_start", (event) => {
     const data = JSON.parse(event.data);
-    startCountdown("Pause", data.duration);
+    startCountdown("Breathe", data.duration);
   });
 
   eventSource.addEventListener("done", () => {
@@ -500,7 +500,7 @@ function showCue(content) {
   cueDisplayEl.appendChild(div);
 }
 
-// Unified status display for thinking/pause
+// Unified status display for thinking/breathe
 const pauseStatusEl = document.getElementById("pause-status");
 let statusStartTime = null;
 let statusInterval = null;
@@ -715,6 +715,14 @@ function autoResizeTextarea() {
   messageInput.style.height = messageInput.scrollHeight + "px";
 }
 messageInput.addEventListener("input", autoResizeTextarea);
+
+// Submit on Cmd+Enter
+messageInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && e.metaKey) {
+    e.preventDefault();
+    chatForm.requestSubmit();
+  }
+});
 
 // Render example chiclets
 async function renderExampleChiclets() {

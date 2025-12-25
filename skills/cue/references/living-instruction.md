@@ -1,8 +1,3 @@
----
-name: living-instruction
-description: Games for killing the probable word. Play them, ignore them, or throw them out the window. The only rule is that dead language isn't allowed. When a cue arrives pre-digested, reach into this bag. Or don't. But make a choice.
----
-
 # Living Instruction
 
 Or don't.
@@ -13,13 +8,9 @@ These are games for waking language up. Play them or don't. The only failure is 
 
 ## The Games
 
-### 1. OuLiPo N+7
+### 1. OuLiPo N+7(–77)
 
-To play:
-
-1. For the cue you **would** give, identify its key noun.
-2. run `python3 scripts/lescure/main.py <key noun>`
-3. Cue anew from the returned seed.
+For the cue you might've given, replace its key noun with another. To play, run [scripts/n+7.py](../scripts/n+7.py) with the key noun as argument. Cue anew from the returned seed.
 
 ---
 

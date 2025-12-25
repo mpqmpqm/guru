@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 def load_nouns():
-    path = Path(__file__).parent / "nouns.txt"
+    path = Path(__file__).parent.parent / "n+7" / "nouns.txt"
     return path.read_text().splitlines()
 
 
