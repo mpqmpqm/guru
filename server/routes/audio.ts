@@ -1,6 +1,7 @@
 import { Router, type Response } from "express";
 import { sessionManager } from "../services/session-manager.js";
 import { dbOps } from "../services/db.js";
+import { logAudioStreamError } from "../utils/log.js";
 
 export const audioRouter = Router();
 
@@ -70,7 +71,7 @@ audioRouter.get("/:sessionId", async (req, res) => {
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : String(error);
-    console.error(`Audio stream error for session ${sessionId}:`, errorMessage);
+    logAudioStreamError(sessionId, errorMessage);
     const seqNum = sessionManager.incrementEventSequence(sessionId);
     dbOps.insertError(sessionId, seqNum, "audio", errorMessage);
   }

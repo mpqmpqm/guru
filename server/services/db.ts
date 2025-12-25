@@ -1,6 +1,7 @@
 import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
+import { logDbError } from "../utils/log.js";
 
 // Detect Fly.io environment vs local
 const DB_PATH = process.env.FLY_APP_NAME
@@ -94,10 +95,7 @@ function safeDbOperation<T>(
   try {
     return operation();
   } catch (error) {
-    console.error(
-      `[db] ${operationName} failed:`,
-      error instanceof Error ? error.message : String(error)
-    );
+    logDbError(operationName, error);
     return fallback;
   }
 }

@@ -5,6 +5,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { createCueTool } from "../tools/cue.js";
 import { createTimeTool } from "../tools/time.js";
+import { logAgentError, logAgentResult } from "../utils/log.js";
 import { dbOps } from "./db.js";
 import { sessionManager } from "./session-manager.js";
 
@@ -167,7 +168,7 @@ export async function* streamChat(
           yield { type: "thinking_end" };
         }
       } else if (message.type === "result") {
-        console.dir(message);
+        logAgentResult(message);
         if (message.subtype === "success") {
           // Store the session ID for future conversation continuation
           sessionManager.setAgentSessionId(
@@ -215,10 +216,7 @@ export async function* streamChat(
     }
     const errorMessage =
       error instanceof Error ? error.message : String(error);
-    console.error(
-      "Agent error:",
-      JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
-    );
+    logAgentError(error);
     const seqNum =
       sessionManager.incrementEventSequence(sessionId);
     dbOps.insertError(sessionId, seqNum, "agent", errorMessage);

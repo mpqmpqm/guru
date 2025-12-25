@@ -2,6 +2,7 @@ import { Router } from "express";
 import { streamChat } from "../services/agent.js";
 import { sessionManager } from "../services/session-manager.js";
 import { dbOps } from "../services/db.js";
+import { logChatError } from "../utils/log.js";
 
 export const chatRouter = Router();
 
@@ -77,7 +78,7 @@ chatRouter.post("/:sessionId", async (req, res) => {
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : String(error);
-    console.error(`[chat] error:`, errorMessage);
+    logChatError(errorMessage);
     const seqNum = sessionManager.incrementEventSequence(sessionId);
     dbOps.insertError(sessionId, seqNum, "chat", errorMessage);
     sessionManager.sendSSE(sessionId, "error", { content: errorMessage });

@@ -6,6 +6,17 @@ import {
   sessionManager,
   type TTSResult,
 } from "../services/session-manager.js";
+import {
+  logCueBlocking,
+  logCueQueued,
+  logCueReceived,
+  logCueSseSend,
+  logCueTargetSet,
+  logCueText,
+  logCueTtsError,
+  logCueTtsReady,
+  logCueUnblocked,
+} from "../utils/log.js";
 
 const openai = new OpenAI();
 
@@ -88,11 +99,26 @@ export function createCueTool(sessionId: string) {
       // Persist cue to database
       const seqNum =
         sessionManager.incrementEventSequence(sessionId);
-      const logPrefix = `[cue:${sessionId}:${seqNum}]`;
+      const logPrefix = `[cue:${sessionId.slice(0, 8)}:${seqNum}]`;
+      const cueReceivedAt = Date.now();
 
-      // console.log(
-      //   `${logPrefix} received: breathPhase=${breathPhase} textChars=${args.text.length}`
-      // );
+      // Estimate speaking time: ~150 wpm = 2.5 words/sec, avg word ~5 chars
+      // So ~12.5 chars/sec, or ~50 chars per 4-sec breath phase
+      const wordCount = args.text.split(/\s+/).length;
+      const estSpeakingSec = wordCount / 2.5;
+      const estMinPhases = Math.ceil(estSpeakingSec / SECONDS_PER_BREATH_PHASE);
+      const phaseDeficit = estMinPhases - breathPhase;
+      const warning =
+        phaseDeficit > 0 ? ` ⚠️ UNDERESTIMATE by ${phaseDeficit} phases` : "";
+
+      logCueReceived(
+        logPrefix,
+        breathPhase,
+        wordCount,
+        estMinPhases,
+        warning
+      );
+      logCueText(logPrefix, args.text);
       dbOps.insertCue(
         sessionId,
         seqNum,
@@ -110,62 +136,85 @@ export function createCueTool(sessionId: string) {
       ).then((result) => {
         const elapsedMs = Date.now() - ttsStart;
         if (result.error) {
-          console.error(
-            `${logPrefix} TTS failed after ${elapsedMs}ms: ${result.error}`
+          logCueTtsError(logPrefix, elapsedMs, result.error);
+        } else {
+          const bytes = result.chunks!.reduce(
+            (sum, c) => sum + c.length,
+            0
           );
+          logCueTtsReady(logPrefix, elapsedMs, bytes);
         }
         return result;
       });
 
-      // === ENTRY BLOCKING (wall clock based) ===
-      // If there's a pending cue, wait until it finishes (actual wall clock)
+      // === ENTRY BLOCKING (listener elapsed based) ===
+      // Wait until actual audio playback reaches the target position
       if (sessionManager.getHasPendingCue(sessionId)) {
-        while (true) {
-          const nextPlaybackAt =
-            sessionManager.getNextPlaybackAt(sessionId);
-          const waitMs = nextPlaybackAt - Date.now();
+        const blockStartAt = Date.now();
+        const listenerTarget =
+          sessionManager.getListenerTarget(sessionId);
+        const listenerElapsed =
+          sessionManager.getListenerElapsed(sessionId);
+        const queueDepth =
+          sessionManager.getAudioQueueDepth(sessionId);
+        logCueBlocking(
+          logPrefix,
+          listenerTarget,
+          listenerElapsed,
+          queueDepth
+        );
 
-          if (waitMs <= 0) break;
-
-          // console.log(
-          //   `${logPrefix} entry block ${waitMs}ms`
-          // );
-          await new Promise((resolve) =>
-            setTimeout(resolve, waitMs)
-          );
-        }
+        // Wait until listener catches up to target
+        await sessionManager.waitForListenerElapsed(
+          sessionId,
+          listenerTarget
+        );
 
         sessionManager.setHasPendingCue(sessionId, false);
-        // console.log(`${logPrefix} entry block complete`);
+        logCueUnblocked(
+          logPrefix,
+          Date.now() - blockStartAt,
+          sessionManager.getListenerElapsed(sessionId)
+        );
       }
-
-      // Notify the client via SSE (after entry blocking)
-      sessionManager.sendSSE(sessionId, "cue", {
-        text: args.text,
-        breathPhase,
-      });
 
       // === ESTIMATE THIS CUE'S DURATION ===
       const promisedMs =
         breathPhase * SECONDS_PER_BREATH_PHASE * 1000;
 
-      // === UPDATE PLAYBACK CURSOR ===
-      // When will this cue finish? Now + promised duration
-      const now = Date.now();
-      const nextPlaybackAt = now + promisedMs;
-      sessionManager.setNextPlaybackAt(sessionId, nextPlaybackAt);
+      // Notify the client via SSE (after entry blocking)
+      const sseAt = Date.now();
+      const listenerElapsed =
+        sessionManager.getListenerElapsed(sessionId);
+      logCueSseSend(
+        logPrefix,
+        sseAt - cueReceivedAt,
+        listenerElapsed,
+        promisedMs
+      );
+      sessionManager.sendSSE(sessionId, "cue", {
+        text: args.text,
+        breathPhase,
+      });
+
+      // === UPDATE LISTENER TARGET ===
+      // Next cue can fire when listener reaches current position + this cue's duration
+      const currentElapsed =
+        sessionManager.getListenerElapsed(sessionId);
+      const newTarget = currentElapsed + promisedMs;
+      sessionManager.setListenerTarget(sessionId, newTarget);
+      logCueTargetSet(logPrefix, currentElapsed, newTarget);
 
       // === QUEUE FOR PLAYBACK ===
       // Pass the buffering promise + breath phase
+      const queueDepthBefore =
+        sessionManager.getAudioQueueDepth(sessionId);
       sessionManager.queueAudio(sessionId, {
         ttsPromise,
         breathPhase,
         sequenceNum: seqNum,
       });
-
-      // console.log(
-      //   `${logPrefix} queued: promisedMs=${promisedMs} nextPlaybackAt=${nextPlaybackAt}`
-      // );
+      logCueQueued(logPrefix, queueDepthBefore, promisedMs);
 
       // === MARK PENDING (half-step limit) ===
       sessionManager.setHasPendingCue(sessionId, true);

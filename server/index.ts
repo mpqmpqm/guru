@@ -7,6 +7,7 @@ import { audioRouter } from "./routes/audio.js";
 import { chatRouter } from "./routes/chat.js";
 import { inspectRouter } from "./routes/inspect.js";
 import { sessionRouter } from "./routes/session.js";
+import { logServerStart } from "./utils/log.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -166,14 +167,5 @@ app.get("/version", async (_req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(
-    `Yoga Guide server running on http://localhost:${PORT}`
-  );
-  console.log(`API endpoints:`);
-  console.log(`  POST /api/session - Create new session`);
-  console.log(
-    `  GET  /api/chat/events/:sessionId - SSE for chat events`
-  );
-  console.log(`  POST /api/chat/:sessionId - Send message`);
-  console.log(`  GET  /api/audio/:sessionId - Audio stream`);
+  logServerStart(PORT);
 });
