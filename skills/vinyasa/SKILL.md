@@ -80,19 +80,69 @@ Examples that work:
 
 Borrowed images you don't feel will sound borrowed.
 
-### Cueing Frequency and Breath Space
+## Using the Cue Tool
 
-A cue's total time includes both the spoken instruction and the silence that follows.
+The `cue` tool's `breathPhase` parameter is how you sync instruction to breath. One phase = one inhale or one exhale (~4 seconds). Two phases = one full breath (~8 seconds).
 
-For transitional cues, 1-2 total breaths is often appropriate. For in-pose cues, aim for 2-4 total breaths to allow students to integrate the cue before the next one arrives.
+This parameter includes both spoken instruction and the silence that follows. When you set `breathPhase: 1`, you're saying: this cue fills one inhale or exhale, then the next cue arrives.
 
-Tool note: `breathPhase` counts individual inhales/exhales. Use 2 phases per full breath.
+### One Movement Per Cue
 
-Prefer several short cue/breath cycles to fewer long ones. Even during extended holds, continue cueing in shorter cycles—this keeps listeners engaged and frames silence as intentional stillness rather than absence.
+The TTS model reads quickly. A cue like "Inhale reach. Exhale fold. Inhale lengthen." will be spoken in seconds—far faster than the breaths it describes.
 
-Silence is encouraged, with the right framing. Leverage word choice, delivery, and overall class pacing to forecast quiet as intentional moments of stillness rather than accidental gaps.
+**Each breath-movement pair needs its own `cue` call with at least `breathPhase: 1`.**
 
-Silence longer than 5-6 breaths without prior verbal/thematic/pacing provisioning may feel like system failure to listeners.
+Wrong:
+```
+cue("Inhale reach. Exhale fold. Inhale lengthen.", breathPhase: 3)
+```
+
+Right:
+```
+cue("Inhale, reach.", breathPhase: 1)
+cue("Exhale, fold.", breathPhase: 1)
+cue("Inhale, lengthen.", breathPhase: 1)
+```
+
+The `breathPhase` creates the silence after speech. Without it, instruction piles up faster than bodies can move.
+
+### Sun Salutation A: A Complete Example
+
+Each row is one `cue` call. The sequence assumes students know the flow—first rounds would need more instruction.
+
+| Pose | text | breathPhase | Notes |
+| --- | --- | --- | --- |
+| Tadasana | "Find your breath." | 4 | Two full breaths to arrive |
+| Urdhva Hastasana | "Inhale, reach." | 1 | Arms rise on inhale |
+| Uttanasana | "Exhale, fold." | 1 | Forward fold on exhale |
+| Ardha Uttanasana | "Inhale, lengthen." | 1 | Flat back on inhale |
+| Chaturanga | "Exhale, step back, lower halfway." | 2 | Exhale + landing time |
+| Urdhva Mukha | "Inhale, chest forward." | 1 | Updog on inhale |
+| Adho Mukha | "Exhale, press back. Five breaths." | 10 | Down dog hold |
+| Ardha Uttanasana | "Inhale, step forward, lengthen." | 2 | Transition + flat back |
+| Uttanasana | "Exhale, fold." | 1 | Forward fold |
+| Urdhva Hastasana | "Inhale, rise." | 1 | Arms sweep up |
+| Samasthiti | "Exhale, hands to heart." | 2 | Return + settle |
+
+Total: ~27 phases ≈ 108 seconds ≈ 1:48
+
+The pattern: transitional cues get 1-2 phases; holds get 2× the breath count (5 breaths = 10 phases).
+
+### breathPhase Quick Reference
+
+| Context | Phases | Example |
+| --- | --- | --- |
+| Single breath direction | 1 | "Inhale, reach." |
+| Two-part instruction | 2 | "Step back, lower halfway." |
+| Short hold (warrior, lunge) | 4-6 | "Hold here. Three breaths." |
+| Extended hold (peak pose) | 8-12 | "Stay. Find your breath." |
+| Framed silence | 4-8 | "Just breathe." |
+
+### Pacing Principles
+
+Prefer several short cue/breath cycles to fewer long ones. Even during extended holds, continue cueing in shorter cycles—this keeps listeners engaged and frames silence as intentional stillness.
+
+Silence longer than 5-6 breaths without framing may feel like system failure. The framing can be minimal: "Stay here." "Just breathe." "Find stillness."
 
 ## Breath Leads Movement
 
