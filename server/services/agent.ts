@@ -232,5 +232,7 @@ export async function* streamChat(
       sessionId,
       null as unknown as AbortController
     );
+    // Close the audio stream so consumeAudioQueue() can exit
+    sessionManager.closeAudioStream(sessionId);
   }
 }
