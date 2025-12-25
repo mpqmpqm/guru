@@ -22,38 +22,20 @@ function formatWallClock(timezone?: string): string {
 export function createTimeTool(sessionId: string) {
   return tool(
     "time",
-    "Returns a natural language description of session timing: elapsed time, time since last check, and current wall clock time.",
+    "Returns session elapsed time and wall clock. Elapsed time reflects session progression.",
     {},
     async () => {
-      const now = Date.now();
-      const sessionStart =
-        sessionManager.getSessionStartTime(sessionId);
-      const lastCalled =
-        sessionManager.getTimeToolLastCalled(sessionId);
       const timezone = sessionManager.getTimezone(sessionId);
 
-      // Update last called timestamp
-      sessionManager.setTimeToolLastCalled(sessionId, now);
-
-      const elapsedMs = sessionStart ? now - sessionStart : 0;
-      const sinceLastCallMs = lastCalled ? now - lastCalled : null;
-
-      const elapsed = formatDuration(elapsedMs / 1000);
-      const sinceLast =
-        sinceLastCallMs !== null
-          ? formatDuration(sinceLastCallMs / 1000)
-          : null;
+      // Use presentation time - excludes blocking, reflects agent's perceived session duration
+      const elapsed = formatDuration(sessionManager.getPresentationTime(sessionId));
       const wallClock = formatWallClock(timezone);
-
-      const prose = sinceLast
-        ? `${elapsed} into the session. ${sinceLast} since last check. The time is ${wallClock}.`
-        : `${elapsed} into the session. First time check. The time is ${wallClock}.`;
 
       return {
         content: [
           {
             type: "text" as const,
-            text: prose,
+            text: `${elapsed} into the session. The time is ${wallClock}.`,
           },
         ],
       };

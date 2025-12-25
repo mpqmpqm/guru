@@ -97,12 +97,10 @@ export async function* streamChat(
         includePartialMessages: true,
       },
     })) {
-      // Record session start time on first content from model
+      // Start session timing on first content from model
       if (!sessionManager.getSessionStartTime(sessionId)) {
-        sessionManager.setSessionStartTime(
-          sessionId,
-          Date.now()
-        );
+        sessionManager.setSessionStartTime(sessionId, Date.now());
+        sessionManager.startPresentationTime(sessionId);
       }
 
       if (message.type === "assistant") {

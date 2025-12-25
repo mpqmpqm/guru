@@ -6,6 +6,9 @@ const SAMPLE_RATE = 24000;
 const BYTES_PER_SAMPLE = 2;
 const BYTES_PER_SECOND = SAMPLE_RATE * BYTES_PER_SAMPLE; // 48000
 
+// Clairvoyance queue limit - prevents think-ahead from queueing too many cues
+const MAX_QUEUE_SIZE = 3;
+
 type AudioItem = {
   type: "audio";
   stream: AsyncIterable<Uint8Array>;
@@ -22,12 +25,12 @@ interface Session {
   sseResponse?: Response;
   // Resolvers for when new audio is available
   audioReady: (() => void) | null;
+  // Resolver for when queue has space (for backpressure)
+  queueHasSpace: (() => void) | null;
   // Abort controller for cancelling the agent
   abortController: AbortController | null;
   // Timestamp when first thinking block was received (session start for time tool)
   sessionStartTime?: number;
-  // Timestamp when time tool was last called
-  timeToolLastCalled?: number;
   // Unified counter for ordering events (cues + thinking) in the database
   eventSequence: number;
   // Buffer for accumulating thinking chunks during a thinking block
@@ -40,8 +43,11 @@ interface Session {
   cueHasBeenCalled?: boolean;
   // Count of cue calls in current query (reset per query)
   cueCallCount: number;
-  // Timestamp when last cue handler returned (for inter-cue latency tracking)
-  lastCueReturnTime?: number;
+  // Presentation time: accumulated "session time" visible to agent (excludes blocking)
+  // This is the time the agent perceives, not wall clock time
+  presentationTime: number;
+  // Wall clock timestamp when presentation time was last updated
+  presentationTimeLastUpdated?: number;
 }
 
 class SessionManager {
@@ -56,10 +62,12 @@ class SessionManager {
       audioQueue: [],
       audioStreamActive: false,
       audioReady: null,
+      queueHasSpace: null,
       abortController: null,
       eventSequence: 0,
       pendingThinking: "",
       cueCallCount: 0,
+      presentationTime: 0,
     });
     return id;
   }
@@ -104,15 +112,41 @@ class SessionManager {
     return this.sessions.get(sessionId)?.timezone;
   }
 
-  setTimeToolLastCalled(sessionId: string, time: number): void {
+  // Start tracking presentation time (call when agent begins processing)
+  startPresentationTime(sessionId: string): void {
     const session = this.sessions.get(sessionId);
-    if (session) {
-      session.timeToolLastCalled = time;
+    if (session && !session.presentationTimeLastUpdated) {
+      session.presentationTimeLastUpdated = Date.now();
     }
   }
 
-  getTimeToolLastCalled(sessionId: string): number | undefined {
-    return this.sessions.get(sessionId)?.timeToolLastCalled;
+  // Pause presentation time (call before blocking operations like waiting for queue space)
+  pausePresentationTime(sessionId: string): void {
+    const session = this.sessions.get(sessionId);
+    if (session?.presentationTimeLastUpdated) {
+      // Accumulate elapsed time before pausing
+      session.presentationTime += (Date.now() - session.presentationTimeLastUpdated) / 1000;
+      session.presentationTimeLastUpdated = undefined;
+    }
+  }
+
+  // Resume presentation time (call after blocking operations complete)
+  resumePresentationTime(sessionId: string): void {
+    const session = this.sessions.get(sessionId);
+    if (session && !session.presentationTimeLastUpdated) {
+      session.presentationTimeLastUpdated = Date.now();
+    }
+  }
+
+  // Get current presentation time in seconds (time visible to agent, excludes blocking)
+  getPresentationTime(sessionId: string): number {
+    const session = this.sessions.get(sessionId);
+    if (!session) return 0;
+    // Add any time since last update if we're not paused
+    if (session.presentationTimeLastUpdated) {
+      return session.presentationTime + (Date.now() - session.presentationTimeLastUpdated) / 1000;
+    }
+    return session.presentationTime;
   }
 
   incrementEventSequence(sessionId: string): number {
@@ -195,17 +229,6 @@ class SessionManager {
     return duration;
   }
 
-  setLastCueReturnTime(sessionId: string, time: number): void {
-    const session = this.sessions.get(sessionId);
-    if (session) {
-      session.lastCueReturnTime = time;
-    }
-  }
-
-  getLastCueReturnTime(sessionId: string): number | undefined {
-    return this.sessions.get(sessionId)?.lastCueReturnTime;
-  }
-
   abortAgent(sessionId: string): void {
     const session = this.sessions.get(sessionId);
     if (session?.abortController) {
@@ -214,9 +237,21 @@ class SessionManager {
     }
   }
 
-  queueAudio(sessionId: string, stream: AsyncIterable<Uint8Array>): Promise<void> {
+  async queueAudio(sessionId: string, stream: AsyncIterable<Uint8Array>): Promise<void> {
     const session = this.sessions.get(sessionId);
-    if (!session) return Promise.resolve();
+    if (!session) return;
+
+    // Wait for queue space if at capacity (backpressure)
+    while (session.audioQueue.length >= MAX_QUEUE_SIZE) {
+      // Pause presentation time while waiting - blocking should be invisible to agent
+      this.pausePresentationTime(sessionId);
+      await new Promise<void>((resolve) => {
+        session.queueHasSpace = resolve;
+      });
+      session.queueHasSpace = null;
+      // Resume presentation time now that we can proceed
+      this.resumePresentationTime(sessionId);
+    }
 
     return new Promise((resolve) => {
       session.audioQueue.push({ type: "audio", stream, onComplete: resolve });
@@ -253,6 +288,9 @@ class SessionManager {
     // Process one audio item then close (browser will reconnect)
     const item = session.audioQueue.shift();
     if (!item) return;
+
+    // Signal that queue has space for waiting producers
+    session.queueHasSpace?.();
 
     if (item.type === "audio") {
       // "Radio station" model: stream audio at playback rate
