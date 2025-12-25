@@ -58,15 +58,30 @@
       </main>
 
       <footer>
-        <label class="toggle-switch">
-          <input
-            type="checkbox"
-            id="living-instructions-toggle"
-            checked
-          />
-          <span class="toggle-slider"></span>
-          <span class="toggle-label">Living instruction 🌀</span>
-        </label>
+        <div class="controls-row">
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              id="living-instructions-toggle"
+              checked
+            />
+            <span class="toggle-slider"></span>
+            <span class="toggle-label">Living instruction 🌀</span>
+          </label>
+          <label class="stack-control">
+            <span class="stack-label">Clairvoyance</span>
+            <input
+              type="number"
+              id="stack-size"
+              min="1"
+              max="6"
+              step="1"
+              value="1"
+              inputmode="numeric"
+              title="Max queued cues"
+            />
+          </label>
+        </div>
         <div
           id="example-chiclets"
           class="example-chiclets"

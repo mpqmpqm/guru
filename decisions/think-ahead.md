@@ -9,12 +9,12 @@ Dead air from two stacking latencies:
 The original implementation blocked the agent for the entire cue duration
 (TTS fetch + playback + silence), so these latencies stacked sequentially.
 
-## Solution: Half-Step Ahead with Entry Blocking
+## Solution: Configurable Lookahead with Entry Blocking
 
-Allow the agent to work **one cue ahead** by:
+Allow the agent to work **up to `stackSize` cues ahead** by:
 1. Firing TTS immediately (before any blocking)
-2. Blocking at the *start* of the next cue until the previous cue's promised
-   time elapses
+2. Blocking at the *start* of the next cue when the schedule is full, until
+   the earliest scheduled end time elapses
 3. Returning immediately after queuing (the "lie")
 
 ```
@@ -77,9 +77,9 @@ it clobbers the value that cue N+1 already set when it queued. This breaks the
 half-step limit—cue N+2 sees the stale timestamp and exits entry blocking
 early, allowing the agent to queue unlimited cues.
 
-### 5. Half-Step Limit (Not Full Lookahead)
+### 5. Configurable Stack Size
 
-**Decision**: At most one cue buffered ahead.
+**Decision**: At most `stackSize` cues scheduled at once (default 1).
 
 **Rejected alternative**: Allow 2-3 cue lookahead for more latency hiding.
 
@@ -87,7 +87,7 @@ early, allowing the agent to queue unlimited cues.
 - The agent has access to a real `time` tool—running too far ahead would
   desync the agent's perception from the listener's reality
 - One cue of lookahead (~8-16s) is enough to hide typical TTS latency
-  (~0.5-1.5s) and thinking time (~1-2s)
+  (~0.5-1.5s) and thinking time (~1-2s); higher values are opt-in
 - Cue SSE events are emitted at playback start (not queue time) to keep
   visuals aligned with audio
 
@@ -114,12 +114,11 @@ listener clock to jump by network latency rather than actual playback.
 
 ## Invariants
 
-1. `hasPendingCue`: True if there's a cue the agent queued but hasn't blocked
-   for yet
+1. `playbackSchedule.length <= stackSize`: schedule holds wall-clock end times
 2. `nextPlaybackAtMs`: Wall-clock timestamp when the most recently queued cue
-   will finish
+   will finish (tail of the schedule, or now if empty)
 3. `listenerElapsedMs`: Actual playback time experienced by the listener
-4. Audio queue has at most 2 items: one playing, one waiting
+4. Cue SSE events are emitted at playback start (not queue time)
 
 ## Observable Behavior
 

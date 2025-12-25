@@ -32,6 +32,7 @@ interface Session {
   id: string;
   createdAt: Date;
   timezone?: string;
+  stackSize: number;
   audioQueue: AudioItem[];
   audioStreamActive: boolean;
   agentSessionId?: string;
@@ -58,21 +59,22 @@ interface Session {
   cueCallCount: number;
   // Playback cursor: wall clock when current cue will finish (for entry blocking)
   nextPlaybackAtMs: number;
+  // Ordered list of scheduled cue end times (wall clock)
+  playbackSchedule: number[];
   // Listener clock: actual elapsed playback time (for time tool)
   listenerElapsedMs: number;
-  // Whether a cue is currently in flight (for half-step limit)
-  hasPendingCue: boolean;
 }
 
 class SessionManager {
   private sessions = new Map<string, Session>();
 
-  createSession(timezone?: string): string {
+  createSession(timezone?: string, stackSize = 1): string {
     const id = uuidv4();
     this.sessions.set(id, {
       id,
       createdAt: new Date(),
       timezone,
+      stackSize,
       audioQueue: [],
       audioStreamActive: false,
       audioReady: null,
@@ -81,14 +83,18 @@ class SessionManager {
       pendingThinking: "",
       cueCallCount: 0,
       nextPlaybackAtMs: Date.now(),
+      playbackSchedule: [],
       listenerElapsedMs: 0,
-      hasPendingCue: false,
     });
     return id;
   }
 
   getSession(id: string): Session | undefined {
     return this.sessions.get(id);
+  }
+
+  getStackSize(sessionId: string): number {
+    return this.sessions.get(sessionId)?.stackSize ?? 1;
   }
 
   setSSEResponse(sessionId: string, res: Response): void {
@@ -250,15 +256,37 @@ class SessionManager {
     }
   }
 
-  // Half-step pending cue tracking
-  getHasPendingCue(sessionId: string): boolean {
-    return this.sessions.get(sessionId)?.hasPendingCue ?? false;
+  getPlaybackScheduleDepth(sessionId: string): number {
+    return this.sessions.get(sessionId)?.playbackSchedule.length ?? 0;
   }
 
-  setHasPendingCue(sessionId: string, value: boolean): void {
+  getPlaybackScheduleHead(sessionId: string): number | undefined {
+    return this.sessions.get(sessionId)?.playbackSchedule[0];
+  }
+
+  getPlaybackScheduleTail(sessionId: string): number | undefined {
+    const schedule = this.sessions.get(sessionId)?.playbackSchedule;
+    if (!schedule || schedule.length === 0) return undefined;
+    return schedule[schedule.length - 1];
+  }
+
+  pushPlaybackSchedule(sessionId: string, endTime: number): void {
     const session = this.sessions.get(sessionId);
-    if (session) {
-      session.hasPendingCue = value;
+    if (!session) return;
+    session.playbackSchedule.push(endTime);
+  }
+
+  prunePlaybackSchedule(sessionId: string, now: number): void {
+    const session = this.sessions.get(sessionId);
+    if (!session) return;
+    while (
+      session.playbackSchedule.length > 0 &&
+      session.playbackSchedule[0] <= now
+    ) {
+      session.playbackSchedule.shift();
+    }
+    if (session.playbackSchedule.length === 0) {
+      session.nextPlaybackAtMs = now;
     }
   }
 

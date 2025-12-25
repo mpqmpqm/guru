@@ -315,13 +315,22 @@ footer {
   padding-top: 1rem;
 }
 
+/* Footer controls */
+.controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
 /* Toggle switch */
 .toggle-switch {
   display: flex;
   align-items: center;
   gap: 0.6rem;
   cursor: pointer;
-  margin-bottom: 0.75rem;
   user-select: none;
 }
 
@@ -371,6 +380,36 @@ footer {
 
 .toggle-switch input:checked ~ .toggle-label {
   color: var(--text-secondary);
+}
+
+/* Stack size input */
+.stack-control {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.stack-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.stack-control input {
+  width: 3.5rem;
+  padding: 0.35rem 0.5rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.stack-control input:focus {
+  outline: none;
+  border-color: rgba(212, 168, 83, 0.35);
+  box-shadow: 0 0 0 2px rgba(212, 168, 83, 0.08);
 }
 
 /* Example chiclets */

@@ -91,6 +91,7 @@ export function createCueTool(sessionId: string) {
     },
     async (args) => {
       const waitMs = args.waitMs;
+      const stackSize = sessionManager.getStackSize(sessionId);
 
       // Persist cue to database
       const seqNum =
@@ -131,43 +132,65 @@ export function createCueTool(sessionId: string) {
         return result;
       });
 
-      // === ENTRY BLOCKING (wall clock based) ===
-      // If there's a pending cue, wait until it finishes (actual wall clock)
-      if (sessionManager.getHasPendingCue(sessionId)) {
+      // === ENTRY BLOCKING (wall clock, stack-limited) ===
+      sessionManager.prunePlaybackSchedule(sessionId, Date.now());
+      while (
+        sessionManager.getPlaybackScheduleDepth(sessionId) >=
+        stackSize
+      ) {
+        const blockUntil =
+          sessionManager.getPlaybackScheduleHead(sessionId);
+        if (blockUntil === undefined) break;
         const blockStartAt = Date.now();
-        const nextPlaybackAt =
-          sessionManager.getNextPlaybackAt(sessionId);
-        const waitMs = nextPlaybackAt - blockStartAt;
-        const queueDepth =
-          sessionManager.getAudioQueueDepth(sessionId);
-
-        if (waitMs > 0) {
+        const blockWaitMs = blockUntil - blockStartAt;
+        if (blockWaitMs > 0) {
+          const queueDepth =
+            sessionManager.getAudioQueueDepth(sessionId);
+          const scheduleDepth =
+            sessionManager.getPlaybackScheduleDepth(sessionId);
           logCueBlocking(
             logPrefix,
-            waitMs,
-            nextPlaybackAt,
+            blockWaitMs,
+            blockUntil,
+            scheduleDepth,
+            stackSize,
             queueDepth
           );
           await new Promise((resolve) =>
-            setTimeout(resolve, waitMs)
+            setTimeout(resolve, blockWaitMs)
+          );
+          sessionManager.prunePlaybackSchedule(
+            sessionId,
+            Date.now()
+          );
+          logCueUnblocked(
+            logPrefix,
+            Date.now() - blockStartAt,
+            sessionManager.getPlaybackScheduleDepth(sessionId)
+          );
+        } else {
+          sessionManager.prunePlaybackSchedule(
+            sessionId,
+            Date.now()
           );
         }
-
-        sessionManager.setHasPendingCue(sessionId, false);
-        logCueUnblocked(
-          logPrefix,
-          Date.now() - blockStartAt,
-          nextPlaybackAt
-        );
       }
 
       // === ESTIMATE THIS CUE'S TOTAL DURATION ===
       // Speaking time (estimated) + explicit wait time
       const totalEstMs = estSpeakingMs + waitMs;
 
-      // === UPDATE PLAYBACK CURSOR ===
-      // When will this cue finish? Now + total duration
-      const newNextPlaybackAt = Date.now() + totalEstMs;
+      // === UPDATE PLAYBACK SCHEDULE ===
+      const now = Date.now();
+      const scheduleTail =
+        sessionManager.getPlaybackScheduleTail(sessionId);
+      const scheduleBase =
+        scheduleTail && scheduleTail > now ? scheduleTail : now;
+      const newNextPlaybackAt = scheduleBase + totalEstMs;
+      sessionManager.pushPlaybackSchedule(
+        sessionId,
+        newNextPlaybackAt
+      );
       sessionManager.setNextPlaybackAt(sessionId, newNextPlaybackAt);
 
       // === QUEUE FOR PLAYBACK ===
@@ -179,10 +202,13 @@ export function createCueTool(sessionId: string) {
         sequenceNum: seqNum,
         text: args.text,
       });
-      logCueQueued(logPrefix, queueDepthBefore, totalEstMs);
-
-      // === MARK PENDING (half-step limit) ===
-      sessionManager.setHasPendingCue(sessionId, true);
+      logCueQueued(
+        logPrefix,
+        queueDepthBefore,
+        totalEstMs,
+        sessionManager.getPlaybackScheduleDepth(sessionId),
+        stackSize
+      );
 
       // Mark that a cue has been called
       sessionManager.markCueCalled(sessionId);

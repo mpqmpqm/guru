@@ -140,25 +140,27 @@ export function logCueTtsReady(
 export function logCueBlocking(
   logPrefix: string,
   waitMs: number,
-  nextPlaybackAt: number,
+  blockUntil: number,
+  scheduleDepth: number,
+  stackSize: number,
   queueDepth: number,
   noop = true
 ): void {
   if (noop) return;
   console.log(
-    `${logPrefix} BLOCKING waitMs=${waitMs}ms nextPlaybackAt=${nextPlaybackAt} queueDepth=${queueDepth}`
+    `${logPrefix} BLOCKING waitMs=${waitMs}ms blockUntil=${blockUntil} schedule=${scheduleDepth}/${stackSize} queueDepth=${queueDepth}`
   );
 }
 
 export function logCueUnblocked(
   logPrefix: string,
   waitedMs: number,
-  nextPlaybackAt: number,
+  scheduleDepth: number,
   noop = true
 ): void {
   if (noop) return;
   console.log(
-    `${logPrefix} UNBLOCKED after ${waitedMs}ms nextPlaybackAt=${nextPlaybackAt}`
+    `${logPrefix} UNBLOCKED after ${waitedMs}ms scheduleDepth=${scheduleDepth}`
   );
 }
 
@@ -190,12 +192,14 @@ export function logCueTargetSet(
 export function logCueQueued(
   logPrefix: string,
   queueDepthBefore: number,
-  promisedMs: number,
+  totalEstMs: number,
+  scheduleDepth: number,
+  stackSize: number,
   noop = true
 ): void {
   if (noop) return;
   console.log(
-    `${logPrefix} QUEUED queueDepth=${queueDepthBefore}->${queueDepthBefore + 1} promisedMs=${promisedMs}`
+    `${logPrefix} QUEUED queueDepth=${queueDepthBefore}->${queueDepthBefore + 1} totalEstMs=${totalEstMs} schedule=${scheduleDepth}/${stackSize}`
   );
 }
 
