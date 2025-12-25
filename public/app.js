@@ -313,7 +313,9 @@ async function startAudioStream() {
     audioReconnectAttempts++;
 
     if (audioReconnectAttempts > MAX_RECONNECT_ATTEMPTS) {
-      console.error("Audio stream unavailable after max retries");
+      console.error(
+        "Audio stream unavailable after max retries"
+      );
       return;
     }
 
@@ -346,7 +348,8 @@ async function init() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timezone:
+          Intl.DateTimeFormat().resolvedOptions().timeZone,
       }),
     });
     if (!response.ok)
@@ -383,6 +386,7 @@ function connectSSE() {
     sendBtn.textContent = "Stop";
     sendBtn.disabled = false;
     startStreamTimer();
+    startStatus("Scaffolding");
   });
 
   eventSource.addEventListener("thinking_start", () => {
@@ -683,7 +687,8 @@ document.addEventListener("visibilitychange", () => {
 // Network change detection
 window.addEventListener("online", () => {
   isOnline = true;
-  connectionIndicator.className = "connection-indicator disconnected";
+  connectionIndicator.className =
+    "connection-indicator disconnected";
 
   // Reconnect SSE on network restoration
   if (sessionId && !eventSource) {

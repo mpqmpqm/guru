@@ -124,7 +124,7 @@ export async function* streamChat(
           thinkingBlockIndex = event.index;
           // Clear buffer for new thinking block
           sessionManager.clearPendingThinking(sessionId);
-          // Record start time for latency tracking
+          // Record start time for duration tracking
           sessionManager.setThinkingStartTime(
             sessionId,
             Date.now()
@@ -148,7 +148,7 @@ export async function* streamChat(
           event.type === "content_block_stop" &&
           event.index === thinkingBlockIndex
         ) {
-          // Record thinking duration for latency tracking
+          // Record thinking duration
           sessionManager.completeThinkingBlock(sessionId);
           // Persist complete thinking block to DB
           const seqNum =

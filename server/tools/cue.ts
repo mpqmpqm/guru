@@ -23,29 +23,6 @@ async function withTimeout<T>(
   return Promise.race([promise, timeout]);
 }
 
-// Track latencies separately for running averages (in seconds)
-const interCueLatencies: number[] = []; // Time from cue return to next cue invocation
-const openaiTtfbLatencies: number[] = [];
-const MAX_LATENCY_SAMPLES = 10;
-
-function recordLatency(arr: number[], value: number): void {
-  arr.push(value);
-  if (arr.length > MAX_LATENCY_SAMPLES) {
-    arr.shift();
-  }
-}
-
-// function average(arr: number[]): number {
-//   if (arr.length === 0) return 0;
-//   return arr.reduce((a, b) => a + b, 0) / arr.length;
-// }
-
-// function computeAverageLatency(): number {
-//   const interCueAvg = average(interCueLatencies);
-//   const openaiAvg = average(openaiTtfbLatencies);
-//   return interCueAvg + openaiAvg;
-// }
-
 export function createCueTool(sessionId: string) {
   return tool(
     "cue",
@@ -83,15 +60,6 @@ export function createCueTool(sessionId: string) {
         args.voice,
         breathPhase
       );
-
-      // Record inter-cue latency (time from last cue return to this invocation)
-      const lastReturnTime =
-        sessionManager.getLastCueReturnTime(sessionId);
-      if (lastReturnTime !== undefined) {
-        const interCueLatency =
-          (Date.now() - lastReturnTime) / 1000;
-        recordLatency(interCueLatencies, interCueLatency);
-      }
 
       // Generate audio from OpenAI and stream directly to client
       const openaiStart = Date.now();
@@ -132,8 +100,7 @@ export function createCueTool(sessionId: string) {
         breathPhase,
       });
 
-      // Convert web ReadableStream to AsyncIterable<Uint8Array> and measure TTFB
-      let ttfbRecorded = false;
+      // Convert web ReadableStream to AsyncIterable<Uint8Array>
       async function* streamToAsyncIterable(
         stream: ReadableStream<Uint8Array>
       ): AsyncIterable<Uint8Array> {
@@ -142,14 +109,6 @@ export function createCueTool(sessionId: string) {
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-            // Record time to first byte
-            if (!ttfbRecorded) {
-              recordLatency(
-                openaiTtfbLatencies,
-                (Date.now() - openaiStart) / 1000
-              );
-              ttfbRecorded = true;
-            }
             yield value;
           }
         } finally {
@@ -180,9 +139,6 @@ export function createCueTool(sessionId: string) {
       // Mark that a cue has been called
       sessionManager.markCueCalled(sessionId);
       sessionManager.incrementCueCallCount(sessionId);
-
-      // Record return time for inter-cue latency tracking
-      sessionManager.setLastCueReturnTime(sessionId, Date.now());
 
       const ret = `Cue complete. ${(
         speakingSeconds / SECONDS_PER_BREATH_PHASE

@@ -63,21 +63,15 @@ app.use("/api/inspect", inspectRouter);
 
 // Health check with dependency validation
 app.get("/health", async (_req, res) => {
-  const checks: Record<
-    string,
-    { status: string; latency?: number; error?: string }
-  > = {};
+  const checks: Record<string, { status: string; error?: string }> =
+    {};
   let overallStatus = "ok";
 
   // Check SQLite database
-  const dbStart = Date.now();
   try {
     const { dbOps } = await import("./services/db.js");
     dbOps.listSessions(1);
-    checks.database = {
-      status: "ok",
-      latency: Date.now() - dbStart,
-    };
+    checks.database = { status: "ok" };
   } catch (error) {
     checks.database = {
       status: "error",
@@ -88,7 +82,6 @@ app.get("/health", async (_req, res) => {
   }
 
   // Check OpenAI status
-  const openaiStart = Date.now();
   try {
     const openaiRes = await fetch(
       "https://status.openai.com/api/v2/status.json",
@@ -100,7 +93,6 @@ app.get("/health", async (_req, res) => {
     const indicator = openaiData.status.indicator;
     checks.openai = {
       status: indicator === "none" ? "ok" : indicator,
-      latency: Date.now() - openaiStart,
     };
     if (indicator !== "none") overallStatus = "degraded";
   } catch (error) {
@@ -113,7 +105,6 @@ app.get("/health", async (_req, res) => {
   }
 
   // Check Anthropic/Claude status
-  const anthropicStart = Date.now();
   try {
     const anthropicRes = await fetch(
       "https://status.claude.com/api/v2/status.json",
@@ -125,7 +116,6 @@ app.get("/health", async (_req, res) => {
     const indicator = anthropicData.status.indicator;
     checks.anthropic = {
       status: indicator === "none" ? "ok" : indicator,
-      latency: Date.now() - anthropicStart,
     };
     if (indicator !== "none") overallStatus = "degraded";
   } catch (error) {
