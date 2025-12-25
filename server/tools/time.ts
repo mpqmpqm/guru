@@ -28,20 +28,28 @@ export function createTimeTool(sessionId: string) {
     async () => {
       const timezone = sessionManager.getTimezone(sessionId);
 
-      // Use listener clock (actual playback position)
+      // Use agent synthetic clock (sum of all cue durations)
       const elapsedMs =
-        sessionManager.getListenerElapsed(sessionId);
+        sessionManager.getAgentSyntheticElapsed(sessionId);
 
-      // Synthetic wall clock: session start + listener elapsed
-      // Agent sees time that moves with playback, can't detect queue backlog
+      // Wall clock: session start + synthetic elapsed
+      // Agent sees time at its position on the timeline
       const sessionStartTime =
-        sessionManager.getSessionStartTime(sessionId) ?? Date.now();
-      const syntheticNow = new Date(sessionStartTime + elapsedMs);
+        sessionManager.getSessionStartTime(sessionId) ??
+        Date.now();
+      const syntheticNow = new Date(
+        sessionStartTime + elapsedMs
+      );
 
       const elapsed = formatDuration(elapsedMs / 1000);
       const wallClock = formatWallClock(syntheticNow, timezone);
 
       const prose = `${elapsed} into the session. The time is ${wallClock}.`;
+
+      console.log(
+        `[time] elapsedMs=${elapsedMs} sessionStart=${sessionStartTime} syntheticNow=${syntheticNow.toISOString()}`
+      );
+      console.log(`[time] -> "${prose}"`);
 
       return {
         content: [

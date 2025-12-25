@@ -22,7 +22,7 @@ export interface TTSResult {
 
 type AudioItem = {
   type: "audio";
-  ttsPromise: Promise<TTSResult>;
+  ttsResult: TTSResult;
   waitMs: number;
   sequenceNum: number;
   text: string;
@@ -61,6 +61,12 @@ interface Session {
   cueCallCount: number;
   // Listener clock: actual elapsed playback time (for time tool)
   listenerElapsedMs: number;
+  // Agent synthetic clock: sum of all cue durations (speaking + wait)
+  agentSyntheticElapsedMs: number;
+  // Signals that the producer (agent) is done queuing items
+  producerDone: boolean;
+  // Resolver for when queue has been fully drained
+  drainResolver: (() => void) | null;
 }
 
 class SessionManager {
@@ -82,6 +88,9 @@ class SessionManager {
       pendingThinking: "",
       cueCallCount: 0,
       listenerElapsedMs: 0,
+      agentSyntheticElapsedMs: 0,
+      producerDone: false,
+      drainResolver: null,
     });
     return id;
   }
@@ -237,7 +246,27 @@ class SessionManager {
   advanceListenerClock(sessionId: string, ms: number): void {
     const session = this.sessions.get(sessionId);
     if (session) {
+      const before = session.listenerElapsedMs;
       session.listenerElapsedMs += ms;
+      console.log(
+        `[time] advance +${ms}ms: ${before} -> ${session.listenerElapsedMs}`
+      );
+    }
+  }
+
+  // Agent synthetic clock: tracks where the agent is on the timeline
+  getAgentSyntheticElapsed(sessionId: string): number {
+    return this.sessions.get(sessionId)?.agentSyntheticElapsedMs ?? 0;
+  }
+
+  advanceAgentSyntheticClock(sessionId: string, ms: number): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      const before = session.agentSyntheticElapsedMs;
+      session.agentSyntheticElapsedMs += ms;
+      console.log(
+        `[synthetic] advance +${ms}ms: ${before} -> ${session.agentSyntheticElapsedMs}`
+      );
     }
   }
 
@@ -264,7 +293,7 @@ class SessionManager {
   queueAudio(
     sessionId: string,
     item: {
-      ttsPromise: Promise<TTSResult>;
+      ttsResult: TTSResult;
       waitMs: number;
       sequenceNum: number;
       text: string;
@@ -275,7 +304,7 @@ class SessionManager {
 
     session.audioQueue.push({
       type: "audio",
-      ttsPromise: item.ttsPromise,
+      ttsResult: item.ttsResult,
       waitMs: item.waitMs,
       sequenceNum: item.sequenceNum,
       text: item.text,
@@ -306,6 +335,14 @@ class SessionManager {
 
     try {
       while (session.audioStreamActive) {
+        // If producer is done and queue is empty, exit gracefully
+        if (
+          session.producerDone &&
+          session.audioQueue.length === 0
+        ) {
+          break;
+        }
+
         // Wait for audio if queue is empty
         if (session.audioQueue.length === 0) {
           await new Promise<void>((resolve) => {
@@ -314,6 +351,12 @@ class SessionManager {
           session.audioReady = null;
 
           if (!session.audioStreamActive) break;
+          if (
+            session.producerDone &&
+            session.audioQueue.length === 0
+          ) {
+            break;
+          }
           if (session.audioQueue.length === 0) continue;
         }
 
@@ -324,10 +367,8 @@ class SessionManager {
           const logPrefix = `[audio:${sessionId.slice(0, 8)}:${item.sequenceNum}]`;
           const dequeueAt = Date.now();
 
-          // Await the TTS promise (should be resolved if prefetched correctly)
-          const ttsWaitStart = Date.now();
-          const result = await item.ttsPromise;
-          const ttsWaitMs = Date.now() - ttsWaitStart;
+          // TTS result is already resolved (cue tool awaits it)
+          const result = item.ttsResult;
 
           if (result.error) {
             // Log error, skip this cue but advance listener clock
@@ -357,7 +398,7 @@ class SessionManager {
 
           logAudioPlayStart(
             logPrefix,
-            ttsWaitMs,
+            0, // TTS already resolved in cue tool
             audioBytes,
             expectedSpeakingMs,
             item.waitMs,
@@ -437,6 +478,9 @@ class SessionManager {
     } finally {
       session.audioStreamActive = false;
       session.audioReady = null;
+      // Signal drain complete to anyone awaiting
+      session.drainResolver?.();
+      session.drainResolver = null;
     }
   }
 
@@ -445,6 +489,70 @@ class SessionManager {
     if (session) {
       session.audioStreamActive = false;
       session.audioReady?.();
+    }
+  }
+
+  // Signal that the producer (agent) is done queuing items.
+  // Returns a promise that resolves when the queue has been drained.
+  signalProducerDone(sessionId: string): Promise<void> {
+    const session = this.sessions.get(sessionId);
+    if (!session) return Promise.resolve();
+
+    const drainQueueWhenInactive = (): void => {
+      if (!session.audioStreamActive && session.audioQueue.length > 0) {
+        session.audioQueue = [];
+        session.queueDrained?.();
+        session.queueDrained = null;
+        session.drainResolver?.();
+        session.drainResolver = null;
+      }
+    };
+
+    // Already signaled - return existing promise or resolve immediately
+    if (session.producerDone) {
+      drainQueueWhenInactive();
+      if (
+        session.audioQueue.length === 0 &&
+        !session.audioStreamActive
+      ) {
+        return Promise.resolve();
+      }
+      // Return a promise that waits for drain
+      return new Promise<void>((resolve) => {
+        const existingResolver = session.drainResolver;
+        session.drainResolver = () => {
+          existingResolver?.();
+          resolve();
+        };
+      });
+    }
+
+    session.producerDone = true;
+
+    // Wake consumer if waiting for new audio
+    session.audioReady?.();
+
+    drainQueueWhenInactive();
+
+    // If queue already empty and stream not active, resolve immediately
+    if (
+      session.audioQueue.length === 0 &&
+      !session.audioStreamActive
+    ) {
+      return Promise.resolve();
+    }
+
+    // Return promise that resolves when queue drains
+    return new Promise<void>((resolve) => {
+      session.drainResolver = resolve;
+    });
+  }
+
+  resetProducerState(sessionId: string): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.producerDone = false;
+      session.drainResolver = null;
     }
   }
 

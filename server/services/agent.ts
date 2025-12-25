@@ -52,12 +52,16 @@ export async function* streamChat(
     tools: [createCueTool(sessionId), createTimeTool(sessionId)],
   });
 
+  // Buffer for holding text events until after queue drains
+  const heldTextEvents: string[] = [];
+
   try {
     // Track thinking block to emit start/end events
     let thinkingBlockIndex: number | null = null;
 
-    // Reset cue call count for this query
+    // Reset cue call count and producer state for this query
     sessionManager.resetCueCallCount(sessionId);
+    sessionManager.resetProducerState(sessionId);
 
     // Query Claude with streaming
     for await (const message of query({
@@ -97,11 +101,21 @@ export async function* streamChat(
         // Extract text content from the assistant message
         const content = message.message.content;
         if (typeof content === "string") {
-          yield { type: "text", content };
+          // Hold text until queue drains if cues have been called
+          if (session.cueHasBeenCalled) {
+            heldTextEvents.push(content);
+          } else {
+            yield { type: "text", content };
+          }
         } else if (Array.isArray(content)) {
           for (const block of content) {
             if (block.type === "text") {
-              yield { type: "text", content: block.text };
+              // Hold text until queue drains if cues have been called
+              if (session.cueHasBeenCalled) {
+                heldTextEvents.push(block.text);
+              } else {
+                yield { type: "text", content: block.text };
+              }
             } else if (
               block.type === "tool_use" &&
               block.name === "Skill"
@@ -197,10 +211,26 @@ export async function* streamChat(
             return;
           }
 
+          // Wait for audio queue to drain before signaling completion
+          await sessionManager.signalProducerDone(sessionId);
+
+          // Emit any held text events now that cues are done
+          for (const text of heldTextEvents) {
+            yield { type: "text", content: text };
+          }
+
           // Mark session as completed in DB
           dbOps.completeSession(sessionId);
           yield { type: "done", sessionId: message.session_id };
         } else {
+          // Flush held text if an error occurs after cues
+          if (heldTextEvents.length > 0) {
+            await sessionManager.signalProducerDone(sessionId);
+            for (const text of heldTextEvents) {
+              yield { type: "text", content: text };
+            }
+            heldTextEvents.length = 0;
+          }
           yield {
             type: "error",
             content: `Agent error: ${message.subtype}`,
@@ -220,6 +250,13 @@ export async function* streamChat(
     const seqNum =
       sessionManager.incrementEventSequence(sessionId);
     dbOps.insertError(sessionId, seqNum, "agent", errorMessage);
+    if (heldTextEvents.length > 0) {
+      await sessionManager.signalProducerDone(sessionId);
+      for (const text of heldTextEvents) {
+        yield { type: "text", content: text };
+      }
+      heldTextEvents.length = 0;
+    }
     yield {
       type: "error",
       content: `Error: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`,
@@ -230,7 +267,8 @@ export async function* streamChat(
       sessionId,
       null as unknown as AbortController
     );
-    // Close the audio stream so consumeAudioQueue() can exit
-    sessionManager.closeAudioStream(sessionId);
+    // Signal producer done (idempotent if already called in success path)
+    // This allows the audio queue to drain gracefully
+    sessionManager.signalProducerDone(sessionId);
   }
 }

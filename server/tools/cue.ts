@@ -19,6 +19,9 @@ const openai = new OpenAI();
 const VOICE = "alloy";
 const OPENAI_TIMEOUT_MS = 10_000;
 
+// PCM audio: 24kHz, 16-bit mono
+const BYTES_PER_SECOND = 24000 * 2;
+
 // Helper: fetch TTS and eagerly buffer the stream
 async function fetchAndBufferTTS(
   text: string,
@@ -108,48 +111,66 @@ export function createCueTool(sessionId: string) {
         waitMs
       );
 
-      // === FIRE TTS IMMEDIATELY (before blocking) ===
-      // TTS fetch happens during the wait, hiding latency
+      // === AWAIT TTS TO GET DURATION ===
+      // Block until we know the audio length for synthetic time
       const ttsStart = Date.now();
-      const ttsPromise = fetchAndBufferTTS(
+      const ttsResult = await fetchAndBufferTTS(
         args.text,
         args.voice
-      ).then((result) => {
-        const elapsedMs = Date.now() - ttsStart;
-        if (result.error) {
-          logCueTtsError(logPrefix, elapsedMs, result.error);
-        } else {
-          const bytes = result.chunks!.reduce(
-            (sum, c) => sum + c.length,
-            0
-          );
-          logCueTtsReady(logPrefix, elapsedMs, bytes);
-        }
-        return result;
-      });
+      );
+      const ttsElapsedMs = Date.now() - ttsStart;
+
+      // Calculate speaking duration and advance synthetic clock
+      let speakingMs: number;
+      if (ttsResult.error) {
+        logCueTtsError(logPrefix, ttsElapsedMs, ttsResult.error);
+        // Estimate duration from word count on error
+        speakingMs = (wordCount / 2.5) * 1000;
+      } else {
+        const bytes = ttsResult.chunks!.reduce(
+          (sum, c) => sum + c.length,
+          0
+        );
+        logCueTtsReady(logPrefix, ttsElapsedMs, bytes);
+        speakingMs = (bytes / BYTES_PER_SECOND) * 1000;
+      }
+
+      // Advance synthetic clock BEFORE returning
+      sessionManager.advanceAgentSyntheticClock(
+        sessionId,
+        speakingMs + waitMs
+      );
 
       // === BLOCK IF QUEUE IS FULL ===
       // Wait until an item is dequeued (playback completes)
-      await sessionManager.waitForQueueRoom(sessionId, stackSize);
+      await sessionManager.waitForQueueRoom(
+        sessionId,
+        stackSize
+      );
 
       // === QUEUE FOR PLAYBACK ===
       const queueDepthBefore =
         sessionManager.getAudioQueueDepth(sessionId);
       sessionManager.queueAudio(sessionId, {
-        ttsPromise,
+        ttsResult,
         waitMs,
         sequenceNum: seqNum,
         text: args.text,
       });
-      logCueQueued(logPrefix, queueDepthBefore, waitMs, 0, stackSize);
+      logCueQueued(
+        logPrefix,
+        queueDepthBefore,
+        waitMs,
+        0,
+        stackSize
+      );
 
       // Mark that a cue has been called
       sessionManager.markCueCalled(sessionId);
       sessionManager.incrementCueCallCount(sessionId);
 
-      // === RETURN IMMEDIATELY (the "lie") ===
-      // Past tense: agent believes the wait already happened
-      const ret = `Cue complete. Waited ${waitMs}ms.`;
+      // === RETURN WITH ACTUAL DURATION ===
+      const ret = `Cue complete. Spoke for ${Math.round(speakingMs)}ms, waited ${waitMs}ms.`;
 
       return {
         content: [
