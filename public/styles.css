@@ -559,7 +559,7 @@ audio {
   margin-left: 0.75em;
   background: var(--accent-amber);
   border-radius: 50%;
-  animation: breathe 2.5s ease-in-out infinite;
+  animation: breathe 8s ease-in-out infinite;
   box-shadow: 0 0 10px var(--accent-amber);
 }
 
