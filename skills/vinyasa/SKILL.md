@@ -82,67 +82,81 @@ Borrowed images you don't feel will sound borrowed.
 
 ## Using the Cue Tool
 
-The `cue` tool's `breathPhase` parameter is how you sync instruction to breath. One phase = one inhale or one exhale (~4 seconds). Two phases = one full breath (~8 seconds).
+The `cue` tool's `waitMs` parameter controls the silence after speaking. This creates space between instructions, letting movement catch up to words.
 
-This parameter includes both spoken instruction and the silence that follows. When you set `breathPhase: 1`, you're saying: this cue fills one inhale or exhale, then the next cue arrives.
+When you set `waitMs: 3500`, you're saying: speak this text, then wait 3.5 seconds before the next cue. One full breath cycle ≈ 8000ms.
 
 ### One Movement Per Cue
 
 The TTS model reads quickly. A cue like "Inhale reach. Exhale fold. Inhale lengthen." will be spoken in seconds—far faster than the breaths it describes.
 
-**Each breath-movement pair needs its own `cue` call with at least `breathPhase: 1`.**
+**Each breath-movement pair needs its own `cue` call.**
 
 Wrong:
 ```
-cue("Inhale reach. Exhale fold. Inhale lengthen.", breathPhase: 3)
+cue("Inhale reach. Exhale fold. Inhale lengthen.", waitMs: 12000)
 ```
 
 Right:
 ```
-cue("Inhale, reach.", breathPhase: 1)
-cue("Exhale, fold.", breathPhase: 1)
-cue("Inhale, lengthen.", breathPhase: 1)
+cue("Inhale, reach.", waitMs: 3500)
+cue("Exhale, fold.", waitMs: 3500)
+cue("Inhale, lengthen.", waitMs: 3500)
 ```
 
-The `breathPhase` creates the silence after speech. Without it, instruction piles up faster than bodies can move.
+The `waitMs` creates the silence after speech. Without it, instruction piles up faster than bodies can move.
 
 ### Sun Salutation A: A Complete Example
 
 Each row is one `cue` call. The sequence assumes students know the flow—first rounds would need more instruction.
 
-| Pose | text | breathPhase | Notes |
+| Pose | text | waitMs | Notes |
 | --- | --- | --- | --- |
-| Tadasana | "Find your breath." | 4 | Two full breaths to arrive |
-| Urdhva Hastasana | "Inhale, reach." | 1 | Arms rise on inhale |
-| Uttanasana | "Exhale, fold." | 1 | Forward fold on exhale |
-| Ardha Uttanasana | "Inhale, lengthen." | 1 | Flat back on inhale |
-| Chaturanga | "Exhale, step back, lower halfway." | 2 | Exhale + landing time |
-| Urdhva Mukha | "Inhale, chest forward." | 1 | Updog on inhale |
-| Adho Mukha | "Exhale, press back. Five breaths." | 10 | Down dog hold |
-| Ardha Uttanasana | "Inhale, step forward, lengthen." | 2 | Transition + flat back |
-| Uttanasana | "Exhale, fold." | 1 | Forward fold |
-| Urdhva Hastasana | "Inhale, rise." | 1 | Arms sweep up |
-| Samasthiti | "Exhale, hands to heart." | 2 | Return + settle |
+| Tadasana | "Find your breath." | 12000 | Two full breaths to arrive |
+| Urdhva Hastasana | "Inhale, reach." | 3500 | Arms rise on inhale |
+| Uttanasana | "Exhale, fold." | 3500 | Forward fold on exhale |
+| Ardha Uttanasana | "Inhale, lengthen." | 3500 | Flat back on inhale |
+| Chaturanga | "Exhale, step back, lower halfway." | 6000 | Exhale + landing time |
+| Urdhva Mukha | "Inhale, chest forward." | 3500 | Updog on inhale |
+| Adho Mukha | "Exhale, press back. Five breaths." | 35000 | Down dog hold |
+| Ardha Uttanasana | "Inhale, step forward, lengthen." | 6000 | Transition + flat back |
+| Uttanasana | "Exhale, fold." | 3500 | Forward fold |
+| Urdhva Hastasana | "Inhale, rise." | 3500 | Arms sweep up |
+| Samasthiti | "Exhale, hands to heart." | 6000 | Return + settle |
 
-Total: ~27 phases ≈ 108 seconds ≈ 1:48
+Total: ~90 seconds of silence + speaking ≈ 1:45
 
-The pattern: transitional cues get 1-2 phases; holds get 2× the breath count (5 breaths = 10 phases).
+The pattern: transitional cues get 3500-6000ms; holds get ~8000ms per breath (5 breaths = 35000ms).
 
-### breathPhase Quick Reference
+### waitMs Quick Reference
 
-| Context | Phases | Example |
+| Context | waitMs | Example |
 | --- | --- | --- |
-| Single breath direction | 1 | "Inhale, reach." |
-| Two-part instruction | 2 | "Step back, lower halfway." |
-| Short hold (warrior, lunge) | 4-6 | "Hold here. Three breaths." |
-| Extended hold (peak pose) | 8-12 | "Stay. Find your breath." |
-| Framed silence | 4-8 | "Just breathe." |
+| Rapid alignment cue | 100 | "Knee stacks over heel." |
+| Single breath direction | 3500 | "Inhale, reach." |
+| Two-part instruction | 6000 | "Step back, lower halfway." |
+| Short hold (warrior, lunge) | 12000-20000 | "Hold here. Three breaths." |
+| Extended hold (peak pose) | 30000-45000 | "Stay. Find your breath." |
+| Framed silence | 15000-30000 | "Just breathe." |
+
+### Rapid-Fire Alignment Cues
+
+For multi-part alignment (e.g., setting up Warrior II), chain cues with minimal wait, settling on the final cue:
+
+```
+cue("Front foot points forward.", waitMs: 100)
+cue("Back foot at 45 degrees.", waitMs: 100)
+cue("Knee stacks over ankle.", waitMs: 100)
+cue("Hips sink, arms reach.", waitMs: 6000)
+```
+
+The body receives the complete alignment instruction as one unit, then settles into the shape.
 
 ### Pacing Principles
 
-Prefer several short cue/breath cycles to fewer long ones. Even during extended holds, continue cueing in shorter cycles—this keeps listeners engaged and frames silence as intentional stillness.
+Prefer several short cue/wait cycles to fewer long ones. Even during extended holds, continue cueing in shorter cycles—this keeps listeners engaged and frames silence as intentional stillness.
 
-Silence longer than 5-6 breaths without framing may feel like system failure. The framing can be minimal: "Stay here." "Just breathe." "Find stillness."
+Silence longer than ~45 seconds without framing may feel like system failure. The framing can be minimal: "Stay here." "Just breathe." "Find stillness."
 
 ## Breath Leads Movement
 

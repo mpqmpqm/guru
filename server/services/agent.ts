@@ -26,7 +26,7 @@ interface ChatEvent {
   content?: string;
   sessionId?: string;
   text?: string;
-  breathPhase?: number;
+  waitMs?: number;
   skill?: string;
 }
 

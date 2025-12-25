@@ -19,8 +19,6 @@ import {
 const openai = new OpenAI();
 
 const VOICE = "alloy";
-const SECONDS_PER_BREATH = 8;
-const SECONDS_PER_BREATH_PHASE = SECONDS_PER_BREATH / 2;
 const OPENAI_TIMEOUT_MS = 10_000;
 
 // Helper: fetch TTS and eagerly buffer the stream
@@ -75,7 +73,7 @@ async function fetchAndBufferTTS(
 export function createCueTool(sessionId: string) {
   return tool(
     "cue",
-    "Speak and hold. One breath is 8 seconds (two phases).",
+    "Speak text aloud, then wait.",
     {
       text: z.string().describe("The text to speak aloud"),
       voice: z
@@ -83,45 +81,34 @@ export function createCueTool(sessionId: string) {
         .describe(
           "3-5 sentences controlling vocal delivery for this cue, including emotional range, intonation, speed, tone, and whispering."
         ),
-      breathPhase: z
+      waitMs: z
         .number()
         .int()
-        .min(0)
+        .min(100)
         .describe(
-          "Total expected breath phases for this cue (>= 0). A phase is one inhale or exhale; two phases = one full breath (~8 seconds)."
+          "Milliseconds to wait after speaking completes (min 100ms)."
         ),
     },
     async (args) => {
-      const breathPhase = args.breathPhase;
+      const waitMs = args.waitMs;
 
       // Persist cue to database
       const seqNum =
         sessionManager.incrementEventSequence(sessionId);
       const logPrefix = `[cue:${sessionId.slice(0, 8)}:${seqNum}]`;
 
-      // Estimate speaking time: ~150 wpm = 2.5 words/sec, avg word ~5 chars
-      // So ~12.5 chars/sec, or ~50 chars per 4-sec breath phase
+      // Estimate speaking time for blocking target: ~150 wpm = 2.5 words/sec
       const wordCount = args.text.split(/\s+/).length;
-      const estSpeakingSec = wordCount / 2.5;
-      const estMinPhases = Math.ceil(estSpeakingSec / SECONDS_PER_BREATH_PHASE);
-      const phaseDeficit = estMinPhases - breathPhase;
-      const warning =
-        phaseDeficit > 0 ? ` ⚠️ UNDERESTIMATE by ${phaseDeficit} phases` : "";
+      const estSpeakingMs = (wordCount / 2.5) * 1000;
 
-      logCueReceived(
-        logPrefix,
-        breathPhase,
-        wordCount,
-        estMinPhases,
-        warning
-      );
+      logCueReceived(logPrefix, waitMs, wordCount);
       logCueText(logPrefix, args.text);
       dbOps.insertCue(
         sessionId,
         seqNum,
         args.text,
         args.voice,
-        breathPhase
+        waitMs
       );
 
       // === FIRE TTS IMMEDIATELY (before any blocking!) ===
@@ -174,26 +161,25 @@ export function createCueTool(sessionId: string) {
         );
       }
 
-      // === ESTIMATE THIS CUE'S DURATION ===
-      const promisedMs =
-        breathPhase * SECONDS_PER_BREATH_PHASE * 1000;
+      // === ESTIMATE THIS CUE'S TOTAL DURATION ===
+      // Speaking time (estimated) + explicit wait time
+      const totalEstMs = estSpeakingMs + waitMs;
 
       // === UPDATE PLAYBACK CURSOR ===
-      // When will this cue finish? Now + promised duration
-      const nextPlaybackAt = Date.now() + promisedMs;
-      sessionManager.setNextPlaybackAt(sessionId, nextPlaybackAt);
+      // When will this cue finish? Now + total duration
+      const newNextPlaybackAt = Date.now() + totalEstMs;
+      sessionManager.setNextPlaybackAt(sessionId, newNextPlaybackAt);
 
       // === QUEUE FOR PLAYBACK ===
-      // Pass the buffering promise + breath phase
       const queueDepthBefore =
         sessionManager.getAudioQueueDepth(sessionId);
       sessionManager.queueAudio(sessionId, {
         ttsPromise,
-        breathPhase,
+        waitMs,
         sequenceNum: seqNum,
         text: args.text,
       });
-      logCueQueued(logPrefix, queueDepthBefore, promisedMs);
+      logCueQueued(logPrefix, queueDepthBefore, totalEstMs);
 
       // === MARK PENDING (half-step limit) ===
       sessionManager.setHasPendingCue(sessionId, true);
@@ -203,7 +189,7 @@ export function createCueTool(sessionId: string) {
       sessionManager.incrementCueCallCount(sessionId);
 
       // === RETURN IMMEDIATELY (the "lie") ===
-      const ret = `Cue complete. ${breathPhase} breath phases.`;
+      const ret = `Cue complete. Wait ${waitMs}ms.`;
       // console.log(`${logPrefix} ${ret}`);
 
       return {

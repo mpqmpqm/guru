@@ -326,9 +326,8 @@
                         <span>${escapeHtml(event.voice)}</span>
                       </div>
                       ${
-                        event.breathPhase !== null &&
-                        event.breathPhase !== undefined
-                          ? `<div class="cue-detail"><span class="cue-detail-label">Breath phase:</span><span>${event.breathPhase.toFixed(1)}</span></div>`
+                        event.waitMs !== null && event.waitMs !== undefined
+                          ? `<div class="cue-detail"><span class="cue-detail-label">Wait:</span><span>${(event.waitMs / 1000).toFixed(1)}s</span></div>`
                           : event.pause
                             ? `<div class="cue-detail"><span class="cue-detail-label">Pause:</span><span>${event.pause}</span></div>`
                             : ""

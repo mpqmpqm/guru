@@ -10,7 +10,6 @@ import {
 const SAMPLE_RATE = 24000;
 const BYTES_PER_SAMPLE = 2;
 const BYTES_PER_SECOND = SAMPLE_RATE * BYTES_PER_SAMPLE; // 48000
-const SECONDS_PER_BREATH_PHASE = 4;
 
 // Burst mode: send first N bytes at max speed to fill client buffer quickly
 const BURST_SECONDS = 0.5;
@@ -24,7 +23,7 @@ export interface TTSResult {
 type AudioItem = {
   type: "audio";
   ttsPromise: Promise<TTSResult>;
-  breathPhase: number;
+  waitMs: number;
   sequenceNum: number;
   text: string;
 };
@@ -271,7 +270,7 @@ class SessionManager {
     sessionId: string,
     item: {
       ttsPromise: Promise<TTSResult>;
-      breathPhase: number;
+      waitMs: number;
       sequenceNum: number;
       text: string;
     }
@@ -282,7 +281,7 @@ class SessionManager {
     session.audioQueue.push({
       type: "audio",
       ttsPromise: item.ttsPromise,
-      breathPhase: item.breathPhase,
+      waitMs: item.waitMs,
       sequenceNum: item.sequenceNum,
       text: item.text,
     });
@@ -338,13 +337,15 @@ class SessionManager {
           if (result.error) {
             // Log error, skip this cue but advance listener clock
             // so subsequent cues don't block forever
-            const promisedMs =
-              item.breathPhase * SECONDS_PER_BREATH_PHASE * 1000;
-            this.advanceListenerClock(sessionId, promisedMs);
+            // Estimate speaking time from text + explicit waitMs
+            const estSpeakingMs =
+              (item.text.split(/\s+/).length / 2.5) * 1000;
+            const advanceMs = estSpeakingMs + item.waitMs;
+            this.advanceListenerClock(sessionId, advanceMs);
             logAudioTtsSkip(
               logPrefix,
               result.error,
-              promisedMs,
+              advanceMs,
               this.getListenerElapsed(sessionId)
             );
             continue;
@@ -356,22 +357,20 @@ class SessionManager {
           );
           const expectedSpeakingMs =
             (audioBytes / BYTES_PER_SECOND) * 1000;
-          const promisedMs =
-            item.breathPhase * SECONDS_PER_BREATH_PHASE * 1000;
 
           logAudioPlayStart(
             logPrefix,
             ttsWaitMs,
             audioBytes,
             expectedSpeakingMs,
-            promisedMs,
+            item.waitMs,
             session.audioQueue.length
           );
 
           // Emit cue when playback starts so visuals align with audio.
           this.sendSSE(sessionId, "cue", {
             text: item.text,
-            breathPhase: item.breathPhase,
+            waitMs: item.waitMs,
           });
 
           // Start timing AFTER TTS buffering so we measure only playback
@@ -416,8 +415,8 @@ class SessionManager {
           // Advance listener clock by speaking time
           this.advanceListenerClock(sessionId, speakingMs);
 
-          // Calculate and apply silence (promisedMs already calculated above)
-          const silenceMs = Math.max(0, promisedMs - speakingMs);
+          // Apply explicit wait time (waitMs is the silence after speaking)
+          const silenceMs = item.waitMs;
 
           if (silenceMs > 0) {
             this.sendSSE(sessionId, "breathe_start", {
@@ -432,21 +431,7 @@ class SessionManager {
           }
 
           const totalPlaybackMs = Date.now() - dequeueAt;
-          const drift = totalPlaybackMs - promisedMs;
-          // If speaking took longer than promised, there was no silence and we're behind
-          const overrun =
-            speakingMs > promisedMs
-              ? ` ⚠️ OVERRUN by ${Math.round(speakingMs - promisedMs)}ms`
-              : "";
-          logAudioPlayEnd(
-            logPrefix,
-            speakingMs,
-            silenceMs,
-            totalPlaybackMs,
-            promisedMs,
-            drift,
-            overrun
-          );
+          logAudioPlayEnd(logPrefix, speakingMs, silenceMs, totalPlaybackMs);
         }
       }
     } finally {

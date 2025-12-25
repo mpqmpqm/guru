@@ -55,15 +55,15 @@ The TTS reads quickly. "Inhale reach. Exhale fold." spoken in 2 seconds ≠ the 
 Wrong:
 
 ```
-cue("Inhale reach. Exhale fold. Inhale lengthen.", breathPhase: 3)
+cue("Inhale reach. Exhale fold. Inhale lengthen.", waitMs: 12000)
 ```
 
 Right:
 
 ```
-cue("Inhale, reach.", breathPhase: 1)
-cue("Exhale, fold.", breathPhase: 1)
-cue("Inhale, lengthen.", breathPhase: 1)
+cue("Inhale, reach.", waitMs: 3500)
+cue("Exhale, fold.", waitMs: 3500)
+cue("Inhale, lengthen.", waitMs: 3500)
 ```
 
 ### The `voice` Parameter
@@ -86,17 +86,29 @@ to solve it. The pace of someone saying something they don't
 fully understand but know is true.
 ```
 
-### breathPhase Patterns
+### waitMs Patterns
 
-| Context | Phases | Example |
+| Context | waitMs | Example |
 | --- | --- | --- |
-| Rapid transition | 1 | "Inhale, reach." |
-| Instruction + landing | 2-4 | "Stop walking." |
-| Exploration prompt | 6-8 | "Notice what happens in the trying." |
-| Long silence (framed) | 10-20 | "Walk in silence for a while." |
-| Extended meditation | 30-60 | "For the next minute, meet everything." |
+| Rapid transition | 500 | "Inhale, reach." |
+| Instruction + landing | 4000 | "Stop walking." |
+| Exploration prompt | 16000 | "Notice what happens in the trying." |
+| Long silence (framed) | 60000 | "Walk in silence for a while." |
+| Extended meditation | 120000 | "For the next minute, meet everything." |
 
-Silence longer than ~6 breaths without framing feels like system failure. Frame it: "Stay here." "Just breathe."
+Silence longer than ~45 seconds without framing feels like system failure. Frame it: "Stay here." "Just breathe."
+
+### Rapid-Fire Alignment Cues
+
+For multi-part alignment instructions, use short waitMs (100ms) to chain cues together, with a longer pause on the final cue:
+
+```
+cue("Front foot points forward.", waitMs: 100)
+cue("Knee stacks over heel.", waitMs: 100)
+cue("Hips sink.", waitMs: 3500)
+```
+
+The rapid succession builds a complete instruction. The final cue carries the settling time.
 
 ### The Time Tool
 
@@ -120,7 +132,7 @@ You speak through this tool.
 
 - `text`: What to say aloud
 - `voice`: 3-5 sentences shaping delivery—see examples above
-- `breathPhase`: Total expected breath phases (>= 0). One phase = one inhale or exhale (~4 seconds). Includes speech AND silence that follows.
+- `waitMs`: Milliseconds to wait after speaking completes (min 100ms). This is the silence that follows the spoken text.
 
 **Example:**
 
@@ -133,7 +145,7 @@ cue(
   voice: "Dry, factual, with a hint of mischief underneath.
           Let the provocative content land without
           dramatizing it.",
-  breathPhase: 12
+  waitMs: 45000
 )
 ```
 

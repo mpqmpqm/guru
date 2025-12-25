@@ -68,13 +68,13 @@ export function logAudioPlayStart(
   ttsWaitMs: number,
   bytes: number,
   expectedSpeakingMs: number,
-  promisedMs: number,
+  waitMs: number,
   queueDepth: number,
   noop = true
 ): void {
   if (noop) return;
   console.log(
-    `${logPrefix} PLAY_START ttsWaitMs=${ttsWaitMs} bytes=${bytes} expectedSpeakingMs=${Math.round(expectedSpeakingMs)} promisedMs=${promisedMs} queueDepth=${queueDepth}`
+    `${logPrefix} PLAY_START ttsWaitMs=${ttsWaitMs} bytes=${bytes} expectedSpeakingMs=${Math.round(expectedSpeakingMs)} waitMs=${waitMs} queueDepth=${queueDepth}`
   );
 }
 
@@ -83,29 +83,24 @@ export function logAudioPlayEnd(
   speakingMs: number,
   silenceMs: number,
   totalMs: number,
-  promisedMs: number,
-  drift: number,
-  overrun: string,
   noop = true
 ): void {
   if (noop) return;
   console.log(
-    `${logPrefix} PLAY_END speakingMs=${Math.round(speakingMs)} silenceMs=${Math.round(silenceMs)} totalMs=${totalMs} promisedMs=${promisedMs} drift=${drift > 0 ? "+" : ""}${drift}ms${overrun}`
+    `${logPrefix} PLAY_END speakingMs=${Math.round(speakingMs)} silenceMs=${Math.round(silenceMs)} totalMs=${totalMs}`
   );
 }
 
 // Cue tool
 export function logCueReceived(
   logPrefix: string,
-  breathPhase: number,
+  waitMs: number,
   wordCount: number,
-  estMinPhases: number,
-  warning: string,
   noop = true
 ): void {
   if (noop) return;
   console.log(
-    `${logPrefix} RECEIVED breathPhase=${breathPhase} words=${wordCount} estMinPhases=${estMinPhases}${warning}`
+    `${logPrefix} RECEIVED waitMs=${waitMs} words=${wordCount}`
   );
 }
 
