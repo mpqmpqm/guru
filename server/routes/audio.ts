@@ -44,10 +44,16 @@ audioRouter.get("/:sessionId", async (req, res) => {
     "X-Audio-Format": "pcm16le-24k-framed",
   });
 
-  // Handle client disconnect - don't abort agent (audio can reconnect)
-  // Agent is only aborted when SSE closes (user leaves page)
+  // Handle client disconnect - abort agent and close session
+  // Audio is the primary delivery channel; if it disconnects, guidance
+  // cannot be heard, so continuing the agent wastes resources
   req.on("close", () => {
+    console.log(
+      `Audio stream closed for session ${sessionId} - stopping agent`
+    );
     sessionManager.closeAudioStream(sessionId);
+    sessionManager.abortAgent(sessionId);
+    dbOps.closeSession(sessionId);
   });
 
   // Stream audio from queue - write directly without buffering
