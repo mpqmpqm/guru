@@ -144,26 +144,26 @@ export function logCueTtsReady(
 
 export function logCueBlocking(
   logPrefix: string,
-  listenerTarget: number,
-  listenerElapsed: number,
+  waitMs: number,
+  nextPlaybackAt: number,
   queueDepth: number,
   noop = true
 ): void {
   if (noop) return;
   console.log(
-    `${logPrefix} BLOCKING listenerTarget=${listenerTarget}ms listenerElapsed=${listenerElapsed}ms delta=${listenerTarget - listenerElapsed}ms queueDepth=${queueDepth}`
+    `${logPrefix} BLOCKING waitMs=${waitMs}ms nextPlaybackAt=${nextPlaybackAt} queueDepth=${queueDepth}`
   );
 }
 
 export function logCueUnblocked(
   logPrefix: string,
   waitedMs: number,
-  listenerElapsed: number,
+  nextPlaybackAt: number,
   noop = true
 ): void {
   if (noop) return;
   console.log(
-    `${logPrefix} UNBLOCKED after ${waitedMs}ms listenerElapsed=${listenerElapsed}ms`
+    `${logPrefix} UNBLOCKED after ${waitedMs}ms nextPlaybackAt=${nextPlaybackAt}`
   );
 }
 

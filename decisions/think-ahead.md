@@ -88,13 +88,13 @@ early, allowing the agent to queue unlimited cues.
   desync the agent's perception from the listener's reality
 - One cue of lookahead (~8-16s) is enough to hide typical TTS latency
   (~0.5-1.5s) and thinking time (~1-2s)
-- SSE `cue` events are sent immediately; with more lookahead, the UI would
-  show cues far before playback
+- Cue SSE events are emitted at playback start (not queue time) to keep
+  visuals aligned with audio
 
 ### 6. Silence Handled by Audio Consumer
 
-**Decision**: The audio consumer sends `breathe_start` SSE and waits for
-silence after audio finishes.
+**Decision**: The audio consumer sends `cue` SSE at playback start, then
+`breathe_start` SSE and waits for silence after audio finishes.
 
 **Rejected alternative**: Handle silence in the cue tool after queueing.
 

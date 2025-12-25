@@ -10,8 +10,6 @@ import {
   logCueBlocking,
   logCueQueued,
   logCueReceived,
-  logCueSseSend,
-  logCueTargetSet,
   logCueText,
   logCueTtsError,
   logCueTtsReady,
@@ -100,7 +98,6 @@ export function createCueTool(sessionId: string) {
       const seqNum =
         sessionManager.incrementEventSequence(sessionId);
       const logPrefix = `[cue:${sessionId.slice(0, 8)}:${seqNum}]`;
-      const cueReceivedAt = Date.now();
 
       // Estimate speaking time: ~150 wpm = 2.5 words/sec, avg word ~5 chars
       // So ~12.5 chars/sec, or ~50 chars per 4-sec breath phase
@@ -147,34 +144,33 @@ export function createCueTool(sessionId: string) {
         return result;
       });
 
-      // === ENTRY BLOCKING (listener elapsed based) ===
-      // Wait until actual audio playback reaches the target position
+      // === ENTRY BLOCKING (wall clock based) ===
+      // If there's a pending cue, wait until it finishes (actual wall clock)
       if (sessionManager.getHasPendingCue(sessionId)) {
         const blockStartAt = Date.now();
-        const listenerTarget =
-          sessionManager.getListenerTarget(sessionId);
-        const listenerElapsed =
-          sessionManager.getListenerElapsed(sessionId);
+        const nextPlaybackAt =
+          sessionManager.getNextPlaybackAt(sessionId);
+        const waitMs = nextPlaybackAt - blockStartAt;
         const queueDepth =
           sessionManager.getAudioQueueDepth(sessionId);
-        logCueBlocking(
-          logPrefix,
-          listenerTarget,
-          listenerElapsed,
-          queueDepth
-        );
 
-        // Wait until listener catches up to target
-        await sessionManager.waitForListenerElapsed(
-          sessionId,
-          listenerTarget
-        );
+        if (waitMs > 0) {
+          logCueBlocking(
+            logPrefix,
+            waitMs,
+            nextPlaybackAt,
+            queueDepth
+          );
+          await new Promise((resolve) =>
+            setTimeout(resolve, waitMs)
+          );
+        }
 
         sessionManager.setHasPendingCue(sessionId, false);
         logCueUnblocked(
           logPrefix,
           Date.now() - blockStartAt,
-          sessionManager.getListenerElapsed(sessionId)
+          nextPlaybackAt
         );
       }
 
@@ -182,28 +178,10 @@ export function createCueTool(sessionId: string) {
       const promisedMs =
         breathPhase * SECONDS_PER_BREATH_PHASE * 1000;
 
-      // Notify the client via SSE (after entry blocking)
-      const sseAt = Date.now();
-      const listenerElapsed =
-        sessionManager.getListenerElapsed(sessionId);
-      logCueSseSend(
-        logPrefix,
-        sseAt - cueReceivedAt,
-        listenerElapsed,
-        promisedMs
-      );
-      sessionManager.sendSSE(sessionId, "cue", {
-        text: args.text,
-        breathPhase,
-      });
-
-      // === UPDATE LISTENER TARGET ===
-      // Next cue can fire when listener reaches current position + this cue's duration
-      const currentElapsed =
-        sessionManager.getListenerElapsed(sessionId);
-      const newTarget = currentElapsed + promisedMs;
-      sessionManager.setListenerTarget(sessionId, newTarget);
-      logCueTargetSet(logPrefix, currentElapsed, newTarget);
+      // === UPDATE PLAYBACK CURSOR ===
+      // When will this cue finish? Now + promised duration
+      const nextPlaybackAt = Date.now() + promisedMs;
+      sessionManager.setNextPlaybackAt(sessionId, nextPlaybackAt);
 
       // === QUEUE FOR PLAYBACK ===
       // Pass the buffering promise + breath phase
@@ -213,6 +191,7 @@ export function createCueTool(sessionId: string) {
         ttsPromise,
         breathPhase,
         sequenceNum: seqNum,
+        text: args.text,
       });
       logCueQueued(logPrefix, queueDepthBefore, promisedMs);
 

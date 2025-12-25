@@ -26,11 +26,7 @@ type AudioItem = {
   ttsPromise: Promise<TTSResult>;
   breathPhase: number;
   sequenceNum: number;
-};
-
-type ListenerWaiter = {
-  targetMs: number;
-  resolve: () => void;
+  text: string;
 };
 
 interface Session {
@@ -61,12 +57,10 @@ interface Session {
   cueHasBeenCalled?: boolean;
   // Count of cue calls in current query (reset per query)
   cueCallCount: number;
+  // Playback cursor: wall clock when current cue will finish (for entry blocking)
+  nextPlaybackAtMs: number;
   // Listener clock: actual elapsed playback time (for time tool)
   listenerElapsedMs: number;
-  // Listener target: what listenerElapsedMs must reach before next SSE fires
-  listenerTargetMs: number;
-  // Waiters for listener clock to reach a target
-  listenerWaiters: ListenerWaiter[];
   // Whether a cue is currently in flight (for half-step limit)
   hasPendingCue: boolean;
 }
@@ -87,9 +81,8 @@ class SessionManager {
       eventSequence: 0,
       pendingThinking: "",
       cueCallCount: 0,
+      nextPlaybackAtMs: Date.now(),
       listenerElapsedMs: 0,
-      listenerTargetMs: 0,
-      listenerWaiters: [],
       hasPendingCue: false,
     });
     return id;
@@ -234,15 +227,15 @@ class SessionManager {
     }
   }
 
-  // Listener target methods (based on actual playback position)
-  getListenerTarget(sessionId: string): number {
-    return this.sessions.get(sessionId)?.listenerTargetMs ?? 0;
+  // Playback cursor methods (wall clock based)
+  getNextPlaybackAt(sessionId: string): number {
+    return this.sessions.get(sessionId)?.nextPlaybackAtMs ?? Date.now();
   }
 
-  setListenerTarget(sessionId: string, ms: number): void {
+  setNextPlaybackAt(sessionId: string, ms: number): void {
     const session = this.sessions.get(sessionId);
     if (session) {
-      session.listenerTargetMs = ms;
+      session.nextPlaybackAtMs = ms;
     }
   }
 
@@ -255,29 +248,7 @@ class SessionManager {
     const session = this.sessions.get(sessionId);
     if (session) {
       session.listenerElapsedMs += ms;
-      if (session.listenerWaiters.length > 0) {
-        const elapsed = session.listenerElapsedMs;
-        const remaining: ListenerWaiter[] = [];
-        for (const waiter of session.listenerWaiters) {
-          if (elapsed >= waiter.targetMs) {
-            waiter.resolve();
-          } else {
-            remaining.push(waiter);
-          }
-        }
-        session.listenerWaiters = remaining;
-      }
     }
-  }
-
-  waitForListenerElapsed(sessionId: string, targetMs: number): Promise<void> {
-    const session = this.sessions.get(sessionId);
-    if (!session) return Promise.resolve();
-    if (session.listenerElapsedMs >= targetMs) return Promise.resolve();
-
-    return new Promise<void>((resolve) => {
-      session.listenerWaiters.push({ targetMs, resolve });
-    });
   }
 
   // Half-step pending cue tracking
@@ -302,6 +273,7 @@ class SessionManager {
       ttsPromise: Promise<TTSResult>;
       breathPhase: number;
       sequenceNum: number;
+      text: string;
     }
   ): void {
     const session = this.sessions.get(sessionId);
@@ -312,6 +284,7 @@ class SessionManager {
       ttsPromise: item.ttsPromise,
       breathPhase: item.breathPhase,
       sequenceNum: item.sequenceNum,
+      text: item.text,
     });
     // Signal that new audio is available
     session.audioReady?.();
@@ -394,6 +367,12 @@ class SessionManager {
             promisedMs,
             session.audioQueue.length
           );
+
+          // Emit cue when playback starts so visuals align with audio.
+          this.sendSSE(sessionId, "cue", {
+            text: item.text,
+            breathPhase: item.breathPhase,
+          });
 
           // Start timing AFTER TTS buffering so we measure only playback
           let playbackStart = Date.now();
@@ -489,12 +468,6 @@ class SessionManager {
     if (session) {
       this.closeAudioStream(sessionId);
       session.sseResponse?.end();
-      if (session.listenerWaiters.length > 0) {
-        for (const waiter of session.listenerWaiters) {
-          waiter.resolve();
-        }
-        session.listenerWaiters = [];
-      }
     }
     // Keep session for potential reconnection, clean up after 30 minutes
     setTimeout(
