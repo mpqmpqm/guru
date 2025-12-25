@@ -10,7 +10,7 @@ RUN npm ci
 
 # Copy source and build
 COPY . .
-RUN echo "{\"commit\":\"${COMMIT_SHA:-unknown}\"}" > server/version.json
+RUN echo "{\"commit\":\"${COMMIT_SHA:-unknown}\"}" > version.json
 RUN npm run build
 
 # Unzip dictionary and set execute permission on scripts
@@ -31,6 +31,7 @@ RUN npm ci --omit=dev
 
 # Copy compiled code and static assets
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/version.json ./version.json
 COPY public ./public
 COPY --from=builder /app/skills ./.claude/skills
 

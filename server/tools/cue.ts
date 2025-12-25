@@ -158,7 +158,8 @@ export function createCueTool(sessionId: string) {
       // Send pause start/end events - client counts down from duration
       const adjusted = Math.max(
         0,
-        pause - computeAverageLatency()
+        // pause - computeAverageLatency()
+        pause
       );
       if (pause > 0) {
         sessionManager.sendSSE(sessionId, "pause_start", {
