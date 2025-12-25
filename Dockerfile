@@ -14,8 +14,8 @@ RUN echo "{\"commit\":\"${COMMIT_SHA:-unknown}\"}" > version.json
 RUN npm run build
 
 # Unzip dictionary and set execute permission on scripts
-RUN gunzip -k skills/living-instruction/scripts/lescure/nouns.txt.gz \
-    && chmod +x skills/living-instruction/scripts/**/*.py
+RUN gunzip -k skills/cue/n+7/nouns.txt.gz \
+    && chmod +x skills/cue/scripts/*.py
 
 FROM node:24-slim
 
