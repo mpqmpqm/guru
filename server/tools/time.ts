@@ -23,34 +23,19 @@ function formatWallClock(timezone?: string): string {
 export function createTimeTool(sessionId: string) {
   return tool(
     "time",
-    "Returns a natural language description of session timing: elapsed time, time since last check, and current wall clock time.",
+    "Returns a natural language description of session timing: elapsed time and current wall clock time.",
     {},
     async () => {
-      const now = Date.now();
-      const sessionStart =
-        sessionManager.getSessionStartTime(sessionId);
-      const lastCalled =
-        sessionManager.getTimeToolLastCalled(sessionId);
       const timezone = sessionManager.getTimezone(sessionId);
 
-      // Update last called timestamp
-      sessionManager.setTimeToolLastCalled(sessionId, now);
-
-      const elapsedMs = sessionStart ? now - sessionStart : 0;
-      const sinceLastCallMs = lastCalled
-        ? now - lastCalled
-        : null;
+      // Use listener clock (actual playback position), not wall clock
+      const elapsedMs =
+        sessionManager.getListenerElapsed(sessionId);
 
       const elapsed = formatDuration(elapsedMs / 1000);
-      const sinceLast =
-        sinceLastCallMs !== null
-          ? formatDuration(sinceLastCallMs / 1000)
-          : null;
       const wallClock = formatWallClock(timezone);
 
-      const prose = sinceLast
-        ? `${elapsed} into the session. ${sinceLast} since last check. The time is ${wallClock}.`
-        : `${elapsed} into the session. First time check. The time is ${wallClock}.`;
+      const prose = `${elapsed} into the session. The time is ${wallClock}.`;
 
       console.log(`[time] ${prose}`);
 

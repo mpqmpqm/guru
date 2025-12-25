@@ -19,7 +19,7 @@ function writeFrame(
   );
   frame.writeUInt8(type, 0);
   frame.writeUInt32BE(payloadLength, 1);
-  if (payloadLength > 0) {
+  if (payloadLength > 0 && payload) {
     payload.copy(frame, FRAME_HEADER_SIZE);
   }
   res.write(frame);

@@ -5,11 +5,18 @@ import type { Response } from "express";
 const SAMPLE_RATE = 24000;
 const BYTES_PER_SAMPLE = 2;
 const BYTES_PER_SECOND = SAMPLE_RATE * BYTES_PER_SAMPLE; // 48000
+const SECONDS_PER_BREATH_PHASE = 4;
+
+export interface TTSResult {
+  chunks?: Uint8Array[];
+  error?: string;
+}
 
 type AudioItem = {
   type: "audio";
-  stream: AsyncIterable<Uint8Array>;
-  onComplete: () => void;
+  ttsPromise: Promise<TTSResult>;
+  breathPhase: number;
+  sequenceNum: number;
 };
 
 interface Session {
@@ -40,6 +47,12 @@ interface Session {
   cueHasBeenCalled?: boolean;
   // Count of cue calls in current query (reset per query)
   cueCallCount: number;
+  // Playback cursor: wall clock when current cue will finish (for entry blocking)
+  nextPlaybackAtMs: number;
+  // Listener clock: actual elapsed playback time (for time tool)
+  listenerElapsedMs: number;
+  // Whether a cue is currently in flight (for half-step limit)
+  hasPendingCue: boolean;
 }
 
 class SessionManager {
@@ -58,6 +71,9 @@ class SessionManager {
       eventSequence: 0,
       pendingThinking: "",
       cueCallCount: 0,
+      nextPlaybackAtMs: Date.now(),
+      listenerElapsedMs: 0,
+      hasPendingCue: false,
     });
     return id;
   }
@@ -201,15 +217,61 @@ class SessionManager {
     }
   }
 
-  queueAudio(sessionId: string, stream: AsyncIterable<Uint8Array>): Promise<void> {
-    const session = this.sessions.get(sessionId);
-    if (!session) return Promise.resolve();
+  // Playback cursor methods (wall clock based)
+  getNextPlaybackAt(sessionId: string): number {
+    return this.sessions.get(sessionId)?.nextPlaybackAtMs ?? Date.now();
+  }
 
-    return new Promise((resolve) => {
-      session.audioQueue.push({ type: "audio", stream, onComplete: resolve });
-      // Signal that new audio is available
-      session.audioReady?.();
+  setNextPlaybackAt(sessionId: string, ms: number): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.nextPlaybackAtMs = ms;
+    }
+  }
+
+  // Listener clock methods (actual playback position)
+  getListenerElapsed(sessionId: string): number {
+    return this.sessions.get(sessionId)?.listenerElapsedMs ?? 0;
+  }
+
+  advanceListenerClock(sessionId: string, ms: number): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.listenerElapsedMs += ms;
+    }
+  }
+
+  // Half-step pending cue tracking
+  getHasPendingCue(sessionId: string): boolean {
+    return this.sessions.get(sessionId)?.hasPendingCue ?? false;
+  }
+
+  setHasPendingCue(sessionId: string, value: boolean): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.hasPendingCue = value;
+    }
+  }
+
+  queueAudio(
+    sessionId: string,
+    item: {
+      ttsPromise: Promise<TTSResult>;
+      breathPhase: number;
+      sequenceNum: number;
+    }
+  ): void {
+    const session = this.sessions.get(sessionId);
+    if (!session) return;
+
+    session.audioQueue.push({
+      type: "audio",
+      ttsPromise: item.ttsPromise,
+      breathPhase: item.breathPhase,
+      sequenceNum: item.sequenceNum,
     });
+    // Signal that new audio is available
+    session.audioReady?.();
   }
 
   // Send an SSE event to the client
@@ -223,6 +285,7 @@ class SessionManager {
 
   // Async generator that yields audio chunks from the queue.
   // Stays open until the client disconnects.
+  // Handles TTS promises, playback throttling, silence, and listener clock updates.
   async *consumeAudioQueue(
     sessionId: string
   ): AsyncGenerator<{ type: "data"; data: Buffer } | { type: "flush" }> {
@@ -248,31 +311,87 @@ class SessionManager {
         if (!item) continue;
 
         if (item.type === "audio") {
-          // "Radio station" model: stream audio at playback rate
-          // This ensures onComplete fires after audio has "played" on the server
-          const streamStartTime = Date.now();
-          let totalBytes = 0;
+          const logPrefix = `[audio:${sessionId}:${item.sequenceNum}]`;
+          const promisedPlaybackAt =
+            this.getNextPlaybackAt(sessionId);
 
-          for await (const chunk of item.stream) {
+          // Await the TTS promise (should be resolved if prefetched correctly)
+          const result = await item.ttsPromise;
+
+          if (result.error) {
+            // Log error, skip this cue
+            console.error(
+              `${logPrefix} TTS error: ${result.error} (skipping)`
+            );
+            // Don't advance listener clock—this cue didn't play
+            continue;
+          }
+
+          // Start timing AFTER TTS buffering so we measure only playback
+          const playbackStart = Date.now();
+
+          // Stream buffered chunks at playback rate
+          let totalBytes = 0;
+          for (const chunk of result.chunks!) {
             if (!session.audioStreamActive) break;
             totalBytes += chunk.length;
             yield { type: "data" as const, data: Buffer.from(chunk) };
 
-            // Calculate how much audio we've sent and how long that should take
-            const expectedDurationMs = (totalBytes / BYTES_PER_SECOND) * 1000;
-            const elapsed = Date.now() - streamStartTime;
+            // Throttle to real-time playback rate
+            const expectedDurationMs =
+              (totalBytes / BYTES_PER_SECOND) * 1000;
+            const elapsed = Date.now() - playbackStart;
             const waitTime = expectedDurationMs - elapsed;
 
-            // Throttle to real-time playback rate
             if (waitTime > 0) {
-              await new Promise((resolve) => setTimeout(resolve, waitTime));
+              await new Promise((resolve) =>
+                setTimeout(resolve, waitTime)
+              );
             }
           }
 
           yield { type: "flush" as const };
-          item.onComplete();
+
+          // Calculate actual speaking time
+          const speakingMs = Date.now() - playbackStart;
+
+          // Advance listener clock by speaking time
+          this.advanceListenerClock(sessionId, speakingMs);
+
+          // Calculate and apply silence
+          const promisedMs =
+            item.breathPhase * SECONDS_PER_BREATH_PHASE * 1000;
+          const silenceMs = Math.max(0, promisedMs - speakingMs);
+
+          if (silenceMs > 0) {
+            this.sendSSE(sessionId, "breathe_start", {
+              duration: silenceMs / 1000,
+            });
+            await new Promise((resolve) =>
+              setTimeout(resolve, silenceMs)
+            );
+
+            // Advance listener clock by silence time
+            this.advanceListenerClock(sessionId, silenceMs);
+          }
+
+          const actualCompletion = Date.now();
+          if (actualCompletion > promisedPlaybackAt) {
+            const overrunMs =
+              actualCompletion - promisedPlaybackAt;
+            console.log(
+              `${logPrefix} overrun ${overrunMs}ms (promisedAt=${promisedPlaybackAt} actual=${actualCompletion})`
+            );
+          }
+
+          // Note: we do NOT update nextPlaybackAt here - the cue tool owns
+          // the playback cursor. Updating here would clobber the value set
+          // by the next queued cue, breaking the half-step limit.
+
+          console.log(
+            `${logPrefix} playback ok: bytes=${totalBytes} speakingMs=${speakingMs} silenceMs=${silenceMs}`
+          );
         }
-        // Silence items are no longer used - timing handled by setTimeout in cue tool
       }
     } finally {
       session.audioStreamActive = false;

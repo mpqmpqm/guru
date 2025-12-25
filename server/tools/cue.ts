@@ -2,7 +2,10 @@ import { tool } from "@anthropic-ai/claude-agent-sdk";
 import OpenAI from "openai";
 import { z } from "zod";
 import { dbOps } from "../services/db.js";
-import { sessionManager } from "../services/session-manager.js";
+import {
+  sessionManager,
+  type TTSResult,
+} from "../services/session-manager.js";
 
 const openai = new OpenAI();
 
@@ -11,16 +14,53 @@ const SECONDS_PER_BREATH = 8;
 const SECONDS_PER_BREATH_PHASE = SECONDS_PER_BREATH / 2;
 const OPENAI_TIMEOUT_MS = 10_000;
 
-// Timeout wrapper for promises
-async function withTimeout<T>(
-  promise: Promise<T>,
-  ms: number,
-  errorMessage: string
-): Promise<T> {
-  const timeout = new Promise<never>((_, reject) => {
-    setTimeout(() => reject(new Error(errorMessage)), ms);
-  });
-  return Promise.race([promise, timeout]);
+// Helper: fetch TTS and eagerly buffer the stream
+async function fetchAndBufferTTS(
+  text: string,
+  voiceInstructions: string
+): Promise<TTSResult> {
+  try {
+    // Create a timeout promise
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(
+        () =>
+          reject(
+            new Error(
+              `OpenAI TTS timed out after ${OPENAI_TIMEOUT_MS}ms`
+            )
+          ),
+        OPENAI_TIMEOUT_MS
+      );
+    });
+
+    // Race the API call against the timeout
+    const response = await Promise.race([
+      openai.audio.speech.create({
+        model: "gpt-4o-mini-tts",
+        voice: VOICE,
+        input: text,
+        instructions: voiceInstructions,
+        response_format: "pcm",
+      }),
+      timeoutPromise,
+    ]);
+
+    // Eagerly read entire stream into buffer
+    const chunks: Uint8Array[] = [];
+    const reader = response.body!.getReader();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+    }
+
+    return { chunks };
+  } catch (error) {
+    return {
+      error:
+        error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 export function createCueTool(sessionId: string) {
@@ -44,15 +84,15 @@ export function createCueTool(sessionId: string) {
     },
     async (args) => {
       const breathPhase = args.breathPhase;
-      const totalPhaseSeconds =
-        breathPhase * SECONDS_PER_BREATH_PHASE;
-
-      console.dir(args);
-      console.time("tts");
 
       // Persist cue to database
       const seqNum =
         sessionManager.incrementEventSequence(sessionId);
+      const logPrefix = `[cue:${sessionId}:${seqNum}]`;
+
+      console.log(
+        `${logPrefix} received: breathPhase=${breathPhase} textChars=${args.text.length}`
+      );
       dbOps.insertCue(
         sessionId,
         seqNum,
@@ -61,92 +101,92 @@ export function createCueTool(sessionId: string) {
         breathPhase
       );
 
-      // Generate audio from OpenAI and stream directly to client
-      const openaiStart = Date.now();
-      const voiceInstructions = args.voice;
+      // === FIRE TTS IMMEDIATELY (before any blocking!) ===
+      // This is critical: TTS fetch happens DURING the wait, hiding latency
+      const ttsStart = Date.now();
+      const ttsPromise = fetchAndBufferTTS(
+        args.text,
+        args.voice
+      ).then((result) => {
+        const elapsedMs = Date.now() - ttsStart;
+        if (result.error) {
+          console.error(
+            `${logPrefix} TTS failed after ${elapsedMs}ms: ${result.error}`
+          );
+        } else {
+          const totalBytes =
+            result.chunks?.reduce(
+              (sum, chunk) => sum + chunk.length,
+              0
+            ) ?? 0;
+          console.log(
+            `${logPrefix} TTS buffered ${totalBytes} bytes in ${elapsedMs}ms`
+          );
+        }
+        return result;
+      });
 
-      let response;
-      try {
-        response = await withTimeout(
-          openai.audio.speech.create({
-            model: "gpt-4o-mini-tts",
-            voice: VOICE,
-            input: args.text,
-            instructions: voiceInstructions,
-            response_format: "pcm",
-          }),
-          OPENAI_TIMEOUT_MS,
-          `OpenAI TTS timed out after ${OPENAI_TIMEOUT_MS}ms`
-        );
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : String(error);
-        console.error(`[cue] OpenAI error: ${message}`);
-        dbOps.insertError(sessionId, seqNum, "openai", message);
-        return {
-          content: [
-            {
-              type: "text" as const,
-              text: `Error generating audio: ${message}. Continuing without audio.`,
-            },
-          ],
-          isError: true,
-        };
+      // === ENTRY BLOCKING (wall clock based) ===
+      // If there's a pending cue, wait until it finishes (actual wall clock)
+      if (sessionManager.getHasPendingCue(sessionId)) {
+        while (true) {
+          const nextPlaybackAt =
+            sessionManager.getNextPlaybackAt(sessionId);
+          const waitMs = nextPlaybackAt - Date.now();
+
+          if (waitMs <= 0) break;
+
+          console.log(
+            `${logPrefix} entry block ${waitMs}ms`
+          );
+          await new Promise((resolve) =>
+            setTimeout(resolve, waitMs)
+          );
+        }
+
+        sessionManager.setHasPendingCue(sessionId, false);
+        console.log(`${logPrefix} entry block complete`);
       }
 
-      // Notify the client via SSE immediately
+      // Notify the client via SSE (after entry blocking)
       sessionManager.sendSSE(sessionId, "cue", {
         text: args.text,
         breathPhase,
       });
 
-      // Convert web ReadableStream to AsyncIterable<Uint8Array>
-      async function* streamToAsyncIterable(
-        stream: ReadableStream<Uint8Array>
-      ): AsyncIterable<Uint8Array> {
-        const reader = stream.getReader();
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            yield value;
-          }
-        } finally {
-          reader.releaseLock();
-        }
-      }
+      // === ESTIMATE THIS CUE'S DURATION ===
+      const promisedMs =
+        breathPhase * SECONDS_PER_BREATH_PHASE * 1000;
 
-      const audioStream = streamToAsyncIterable(response.body!);
-      console.timeEnd("tts");
-      // Pass stream directly - chunks flow to client as they arrive
-      await sessionManager.queueAudio(sessionId, audioStream);
-      const speakingSeconds = (Date.now() - openaiStart) / 1000;
-      const silenceSeconds = Math.max(
-        0,
-        totalPhaseSeconds - speakingSeconds
+      // === UPDATE PLAYBACK CURSOR ===
+      // When will this cue finish? Now + promised duration
+      const now = Date.now();
+      const nextPlaybackAt = now + promisedMs;
+      sessionManager.setNextPlaybackAt(sessionId, nextPlaybackAt);
+
+      // === QUEUE FOR PLAYBACK ===
+      // Pass the buffering promise + breath phase
+      sessionManager.queueAudio(sessionId, {
+        ttsPromise,
+        breathPhase,
+        sequenceNum: seqNum,
+      });
+
+      console.log(
+        `${logPrefix} queued: promisedMs=${promisedMs} nextPlaybackAt=${nextPlaybackAt}`
       );
 
-      // Send breathe start events - client counts down from duration
-      if (silenceSeconds > 0) {
-        sessionManager.sendSSE(sessionId, "breathe_start", {
-          duration: silenceSeconds,
-        });
-        await new Promise((resolve) =>
-          setTimeout(resolve, silenceSeconds * 1000)
-        );
-      }
+      // === MARK PENDING (half-step limit) ===
+      sessionManager.setHasPendingCue(sessionId, true);
 
       // Mark that a cue has been called
       sessionManager.markCueCalled(sessionId);
       sessionManager.incrementCueCallCount(sessionId);
 
-      const ret = `Cue complete. ${(
-        speakingSeconds / SECONDS_PER_BREATH_PHASE
-      ).toFixed(1)} breath phases speaking, ${(
-        silenceSeconds / SECONDS_PER_BREATH_PHASE
-      ).toFixed(1)} breath phases in silence.`;
+      // === RETURN IMMEDIATELY (the "lie") ===
+      const ret = `Cue complete. ${breathPhase} breath phases.`;
+      console.log(`${logPrefix} ${ret}`);
 
-      console.log(`[cue] ${ret}`);
       return {
         content: [
           {
