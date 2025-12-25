@@ -9,7 +9,7 @@ self → loved → unnoticed → difficult → all`,
 const vinyasa = {
   shortName: "Vinyasa",
   livingInstruction: true,
-  content: `Vinyasa flow. 60 minutes. Home practice, one body. Central anatomical motif.`,
+  content: `Vinyasa flow. 75 minutes. Central anatomical motif. Begin by outlining your plan aloud for the room.`,
 };
 
 const deescalate = {
