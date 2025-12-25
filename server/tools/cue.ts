@@ -90,9 +90,9 @@ export function createCueTool(sessionId: string) {
         sessionManager.incrementEventSequence(sessionId);
       const logPrefix = `[cue:${sessionId}:${seqNum}]`;
 
-      console.log(
-        `${logPrefix} received: breathPhase=${breathPhase} textChars=${args.text.length}`
-      );
+      // console.log(
+      //   `${logPrefix} received: breathPhase=${breathPhase} textChars=${args.text.length}`
+      // );
       dbOps.insertCue(
         sessionId,
         seqNum,
@@ -113,15 +113,6 @@ export function createCueTool(sessionId: string) {
           console.error(
             `${logPrefix} TTS failed after ${elapsedMs}ms: ${result.error}`
           );
-        } else {
-          const totalBytes =
-            result.chunks?.reduce(
-              (sum, chunk) => sum + chunk.length,
-              0
-            ) ?? 0;
-          console.log(
-            `${logPrefix} TTS buffered ${totalBytes} bytes in ${elapsedMs}ms`
-          );
         }
         return result;
       });
@@ -136,16 +127,16 @@ export function createCueTool(sessionId: string) {
 
           if (waitMs <= 0) break;
 
-          console.log(
-            `${logPrefix} entry block ${waitMs}ms`
-          );
+          // console.log(
+          //   `${logPrefix} entry block ${waitMs}ms`
+          // );
           await new Promise((resolve) =>
             setTimeout(resolve, waitMs)
           );
         }
 
         sessionManager.setHasPendingCue(sessionId, false);
-        console.log(`${logPrefix} entry block complete`);
+        // console.log(`${logPrefix} entry block complete`);
       }
 
       // Notify the client via SSE (after entry blocking)
@@ -172,9 +163,9 @@ export function createCueTool(sessionId: string) {
         sequenceNum: seqNum,
       });
 
-      console.log(
-        `${logPrefix} queued: promisedMs=${promisedMs} nextPlaybackAt=${nextPlaybackAt}`
-      );
+      // console.log(
+      //   `${logPrefix} queued: promisedMs=${promisedMs} nextPlaybackAt=${nextPlaybackAt}`
+      // );
 
       // === MARK PENDING (half-step limit) ===
       sessionManager.setHasPendingCue(sessionId, true);
@@ -185,7 +176,7 @@ export function createCueTool(sessionId: string) {
 
       // === RETURN IMMEDIATELY (the "lie") ===
       const ret = `Cue complete. ${breathPhase} breath phases.`;
-      console.log(`${logPrefix} ${ret}`);
+      // console.log(`${logPrefix} ${ret}`);
 
       return {
         content: [

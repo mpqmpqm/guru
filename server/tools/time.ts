@@ -37,7 +37,7 @@ export function createTimeTool(sessionId: string) {
 
       const prose = `${elapsed} into the session. The time is ${wallClock}.`;
 
-      console.log(`[time] ${prose}`);
+      // console.log(`[time] ${prose}`);
 
       return {
         content: [

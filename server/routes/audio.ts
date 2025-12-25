@@ -48,9 +48,9 @@ audioRouter.get("/:sessionId", async (req, res) => {
   // Audio is the primary delivery channel; if it disconnects, guidance
   // cannot be heard, so continuing the agent wastes resources
   req.on("close", () => {
-    console.log(
-      `Audio stream closed for session ${sessionId} - stopping agent`
-    );
+    // console.log(
+    //   `Audio stream closed for session ${sessionId} - stopping agent`
+    // );
     sessionManager.closeAudioStream(sessionId);
     sessionManager.abortAgent(sessionId);
     dbOps.closeSession(sessionId);

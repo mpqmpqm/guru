@@ -38,7 +38,7 @@ chatRouter.get("/events/:sessionId", (req, res) => {
   // Handle client disconnect - stop the agent and mark session closed
   req.on("close", () => {
     clearInterval(heartbeat);
-    console.log(`SSE connection closed for session ${sessionId} - stopping agent`);
+    // console.log(`SSE connection closed for session ${sessionId} - stopping agent`);
     sessionManager.abortAgent(sessionId);
     dbOps.closeSession(sessionId);
   });
@@ -49,7 +49,7 @@ chatRouter.post("/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
   const { message } = req.body;
 
-  console.log(`[chat] POST /${sessionId} - message: "${message?.slice(0, 50)}..."`);
+  // console.log(`[chat] POST /${sessionId} - message: "${message?.slice(0, 50)}..."`);
 
   if (!message || typeof message !== "string") {
     return res.status(400).json({ error: "Message is required" });

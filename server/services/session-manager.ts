@@ -7,6 +7,10 @@ const BYTES_PER_SAMPLE = 2;
 const BYTES_PER_SECOND = SAMPLE_RATE * BYTES_PER_SAMPLE; // 48000
 const SECONDS_PER_BREATH_PHASE = 4;
 
+// Burst mode: send first N bytes at max speed to fill client buffer quickly
+const BURST_SECONDS = 0.5;
+const BURST_BYTES = Math.floor(BURST_SECONDS * BYTES_PER_SECOND); // 24000
+
 export interface TTSResult {
   chunks?: Uint8Array[];
   error?: string;
@@ -312,8 +316,6 @@ class SessionManager {
 
         if (item.type === "audio") {
           const logPrefix = `[audio:${sessionId}:${item.sequenceNum}]`;
-          const promisedPlaybackAt =
-            this.getNextPlaybackAt(sessionId);
 
           // Await the TTS promise (should be resolved if prefetched correctly)
           const result = await item.ttsPromise;
@@ -328,14 +330,25 @@ class SessionManager {
           }
 
           // Start timing AFTER TTS buffering so we measure only playback
-          const playbackStart = Date.now();
+          let playbackStart = Date.now();
 
-          // Stream buffered chunks at playback rate
+          // Stream buffered chunks at playback rate, with initial burst
           let totalBytes = 0;
+          let burstComplete = false;
           for (const chunk of result.chunks!) {
             if (!session.audioStreamActive) break;
             totalBytes += chunk.length;
             yield { type: "data" as const, data: Buffer.from(chunk) };
+
+            // Skip throttling during burst phase to fill client buffer quickly
+            if (totalBytes < BURST_BYTES) continue;
+
+            // After burst, adjust baseline so throttle math is correct
+            if (!burstComplete) {
+              burstComplete = true;
+              playbackStart =
+                Date.now() - (BURST_BYTES / BYTES_PER_SECOND) * 1000;
+            }
 
             // Throttle to real-time playback rate
             const expectedDurationMs =
@@ -352,8 +365,8 @@ class SessionManager {
 
           yield { type: "flush" as const };
 
-          // Calculate actual speaking time
-          const speakingMs = Date.now() - playbackStart;
+          // Calculate speaking time from bytes (not wall time, for burst accuracy)
+          const speakingMs = (totalBytes / BYTES_PER_SECOND) * 1000;
 
           // Advance listener clock by speaking time
           this.advanceListenerClock(sessionId, speakingMs);
@@ -375,22 +388,14 @@ class SessionManager {
             this.advanceListenerClock(sessionId, silenceMs);
           }
 
-          const actualCompletion = Date.now();
-          if (actualCompletion > promisedPlaybackAt) {
-            const overrunMs =
-              actualCompletion - promisedPlaybackAt;
-            console.log(
-              `${logPrefix} overrun ${overrunMs}ms (promisedAt=${promisedPlaybackAt} actual=${actualCompletion})`
-            );
-          }
 
           // Note: we do NOT update nextPlaybackAt here - the cue tool owns
           // the playback cursor. Updating here would clobber the value set
           // by the next queued cue, breaking the half-step limit.
 
-          console.log(
-            `${logPrefix} playback ok: bytes=${totalBytes} speakingMs=${speakingMs} silenceMs=${silenceMs}`
-          );
+          // console.log(
+          //   `${logPrefix} playback ok: bytes=${totalBytes} speakingMs=${speakingMs} silenceMs=${silenceMs}`
+          // );
         }
       }
     } finally {

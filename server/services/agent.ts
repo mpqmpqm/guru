@@ -210,7 +210,7 @@ export async function* streamChat(
   } catch (error) {
     // Don't report abort errors - they're intentional (user disconnected)
     if (error instanceof Error && error.name === "AbortError") {
-      console.log(`Agent aborted for session ${sessionId}`);
+      // console.log(`Agent aborted for session ${sessionId}`);
       return;
     }
     const errorMessage =
