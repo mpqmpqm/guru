@@ -7,13 +7,11 @@ import {
   type TTSResult,
 } from "../services/session-manager.js";
 import {
-  logCueBlocking,
   logCueQueued,
   logCueReceived,
   logCueText,
   logCueTtsError,
   logCueTtsReady,
-  logCueUnblocked,
 } from "../utils/log.js";
 
 const openai = new OpenAI();
@@ -98,9 +96,7 @@ export function createCueTool(sessionId: string) {
         sessionManager.incrementEventSequence(sessionId);
       const logPrefix = `[cue:${sessionId.slice(0, 8)}:${seqNum}]`;
 
-      // Estimate speaking time for blocking target: ~150 wpm = 2.5 words/sec
       const wordCount = args.text.split(/\s+/).length;
-      const estSpeakingMs = (wordCount / 2.5) * 1000;
 
       logCueReceived(logPrefix, waitMs, wordCount);
       logCueText(logPrefix, args.text);
@@ -112,8 +108,8 @@ export function createCueTool(sessionId: string) {
         waitMs
       );
 
-      // === FIRE TTS IMMEDIATELY (before any blocking!) ===
-      // This is critical: TTS fetch happens DURING the wait, hiding latency
+      // === FIRE TTS IMMEDIATELY (before blocking) ===
+      // TTS fetch happens during the wait, hiding latency
       const ttsStart = Date.now();
       const ttsPromise = fetchAndBufferTTS(
         args.text,
@@ -132,66 +128,9 @@ export function createCueTool(sessionId: string) {
         return result;
       });
 
-      // === ENTRY BLOCKING (wall clock, stack-limited) ===
-      sessionManager.prunePlaybackSchedule(sessionId, Date.now());
-      while (
-        sessionManager.getPlaybackScheduleDepth(sessionId) >=
-        stackSize
-      ) {
-        const blockUntil =
-          sessionManager.getPlaybackScheduleHead(sessionId);
-        if (blockUntil === undefined) break;
-        const blockStartAt = Date.now();
-        const blockWaitMs = blockUntil - blockStartAt;
-        if (blockWaitMs > 0) {
-          const queueDepth =
-            sessionManager.getAudioQueueDepth(sessionId);
-          const scheduleDepth =
-            sessionManager.getPlaybackScheduleDepth(sessionId);
-          logCueBlocking(
-            logPrefix,
-            blockWaitMs,
-            blockUntil,
-            scheduleDepth,
-            stackSize,
-            queueDepth
-          );
-          await new Promise((resolve) =>
-            setTimeout(resolve, blockWaitMs)
-          );
-          sessionManager.prunePlaybackSchedule(
-            sessionId,
-            Date.now()
-          );
-          logCueUnblocked(
-            logPrefix,
-            Date.now() - blockStartAt,
-            sessionManager.getPlaybackScheduleDepth(sessionId)
-          );
-        } else {
-          sessionManager.prunePlaybackSchedule(
-            sessionId,
-            Date.now()
-          );
-        }
-      }
-
-      // === ESTIMATE THIS CUE'S TOTAL DURATION ===
-      // Speaking time (estimated) + explicit wait time
-      const totalEstMs = estSpeakingMs + waitMs;
-
-      // === UPDATE PLAYBACK SCHEDULE ===
-      const now = Date.now();
-      const scheduleTail =
-        sessionManager.getPlaybackScheduleTail(sessionId);
-      const scheduleBase =
-        scheduleTail && scheduleTail > now ? scheduleTail : now;
-      const newNextPlaybackAt = scheduleBase + totalEstMs;
-      sessionManager.pushPlaybackSchedule(
-        sessionId,
-        newNextPlaybackAt
-      );
-      sessionManager.setNextPlaybackAt(sessionId, newNextPlaybackAt);
+      // === BLOCK IF QUEUE IS FULL ===
+      // Wait until an item is dequeued (playback completes)
+      await sessionManager.waitForQueueRoom(sessionId, stackSize);
 
       // === QUEUE FOR PLAYBACK ===
       const queueDepthBefore =
@@ -202,21 +141,15 @@ export function createCueTool(sessionId: string) {
         sequenceNum: seqNum,
         text: args.text,
       });
-      logCueQueued(
-        logPrefix,
-        queueDepthBefore,
-        totalEstMs,
-        sessionManager.getPlaybackScheduleDepth(sessionId),
-        stackSize
-      );
+      logCueQueued(logPrefix, queueDepthBefore, waitMs, 0, stackSize);
 
       // Mark that a cue has been called
       sessionManager.markCueCalled(sessionId);
       sessionManager.incrementCueCallCount(sessionId);
 
       // === RETURN IMMEDIATELY (the "lie") ===
-      const ret = `Cue complete. Wait ${waitMs}ms.`;
-      // console.log(`${logPrefix} ${ret}`);
+      // Past tense: agent believes the wait already happened
+      const ret = `Cue complete. Waited ${waitMs}ms.`;
 
       return {
         content: [

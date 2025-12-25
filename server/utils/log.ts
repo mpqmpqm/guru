@@ -137,33 +137,6 @@ export function logCueTtsReady(
   );
 }
 
-export function logCueBlocking(
-  logPrefix: string,
-  waitMs: number,
-  blockUntil: number,
-  scheduleDepth: number,
-  stackSize: number,
-  queueDepth: number,
-  noop = true
-): void {
-  if (noop) return;
-  console.log(
-    `${logPrefix} BLOCKING waitMs=${waitMs}ms blockUntil=${blockUntil} schedule=${scheduleDepth}/${stackSize} queueDepth=${queueDepth}`
-  );
-}
-
-export function logCueUnblocked(
-  logPrefix: string,
-  waitedMs: number,
-  scheduleDepth: number,
-  noop = true
-): void {
-  if (noop) return;
-  console.log(
-    `${logPrefix} UNBLOCKED after ${waitedMs}ms scheduleDepth=${scheduleDepth}`
-  );
-}
-
 export function logCueSseSend(
   logPrefix: string,
   sinceReceived: number,
@@ -192,14 +165,14 @@ export function logCueTargetSet(
 export function logCueQueued(
   logPrefix: string,
   queueDepthBefore: number,
-  totalEstMs: number,
-  scheduleDepth: number,
+  waitMs: number,
+  _unused: number,
   stackSize: number,
   noop = true
 ): void {
   if (noop) return;
   console.log(
-    `${logPrefix} QUEUED queueDepth=${queueDepthBefore}->${queueDepthBefore + 1} totalEstMs=${totalEstMs} schedule=${scheduleDepth}/${stackSize}`
+    `${logPrefix} QUEUED queueDepth=${queueDepthBefore}->${queueDepthBefore + 1} waitMs=${waitMs} stackSize=${stackSize}`
   );
 }
 

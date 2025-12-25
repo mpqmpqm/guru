@@ -39,6 +39,8 @@ interface Session {
   sseResponse?: Response;
   // Resolvers for when new audio is available
   audioReady: (() => void) | null;
+  // Resolver for when queue has room (item dequeued)
+  queueDrained: (() => void) | null;
   // Abort controller for cancelling the agent
   abortController: AbortController | null;
   // Timestamp when first thinking block was received (session start for time tool)
@@ -57,10 +59,6 @@ interface Session {
   cueHasBeenCalled?: boolean;
   // Count of cue calls in current query (reset per query)
   cueCallCount: number;
-  // Playback cursor: wall clock when current cue will finish (for entry blocking)
-  nextPlaybackAtMs: number;
-  // Ordered list of scheduled cue end times (wall clock)
-  playbackSchedule: number[];
   // Listener clock: actual elapsed playback time (for time tool)
   listenerElapsedMs: number;
 }
@@ -78,12 +76,11 @@ class SessionManager {
       audioQueue: [],
       audioStreamActive: false,
       audioReady: null,
+      queueDrained: null,
       abortController: null,
       eventSequence: 0,
       pendingThinking: "",
       cueCallCount: 0,
-      nextPlaybackAtMs: Date.now(),
-      playbackSchedule: [],
       listenerElapsedMs: 0,
     });
     return id;
@@ -232,18 +229,6 @@ class SessionManager {
     }
   }
 
-  // Playback cursor methods (wall clock based)
-  getNextPlaybackAt(sessionId: string): number {
-    return this.sessions.get(sessionId)?.nextPlaybackAtMs ?? Date.now();
-  }
-
-  setNextPlaybackAt(sessionId: string, ms: number): void {
-    const session = this.sessions.get(sessionId);
-    if (session) {
-      session.nextPlaybackAtMs = ms;
-    }
-  }
-
   // Listener clock methods (actual playback position)
   getListenerElapsed(sessionId: string): number {
     return this.sessions.get(sessionId)?.listenerElapsedMs ?? 0;
@@ -256,42 +241,24 @@ class SessionManager {
     }
   }
 
-  getPlaybackScheduleDepth(sessionId: string): number {
-    return this.sessions.get(sessionId)?.playbackSchedule.length ?? 0;
-  }
-
-  getPlaybackScheduleHead(sessionId: string): number | undefined {
-    return this.sessions.get(sessionId)?.playbackSchedule[0];
-  }
-
-  getPlaybackScheduleTail(sessionId: string): number | undefined {
-    const schedule = this.sessions.get(sessionId)?.playbackSchedule;
-    if (!schedule || schedule.length === 0) return undefined;
-    return schedule[schedule.length - 1];
-  }
-
-  pushPlaybackSchedule(sessionId: string, endTime: number): void {
-    const session = this.sessions.get(sessionId);
-    if (!session) return;
-    session.playbackSchedule.push(endTime);
-  }
-
-  prunePlaybackSchedule(sessionId: string, now: number): void {
-    const session = this.sessions.get(sessionId);
-    if (!session) return;
-    while (
-      session.playbackSchedule.length > 0 &&
-      session.playbackSchedule[0] <= now
-    ) {
-      session.playbackSchedule.shift();
-    }
-    if (session.playbackSchedule.length === 0) {
-      session.nextPlaybackAtMs = now;
-    }
-  }
-
   getAudioQueueDepth(sessionId: string): number {
     return this.sessions.get(sessionId)?.audioQueue.length ?? 0;
+  }
+
+  // Block until queue has room for a new item
+  async waitForQueueRoom(
+    sessionId: string,
+    maxItems: number
+  ): Promise<void> {
+    const session = this.sessions.get(sessionId);
+    if (!session) return;
+
+    while (session.audioQueue.length >= maxItems) {
+      await new Promise<void>((resolve) => {
+        session.queueDrained = resolve;
+      });
+      session.queueDrained = null;
+    }
   }
 
   queueAudio(
@@ -376,6 +343,8 @@ class SessionManager {
               advanceMs,
               this.getListenerElapsed(sessionId)
             );
+            // Signal queue room after error handling
+            session.queueDrained?.();
             continue;
           }
 
@@ -460,6 +429,9 @@ class SessionManager {
 
           const totalPlaybackMs = Date.now() - dequeueAt;
           logAudioPlayEnd(logPrefix, speakingMs, silenceMs, totalPlaybackMs);
+
+          // Signal queue room after playback + silence completes
+          session.queueDrained?.();
         }
       }
     } finally {

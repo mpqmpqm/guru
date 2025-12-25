@@ -10,14 +10,14 @@ function formatDuration(seconds: number): string {
   return `${mins} minute${mins !== 1 ? "s" : ""} and ${secs} seconds`;
 }
 
-function formatWallClock(timezone?: string): string {
+function formatWallClock(date: Date, timezone?: string): string {
   const options: Intl.DateTimeFormatOptions = {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
   };
   if (timezone) options.timeZone = timezone;
-  return new Date().toLocaleTimeString("en-US", options);
+  return date.toLocaleTimeString("en-US", options);
 }
 
 export function createTimeTool(sessionId: string) {
@@ -28,16 +28,20 @@ export function createTimeTool(sessionId: string) {
     async () => {
       const timezone = sessionManager.getTimezone(sessionId);
 
-      // Use listener clock (actual playback position), not wall clock
+      // Use listener clock (actual playback position)
       const elapsedMs =
         sessionManager.getListenerElapsed(sessionId);
 
+      // Synthetic wall clock: session start + listener elapsed
+      // Agent sees time that moves with playback, can't detect queue backlog
+      const sessionStartTime =
+        sessionManager.getSessionStartTime(sessionId) ?? Date.now();
+      const syntheticNow = new Date(sessionStartTime + elapsedMs);
+
       const elapsed = formatDuration(elapsedMs / 1000);
-      const wallClock = formatWallClock(timezone);
+      const wallClock = formatWallClock(syntheticNow, timezone);
 
       const prose = `${elapsed} into the session. The time is ${wallClock}.`;
-
-      // console.log(`[time] ${prose}`);
 
       return {
         content: [
