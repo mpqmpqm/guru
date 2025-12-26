@@ -54,12 +54,11 @@ export function logAudioTtsSkip(
   logPrefix: string,
   error: string,
   advancedBy: number,
-  listenerElapsed: number,
   noop = true
 ): void {
   if (noop) return;
   console.error(
-    `${logPrefix} TTS_SKIP error="${error}" advancedBy=${advancedBy}ms listenerElapsed=${listenerElapsed}ms`
+    `${logPrefix} TTS_SKIP error="${error}" advancedBy=${advancedBy}ms`
   );
 }
 
@@ -134,31 +133,6 @@ export function logCueTtsReady(
   if (noop) return;
   console.log(
     `${logPrefix} TTS_READY ${elapsedMs}ms bytes=${bytes}`
-  );
-}
-
-export function logCueSseSend(
-  logPrefix: string,
-  sinceReceived: number,
-  listenerElapsed: number,
-  promisedMs: number,
-  noop = true
-): void {
-  if (noop) return;
-  console.log(
-    `${logPrefix} SSE_SEND sinceReceived=${sinceReceived}ms listenerElapsed=${listenerElapsed}ms promisedMs=${promisedMs}`
-  );
-}
-
-export function logCueTargetSet(
-  logPrefix: string,
-  listenerElapsed: number,
-  newTarget: number,
-  noop = true
-): void {
-  if (noop) return;
-  console.log(
-    `${logPrefix} TARGET_SET listenerElapsed=${listenerElapsed}ms newTarget=${newTarget}ms`
   );
 }
 

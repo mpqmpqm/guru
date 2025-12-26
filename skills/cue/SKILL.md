@@ -112,11 +112,7 @@ The rapid succession builds a complete instruction. The final cue carries the se
 
 ### The Time Tool
 
-Check every 2-4 minutes. Use it to:
-
-- Know when to begin closing (~80% through)
-- Adjust pacing if running fast/slow
-- Orient after long silences
+Invoke at the start of every session. Invoke often.
 
 For deeper patterns, see [references/voice-and-timing.md](./references/voice-and-timing.md).
 

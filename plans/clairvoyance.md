@@ -29,7 +29,9 @@
 - Include cue `text` and `breathPhase` on queued audio items so playback can emit aligned visuals.
 
 ### Time Tool and Safety
-- Keep listener time driven by actual playback duration.
+- Time tool should follow the synthetic future timeline (sum of queued cue
+  durations), not listener playback.
+- Keep playback position opaque to the agent.
 - Consider emitting a warning log when schedule length approaches stack size.
 
 ### Observability

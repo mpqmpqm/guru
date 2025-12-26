@@ -45,8 +45,6 @@ interface Session {
   abortController: AbortController | null;
   // Timestamp when first thinking block was received (session start for time tool)
   sessionStartTime?: number;
-  // Timestamp when time tool was last called
-  timeToolLastCalled?: number;
   // Unified counter for ordering events (cues + thinking) in the database
   eventSequence: number;
   // Buffer for accumulating thinking chunks during a thinking block
@@ -59,8 +57,6 @@ interface Session {
   cueHasBeenCalled?: boolean;
   // Count of cue calls in current query (reset per query)
   cueCallCount: number;
-  // Listener clock: actual elapsed playback time (for time tool)
-  listenerElapsedMs: number;
   // Agent synthetic clock: sum of all cue durations (speaking + wait)
   agentSyntheticElapsedMs: number;
   // Signals that the producer (agent) is done queuing items
@@ -87,7 +83,6 @@ class SessionManager {
       eventSequence: 0,
       pendingThinking: "",
       cueCallCount: 0,
-      listenerElapsedMs: 0,
       agentSyntheticElapsedMs: 0,
       producerDone: false,
       drainResolver: null,
@@ -137,17 +132,6 @@ class SessionManager {
 
   getTimezone(sessionId: string): string | undefined {
     return this.sessions.get(sessionId)?.timezone;
-  }
-
-  setTimeToolLastCalled(sessionId: string, time: number): void {
-    const session = this.sessions.get(sessionId);
-    if (session) {
-      session.timeToolLastCalled = time;
-    }
-  }
-
-  getTimeToolLastCalled(sessionId: string): number | undefined {
-    return this.sessions.get(sessionId)?.timeToolLastCalled;
   }
 
   incrementEventSequence(sessionId: string): number {
@@ -238,22 +222,6 @@ class SessionManager {
     }
   }
 
-  // Listener clock methods (actual playback position)
-  getListenerElapsed(sessionId: string): number {
-    return this.sessions.get(sessionId)?.listenerElapsedMs ?? 0;
-  }
-
-  advanceListenerClock(sessionId: string, ms: number): void {
-    const session = this.sessions.get(sessionId);
-    if (session) {
-      const before = session.listenerElapsedMs;
-      session.listenerElapsedMs += ms;
-      console.log(
-        `[time] advance +${ms}ms: ${before} -> ${session.listenerElapsedMs}`
-      );
-    }
-  }
-
   // Agent synthetic clock: tracks where the agent is on the timeline
   getAgentSyntheticElapsed(sessionId: string): number {
     return this.sessions.get(sessionId)?.agentSyntheticElapsedMs ?? 0;
@@ -324,7 +292,7 @@ class SessionManager {
 
   // Async generator that yields audio chunks from the queue.
   // Stays open until the client disconnects.
-  // Handles TTS promises, playback throttling, silence, and listener clock updates.
+  // Handles TTS promises, playback throttling, and silence.
   async *consumeAudioQueue(
     sessionId: string
   ): AsyncGenerator<{ type: "data"; data: Buffer } | { type: "flush" }> {
@@ -371,19 +339,11 @@ class SessionManager {
           const result = item.ttsResult;
 
           if (result.error) {
-            // Log error, skip this cue but advance listener clock
-            // so subsequent cues don't block forever
-            // Estimate speaking time from text + explicit waitMs
+            // Log error, skip this cue but estimate the skipped duration.
             const estSpeakingMs =
               (item.text.split(/\s+/).length / 2.5) * 1000;
             const advanceMs = estSpeakingMs + item.waitMs;
-            this.advanceListenerClock(sessionId, advanceMs);
-            logAudioTtsSkip(
-              logPrefix,
-              result.error,
-              advanceMs,
-              this.getListenerElapsed(sessionId)
-            );
+            logAudioTtsSkip(logPrefix, result.error, advanceMs);
             // Signal queue room after error handling
             session.queueDrained?.();
             continue;
@@ -450,9 +410,6 @@ class SessionManager {
           // Calculate speaking time from bytes (not wall time, for burst accuracy)
           const speakingMs = (totalBytes / BYTES_PER_SECOND) * 1000;
 
-          // Advance listener clock by speaking time
-          this.advanceListenerClock(sessionId, speakingMs);
-
           // Apply explicit wait time (waitMs is the silence after speaking)
           const silenceMs = item.waitMs;
 
@@ -464,8 +421,6 @@ class SessionManager {
               setTimeout(resolve, silenceMs)
             );
 
-            // Advance listener clock by silence time
-            this.advanceListenerClock(sessionId, silenceMs);
           }
 
           const totalPlaybackMs = Date.now() - dequeueAt;

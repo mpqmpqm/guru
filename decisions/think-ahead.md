@@ -43,14 +43,16 @@ itself.
 try to compute wait time—after advancing the offset, the wait becomes zero.
 Wall-clock timestamps are unambiguous: "block until this moment."
 
-### 2. Listener Clock for Time Tool
+### 2. Synthetic Timeline for Time Tool
 
-**Decision**: Track `listenerElapsedMs` separately from wall clock. Advance it
-only when audio actually streams + silence elapses.
+**Decision**: The time tool reports the agent's synthetic timeline
+(`agentSyntheticElapsedMs`, sum of cue durations) and the wall clock at that
+future position.
 
-**Rationale**: The agent runs ahead of the listener. If the time tool reported
-wall clock, the agent would see "10 minutes elapsed" when the listener is at
-minute 5. The time tool must reflect the listener's experience.
+**Rationale**: Clairvoyance is intentionally opaque to the agent. Pacing should
+be driven by where the agent is on the future timeline it has already queued.
+Using playback position would collapse that lead and hide the agent's
+committed schedule.
 
 ### 3. Eager Stream Buffering
 
@@ -84,8 +86,9 @@ early, allowing the agent to queue unlimited cues.
 **Rejected alternative**: Allow 2-3 cue lookahead for more latency hiding.
 
 **Rationale**:
-- The agent has access to a real `time` tool—running too far ahead would
-  desync the agent's perception from the listener's reality
+- The time tool advances on the synthetic future timeline, so larger stack
+  sizes push the agent further ahead; default 1 keeps the lead small while
+  still hiding TTS latency
 - One cue of lookahead (~8-16s) is enough to hide typical TTS latency
   (~0.5-1.5s) and thinking time (~1-2s); higher values are opt-in
 - Cue SSE events are emitted at playback start (not queue time) to keep
@@ -108,16 +111,17 @@ item.ttsPromise`.
 
 **Rejected alternative**: Start timer when item is dequeued.
 
-**Rationale**: If the timer starts before awaiting TTS, `speakingMs` includes
-TTS buffering latency. This causes silence to be under-calculated and the
-listener clock to jump by network latency rather than actual playback.
+**Rationale**: If the timer starts before awaiting TTS, the throttle math
+counts buffering latency as playback time, which makes streaming run hot and
+skews the pacing of silence.
 
 ## Invariants
 
 1. `playbackSchedule.length <= stackSize`: schedule holds wall-clock end times
 2. `nextPlaybackAtMs`: Wall-clock timestamp when the most recently queued cue
    will finish (tail of the schedule, or now if empty)
-3. `listenerElapsedMs`: Actual playback time experienced by the listener
+3. `agentSyntheticElapsedMs`: Sum of cue durations; drives the time tool and
+   synthetic wall clock
 4. Cue SSE events are emitted at playback start (not queue time)
 
 ## Observable Behavior
