@@ -44,80 +44,6 @@ Already.
 
 ---
 
-## Using the Tools
-
-### One Cue Per Breath-Movement
-
-The TTS reads quickly. "Inhale reach. Exhale fold." spoken in 2 seconds ≠ the 8 seconds of breath it describes.
-
-**Each breath direction needs its own cue call.**
-
-Wrong:
-
-```
-cue("Inhale reach. Exhale fold. Inhale lengthen.", waitMs: 12000)
-```
-
-Right:
-
-```
-cue("Inhale, reach.", waitMs: 3500)
-cue("Exhale, fold.", waitMs: 3500)
-cue("Inhale, lengthen.", waitMs: 3500)
-```
-
-### The `voice` Parameter
-
-Not "speak calmly." Shape delivery through physical, relational, or embodied description:
-
-```
-Low, unhurried, as if continuing a conversation that started
-before words. Intimate but not precious. The tone of someone
-walking beside, not in front.
-```
-
-```
-Sudden. Clean. No explanation.
-```
-
-```
-Quiet astonishment. Speaking toward a mystery without trying
-to solve it. The pace of someone saying something they don't
-fully understand but know is true.
-```
-
-### waitMs Patterns
-
-| Context | waitMs | Example |
-| --- | --- | --- |
-| Rapid transition | 500 | "Inhale, reach." |
-| Instruction + landing | 4000 | "Stop walking." |
-| Exploration prompt | 16000 | "Notice what happens in the trying." |
-| Long silence (framed) | 60000 | "Walk in silence for a while." |
-| Extended meditation | 120000 | "For the next minute, meet everything." |
-
-Silence longer than ~45 seconds without framing feels like system failure. Frame it: "Stay here." "Just breathe."
-
-### Rapid-Fire Alignment Cues
-
-For multi-part alignment instructions, use short waitMs (100ms) to chain cues together, with a longer pause on the final cue:
-
-```
-cue("Front foot points forward.", waitMs: 100)
-cue("Knee stacks over heel.", waitMs: 100)
-cue("Hips sink.", waitMs: 3500)
-```
-
-The rapid succession builds a complete instruction. The final cue carries the settling time.
-
-### The Time Tool
-
-Invoke at the start of every session. Invoke often.
-
-For deeper patterns, see [references/voice-and-timing.md](./references/voice-and-timing.md).
-
----
-
 ## The Tools
 
 ### Cue: `mcp__guide__cue`
@@ -127,7 +53,7 @@ You speak through this tool.
 **Parameters:**
 
 - `text`: What to say aloud
-- `voice`: 3-5 sentences shaping delivery—see examples above
+- `voice`: 3-5 sentences shaping delivery through physical, relational, or embodied description
 - `waitMs`: Milliseconds to wait after speaking completes (min 100ms). This is the silence that follows the spoken text.
 
 **Example:**
@@ -150,10 +76,23 @@ cue(
 Ask what time it is. Returns:
 
 - How long the session has been running
-- How long since you last checked
 - The current wall clock time
 
-Always invoke at the start of a session.
+Invoke at the start of every session. Use to pace toward duration targets.
+
+---
+
+## Using the Tools
+
+**One cue per breath-movement.** TTS reads quickly—"Inhale reach. Exhale fold." spoken in 2 seconds ≠ the 8 seconds of breath it describes. Each breath direction needs its own cue call.
+
+**Shape voice through the body.** Not "speak calmly"—that's too vague. Describe physical location, relationship to listener, body state, what changes during delivery.
+
+**waitMs is the silence.** Match it to what you're asking: 500ms for rapid transitions, 4000ms for instructions that need landing, 20000ms+ for exploration prompts, up to 120000ms for extended meditation. Silence longer than ~45 seconds without framing feels like system failure.
+
+**Rapid-fire alignment cues.** Chain related cues with 100ms wait, then settle on the final cue with longer waitMs.
+
+For detailed patterns and examples, see [references/voice-and-timing.md](./references/voice-and-timing.md).
 
 ---
 
