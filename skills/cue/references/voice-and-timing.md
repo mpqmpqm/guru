@@ -1,208 +1,151 @@
 # Voice and Timing
 
-Patterns extracted from successful guidance sessions.
+Rhythm is the teaching. What you say matters less than when and how the silences between change.
 
 ---
 
-## The `voice` Parameter
+## Rhythm as Structure
 
-The `voice` parameter shapes TTS delivery. Vague instructions produce flat output.
+Timing change is content. The progression of intervals—shortening, lengthening, holding steady—creates dramatic architecture independent of words.
 
-### What Doesn't Work
+**Acceleration builds.** Each cue arriving sooner than the last creates momentum, urgency, anticipation. The body feels the quickening before the mind names it.
 
-| Anti-pattern | Problem |
-| --- | --- |
-| "Speak calmly" | Too vague—how? |
-| "Soothing tone" | Prescribes outcome, not delivery |
-| "Gentle voice" | No physical or relational grounding |
-| (no voice parameter) | TTS defaults are flat |
+**Deceleration lands.** Each cue arriving later than the last creates spaciousness, arrival, integration. Intensity needs room to settle.
 
-### What Works
+**Consistency entrances or deadens.** Identical intervals create trance when intentional, monotony when not. Know which you're doing.
 
-Shape voice through physical, relational, or embodied descriptions:
-
-**Physical location:**
-```
-As if speaking from just behind the ear.
-```
-
-**Relationship to listener:**
-```
-The tone of someone walking beside, not in front.
-```
-
-```
-Conspiratorial. We're in this together.
-```
-
-**Body state:**
-```
-Speaking from the belly not the head.
-```
-
-```
-Breath audible in the speaking.
-```
-
-**Emotional quality held lightly:**
-```
-Wonder creeping in at edges but held back, restrained.
-```
-
-```
-Dry, factual, with a hint of mischief underneath.
-```
-
-**What changes during delivery:**
-```
-Voice quieting toward silence.
-```
-
-```
-Building slightly in intensity but still contained.
-```
-
-**Specific physical instructions:**
-```
-The word "slow" takes twice as long as it should.
-```
-
-```
-Each phrase lands with weight of a footstep.
-```
-
-### Voice Arc Within a Session
-
-Voice should evolve as the session progresses:
-
-- **Opening**: Low, unhurried, arriving
-- **Building**: Curious, exploratory, slightly more present
-- **Core/Peak**: Full, grounded, possibly urgent or intense
-- **Integration**: Softening, tender, spacious
-- **Closing**: Quiet, almost disappearing, releasing
+The question is never "what's the appropriate waitMs value." The question is: _faster than the last cue, slower, or the same?_ And: _what does that change communicate?_
 
 ---
 
-## The `waitMs` Parameter
+## Presence vs. Duration
 
-Milliseconds to wait after speaking completes (min 100ms). This is the explicit silence that follows the spoken text.
+These are not equivalent:
 
-### Range in Practice
+- One cue followed by 12 seconds of silence
+- Four cues with 3 seconds between each
 
-| Context | waitMs | Example cue |
-| --- | --- | --- |
-| Rapid alignment | 100 | "Knee stacks over heel." |
-| Rapid transition | 500 | "Inhale, reach." |
-| Two-part instruction | 2000 | "Exhale, step back, lower." |
-| Instruction + landing | 4000 | "Stop walking." |
-| Short hold | 12000 | "Hold here. Three breaths." |
-| Exploration prompt | 20000 | "Notice what happens in the trying." |
-| Question to sit with | 30000 | "What are you preventing right now?" |
-| Framed longer silence | 60000 | "Walk in silence for a while." |
-| Extended meditation | 120000 | "For the next minute, meet everything." |
+Total time similar. Experience completely different.
 
-### One Cue Per Breath-Movement
+**Many short cues** create continuous presence. The voice accompanies. The listener is held through movement or challenge. Momentum carries.
 
-The TTS reads quickly. This:
-```
-cue("Inhale reach. Exhale fold. Inhale lengthen.", waitMs: 12000)
-```
+**Few long cues** create space. The listener is released into their own experience. Silence becomes the teacher.
 
-...will be spoken in ~2 seconds, not the 12 seconds of breath it describes. Split it:
-
-```
-cue("Inhale, reach.", waitMs: 3500)
-cue("Exhale, fold.", waitMs: 3500)
-cue("Inhale, lengthen.", waitMs: 3500)
-```
-
-### Rapid-Fire Alignment Cues
-
-For multi-part alignment instructions, chain cues with minimal wait (100ms), then settle on the final cue:
-
-```
-cue("Front foot points forward.", waitMs: 100)
-cue("Knee stacks over heel.", waitMs: 100)
-cue("Hips sink.", waitMs: 3500)
-```
-
-The rapid succession builds a complete instruction without awkward pauses between related cues. The final cue carries the settling time.
-
-### Silence Framing
-
-Silence longer than ~45 seconds without framing feels like system failure. Frame before or after:
-
-**Before:**
-```
-"Walk in silence for a while. No voice needed."
-```
-
-**After (returning from silence):**
-```
-"When you walk, the world rearranges itself around you."
-```
-
-The framing can be minimal: "Stay here." "Just breathe." "Find stillness."
+These are different instruments. Choose based on what the moment needs, not convenience.
 
 ---
 
-## The `time` Tool
+## Movement Needs Momentum
 
-Check every 2-4 minutes to pace toward duration targets.
+When the body is moving, the voice moves with it.
 
-### When to Check
+Gaps that work in stillness become abandonment in motion. The practitioner stepping, flowing, building heat needs the voice as companion—not as occasional visitor who disappears mid-sequence.
 
-- After opening section lands
-- Before committing to a long exploration
-- After extended silence
-- When sensing the session should start closing
+Break extended instructions into rhythmic units that match the body's pace. Each breath-movement wants its own cue. Each transition wants acknowledgment. The voice finds the rhythm the body is already in.
 
-### What to Do With Results
+Stillness practices invert this. Meditation, yin, savasana—here the voice's job is to become unnecessary. Fewer cues. Longer spaces. Deliberate withdrawal.
 
-| Situation | Action |
-| --- | --- |
-| Running fast | Longer pauses, add exploration prompts |
-| Running slow | Reduce waitMs, tighter pacing |
-| ~80% through | Begin transition to integration/closing |
-| After long silence | Orient to remaining time |
+---
+
+## Silence as Cue
+
+Silence is not absence of cueing. It's a cue with no words.
+
+**Inhabited silence:** The voice exits deliberately. The listener knows they're being held in spaciousness. The guide remains present through the gap. Any duration works.
+
+**Abandoned silence:** The voice just stops. The listener wonders if something broke. Connection ruptures. Past ~30 seconds this feels like system failure.
+
+The difference is intention and framing. Inhabited silence is announced or returned from with acknowledgment. Abandoned silence has no container.
+
+When preparing extended silence, the voice can:
+
+- Frame before ("Stay here for a while")
+- Exit explicitly ("No voice needed now")
+- Return with acknowledgment ("Coming back from that quiet...")
+
+The framing can be minimal. But it must exist.
+
+---
+
+## The Voice Parameter
+
+The `voice` parameter shapes TTS delivery. Abstractions produce flat output.
+
+**What fails:** Adjectives without physical grounding. "Calm," "gentle," "soothing"—these prescribe outcomes without specifying delivery. The TTS has nothing to work with.
+
+**What works:** Physical, relational, embodied description. Where in the body the voice originates. The relationship to the listener (beside them, above them, intimate, formal). What changes during the phrase. Specific words that should land differently.
+
+The voice should evolve across a session. Opening voice is not peak voice is not closing voice. If voice notes remain identical throughout, something is wrong.
+
+---
+
+## Finding the Rhythm
+
+Questions to ask before each cue:
+
+**What just happened?**
+
+- High intensity → longer landing
+- Simple transition → quick continuation
+- Silence → acknowledge the return
+
+**What's about to happen?**
+
+- Building toward peak → accelerate
+- Approaching stillness → decelerate
+- Maintaining flow → match previous rhythm
+
+**What is the body doing?**
+
+- Moving → voice moves with it
+- Holding → voice can thin
+- Resting → voice withdraws
+
+**Is this arrival or continuation?**
+
+- Arrival needs space after
+- Continuation needs momentum into next
+
+---
+
+## The Time Tool
+
+Check time every 2-4 minutes to pace toward duration targets.
+
+**Running fast:** Longer intervals, add exploratory space, let silences extend.
+
+**Running slow:** Shorter intervals, tighter rhythm, reduce exploratory tangents.
+
+**~80% through:** Begin transition to integration regardless of where you are in planned content.
+
+Time awareness serves rhythm. Knowing how much remains lets you choose whether to accelerate toward close or decelerate into landing.
 
 ---
 
 ## Session Arc
 
-| Phase | % of time | Purpose | waitMs tendency |
-| --- | --- | --- | --- |
-| Opening | 10-15% | Arrive, establish presence | Longer (8000-20000) |
-| Building | 20-30% | Deepen attention, introduce theme | Medium (4000-15000) |
-| Core | 30-40% | Main work, challenges, peaks | Variable (500-60000) |
-| Integration | 15-20% | Soften, metabolize | Longer (15000-45000) |
-| Closing | 5-10% | Return, release | Tapering to minimal |
+| Phase | Proportion | Rhythm tendency |
+| --- | --- | --- |
+| Opening | 10-15% | Slow, spacious, arriving |
+| Building | 20-30% | Gradual acceleration, increasing presence |
+| Core | 30-40% | Variable—matches intensity of content |
+| Integration | 15-20% | Deceleration, lengthening intervals |
+| Closing | 5-10% | Sparse, withdrawing, minimal |
 
-### Arc Markers
-
-**Opening complete when:** Breath established, ordinary mind quieting, presence arriving.
-
-**Building to core transition:** Theme introduced, attention deepened, ready for challenge or exploration.
-
-**Core to integration:** Peak reached, intensity honored, time to metabolize.
-
-**Integration to closing:** Body settling, insights landing, ready to return.
+The arc is a wave, not a plateau. Energy rises to a peak in the core, then descends. Rushing the end or cramming intensity into closing violates the shape.
 
 ---
 
-## Example: Complete Cue Call
+## Principles Summary
 
-```
-cue(
-  text: "The canal is not waiting for you. The sun is not
-         warming you on purpose. This is the ordinary
-         scandal: things exist without needing your
-         attention.",
-  voice: "Dry, factual, with a hint of mischief underneath.
-          Let the provocative content land without
-          dramatizing it.",
-  waitMs: 45000
-)
-```
+1. **Timing change is content.** The progression of intervals creates structure independent of words.
 
-The text is provocative. The voice doesn't oversell it. The waitMs (45 seconds of silence) gives it room to land.
+2. **Presence and duration are different instruments.** Many short cues accompany; few long cues release.
+
+3. **Movement needs momentum.** When the body moves, the voice moves with it.
+
+4. **Silence is a cue.** Inhabited silence works at any length. Abandoned silence fails.
+
+5. **Voice evolves.** Opening voice ≠ peak voice ≠ closing voice.
+
+6. **Rhythm matches the body.** Find the rhythm the listener is already in rather than imposing one.

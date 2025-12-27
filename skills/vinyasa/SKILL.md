@@ -72,91 +72,25 @@ But most poses need only the first. Economy is respect.
 
 Use sparingly. Use what you understand in your own body.
 
-Examples that work:
-
-- "Stretch your roots into the earth"
-- "Pressed between two panes of glass" (for lateral alignment)
-- "Savasana of the tongue"
-
 Borrowed images you don't feel will sound borrowed.
 
-## Using the Cue Tool
+## One Breath, One Cue
 
-The `cue` tool's `waitMs` parameter controls the silence after speaking. This creates space between instructions, letting movement catch up to words.
+This is the core discipline of vinyasa cueing.
 
-When you set `waitMs: 3500`, you're saying: speak this text, then wait 3.5 seconds before the next cue. One full breath cycle ≈ 8000ms.
+The TTS speaks faster than bodies move. If you put "Inhale, reach. Exhale, fold. Inhale, lengthen." into a single cue call, it will be spoken in two seconds—three breaths of instruction crammed into a fragment of one breath. The practitioner cannot follow. They either race to catch up or abandon the guidance entirely.
 
-### One Movement Per Cue
+**Each breath-movement is one cue call.**
 
-The TTS model reads quickly. A cue like "Inhale reach. Exhale fold. Inhale lengthen." will be spoken in seconds—far faster than the breaths it describes.
+You are breathing with the practitioner. One breath happens. You cue it. The interval passes. The next breath arrives. You cue that one. You are not ahead of them. You are with them.
 
-**Each breath-movement pair needs its own `cue` call.**
+This is not a planning problem. You don't need to know the whole sequence before you start. You need to recognize the unit: one breath, one movement, one cue. In the moment, cue one thing, wait, be present to what comes next.
 
-Wrong:
-```
-cue("Inhale reach. Exhale fold. Inhale lengthen.", waitMs: 12000)
-```
+**The failure mode** is stuffing multiple breath-movements into a single call, then waiting. Three things got said. The body heard one blur. The rhythm broke and won't recover until you return to one-breath-one-cue.
 
-Right:
-```
-cue("Inhale, reach.", waitMs: 3500)
-cue("Exhale, fold.", waitMs: 3500)
-cue("Inhale, lengthen.", waitMs: 3500)
-```
+**Holds** are different. "Stay here, five breaths" is one cue—but the interval after it must hold space for five breaths. The unit is still one instruction, one wait. The wait is longer.
 
-The `waitMs` creates the silence after speech. Without it, instruction piles up faster than bodies can move.
-
-### Sun Salutation A: A Complete Example
-
-Each row is one `cue` call. The sequence assumes students know the flow—first rounds would need more instruction.
-
-| Pose | text | waitMs | Notes |
-| --- | --- | --- | --- |
-| Tadasana | "Find your breath." | 12000 | Two full breaths to arrive |
-| Urdhva Hastasana | "Inhale, reach." | 3500 | Arms rise on inhale |
-| Uttanasana | "Exhale, fold." | 3500 | Forward fold on exhale |
-| Ardha Uttanasana | "Inhale, lengthen." | 3500 | Flat back on inhale |
-| Chaturanga | "Exhale, step back, lower halfway." | 6000 | Exhale + landing time |
-| Urdhva Mukha | "Inhale, chest forward." | 3500 | Updog on inhale |
-| Adho Mukha | "Exhale, press back. Five breaths." | 35000 | Down dog hold |
-| Ardha Uttanasana | "Inhale, step forward, lengthen." | 6000 | Transition + flat back |
-| Uttanasana | "Exhale, fold." | 3500 | Forward fold |
-| Urdhva Hastasana | "Inhale, rise." | 3500 | Arms sweep up |
-| Samasthiti | "Exhale, hands to heart." | 6000 | Return + settle |
-
-Total: ~90 seconds of silence + speaking ≈ 1:45
-
-The pattern: transitional cues get 3500-6000ms; holds get ~8000ms per breath (5 breaths = 35000ms).
-
-### waitMs Quick Reference
-
-| Context | waitMs | Example |
-| --- | --- | --- |
-| Rapid alignment cue | 100 | "Knee stacks over heel." |
-| Single breath direction | 3500 | "Inhale, reach." |
-| Two-part instruction | 6000 | "Step back, lower halfway." |
-| Short hold (warrior, lunge) | 12000-20000 | "Hold here. Three breaths." |
-| Extended hold (peak pose) | 30000-45000 | "Stay. Find your breath." |
-| Framed silence | 15000-30000 | "Just breathe." |
-
-### Rapid-Fire Alignment Cues
-
-For multi-part alignment (e.g., setting up Warrior II), chain cues with minimal wait, settling on the final cue:
-
-```
-cue("Front foot points forward.", waitMs: 100)
-cue("Back foot at 45 degrees.", waitMs: 100)
-cue("Knee stacks over ankle.", waitMs: 100)
-cue("Hips sink, arms reach.", waitMs: 6000)
-```
-
-The body receives the complete alignment instruction as one unit, then settles into the shape.
-
-### Pacing Principles
-
-Prefer several short cue/wait cycles to fewer long ones. Even during extended holds, continue cueing in shorter cycles—this keeps listeners engaged and frames silence as intentional stillness.
-
-Silence longer than ~45 seconds without framing may feel like system failure. The framing can be minimal: "Stay here." "Just breathe." "Find stillness."
+**Staged alignment** is also different. When setting up a pose, you might deliver several position cues in rapid succession—nearly no interval between them—then settle on the final cue with a real pause. The body receives the setup as one unit, then inhabits the shape. This is intentional bundling, not accidental cramming. The difference: staged alignment is position instructions (where things go), not breath-movements (when things happen).
 
 ## Breath Leads Movement
 
@@ -187,17 +121,19 @@ Flow is not speed. Flow is continuity.
 
 3. **Present tense, direct address**: "Step" not "stepping." "Lift" not "we're going to lift."
 
-4. **Rhythmic consistency**: A musical clip, as though backed by a metronome. Not metronomic monotony—but underlying pulse.
+4. **Rhythmic consistency**: The voice moves with the body. When the body is in continuous motion, the voice is continuous companion. Gaps that work in stillness become abandonment in flow.
 
 5. **Repetition**: First sun salutation round moves slowly with guidance. Subsequent rounds increase pace, decrease cues. Students internalize patterns and enter the zone.
 
-6. **Silence as instruction**: Pause the one-breath-one-cue rhythm. Let the practice settle. Make space for students to experience the pose without new instruction constantly arriving.
+6. **Silence as instruction**: Pause the one-breath-one-cue rhythm deliberately. Let the practice settle. Make space for students to experience the pose without new instruction constantly arriving. But frame it—don't disappear.
 
 ## What Breaks Flow
 
 **Over-cueing**: Fifteen rapid-fire instructions create cognitive overload. Students leave their bodies to process language. The fix is discipline: three cues, one breath between.
 
 **Under-cueing**: Vinyasa's pace tempts skipping alignment. Chaturanga repeated thirty times without instruction is a recipe for shoulder injury. Guide the pattern the first time. Trust the repetition.
+
+**Cramming**: Multiple breath-movements in one cue call. The voice says three things; the body hears noise. Return to one breath, one cue.
 
 **Fatigue failure sequencing**: Bending one direction then immediately the opposite—testing metal to break it. Core work right before backbends fatigues the muscles that protect the spine.
 
@@ -233,9 +169,13 @@ Ask: What six or fewer component parts must be warmed or educated?
 
 Ask: What are the three essential cues? Then silence.
 
+### In Flow
+
+Ask: Am I cueing one breath at a time, or cramming?
+
 ### Pauses
 
-Ask: Have I framed this silence, or will it feel like dead air?
+Ask: Have I framed this silence, or will it feel like abandonment?
 
 ### Transitions
 
@@ -248,7 +188,3 @@ Ask: Can students maintain ujjayi? If not, slow down.
 ### Class Arc
 
 Ask: Where is the peak? Is there time after it for integration?
-
----
-
-_The system prompt tells you how to be. This tells you what to do. The doing serves the being. When craft becomes invisible, only presence remains._
