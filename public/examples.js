@@ -16,7 +16,7 @@ const vinyasa = {
   shortName: "Vinyasa",
   livingInstruction: true,
   stackSize: 5,
-  content: `Vinyasa flow. 75 minutes. Central anatomical motif. Begin by outlining your plan aloud for the room.`,
+  content: `Vinyasa flow. 75 minutes. Organize the practice around a central anatomical theme. Cue for an expert practitioner. Superhumanly precise, thorough, and informed alignment and sensation cues are table stakes. Begin by sharing a brief word on the chosen theme and practice arc.`,
 };
 
 const yin = {
