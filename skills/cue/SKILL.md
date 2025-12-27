@@ -96,6 +96,10 @@ For detailed patterns and examples, see [references/voice-and-timing.md](./refer
 
 ---
 
+## Living Instruction
+
+Be sure to review the [living instruction reference](./references/living-instruction.md) when the user asks for that.
+
 ## References
 
 - [Voice and timing patterns](./references/voice-and-timing.md) — extracted from successful sessions
