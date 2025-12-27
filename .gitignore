@@ -24,6 +24,8 @@ dist-ssr
 *.sw?
 
 .env
+.env.*
+!.env.example
 fly
 
 server/version.json
