@@ -19,6 +19,13 @@ const vinyasa = {
   content: `Vinyasa flow. 75 minutes. Central anatomical motif. Begin by outlining your plan aloud for the room.`,
 };
 
+const yin = {
+  shortName: "Yin",
+  livingInstruction: true,
+  stackSize: 3,
+  content: `90 minute yin instruction. I don't have bolster or blanket but I have a strap and two blocks. I am expert at vinyasa but I don't know yin names, so cue poses precisely. We have a ton of time together so use the space between positional cues to teach something meaningful. Superhumanly precise, thorough, and informed alignment and sensation cues are table stakes.`,
+};
+
 const metta = {
   shortName: "Metta",
   livingInstruction: true,
@@ -73,8 +80,9 @@ Duration: until it takes.`,
 
 export default [
   demo,
-  walk,
   vinyasa,
+  yin,
+  walk,
   metta,
   bodyScan,
   deescalate,
