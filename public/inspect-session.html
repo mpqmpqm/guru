@@ -243,6 +243,16 @@
         opacity: 0.7;
       }
 
+      .cue-footer {
+        margin-top: 0.75rem;
+        padding-top: 0.5rem;
+        border-top: 1px solid var(--border-subtle);
+        font-size: 0.75rem;
+        font-family: monospace;
+        color: var(--text-secondary);
+        opacity: 0.7;
+      }
+
       .empty-state {
         text-align: center;
         padding: 3rem 1rem;
@@ -483,21 +493,17 @@
                   </div>
                 `;
               } else {
-                const queueBadge = event.queueDepth != null
-                  ? `<span class="queue-badge">q${event.queueDepth}</span>`
-                  : "";
-                const speakingStr = event.speakingMs != null
-                  ? `${(event.speakingMs / 1000).toFixed(1)}s`
-                  : "";
-                const metaStr = event.wallClock ? `@ ${event.wallClock}` : "";
+                const footerParts = [];
+                if (event.queueDepth != null) footerParts.push(`q${event.queueDepth}`);
+                if (event.speakingMs != null) footerParts.push(`${(event.speakingMs / 1000).toFixed(1)}s`);
+                if (event.ratio) footerParts.push(event.ratio);
+                if (event.wallClock) footerParts.push(`@ ${event.wallClock}`);
+                const footerStr = footerParts.join(" · ");
                 return `
                   <div class="event event-cue">
                     <div class="cue-header">
                       <span class="cue-label">cue</span>
                       <span class="cue-seq">#${event.sequence_num}</span>
-                      ${queueBadge}
-                      ${speakingStr ? `<span class="event-meta">${speakingStr}</span>` : ""}
-                      ${metaStr ? `<span class="event-meta">${metaStr}</span>` : ""}
                     </div>
                     <div class="cue-text">${escapeHtml(event.text)}</div>
                     <div class="cue-details">
@@ -506,6 +512,7 @@
                         <span>${escapeHtml(event.voice)}</span>
                       </div>
                     </div>
+                    ${footerStr ? `<div class="cue-footer">${footerStr}</div>` : ""}
                   </div>
                 `;
               }
