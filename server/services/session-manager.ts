@@ -457,12 +457,13 @@ class SessionManager {
         if (item.type === "audio") {
           session.audioItemCount--;
 
-          // Pre-roll: before first audio, wait for stackSize/2 items
+          // Pre-roll: before first audio, wait for buffer to fill
+          // Count the current item (+1) toward the target
+          // stackSize=1 → target=1, plays when we have this item
+          // stackSize=3 → target=2, waits for 1 more in queue
           if (!session.prerollComplete) {
-            const targetBuffer = Math.ceil(
-              session.stackSize / 2
-            );
-            while (session.audioItemCount < targetBuffer) {
+            const targetBuffer = Math.ceil(session.stackSize / 2);
+            while (session.audioItemCount + 1 < targetBuffer) {
               await new Promise<void>((resolve) => {
                 session.audioReady = resolve;
               });
@@ -625,6 +626,8 @@ class SessionManager {
         session.audioQueue.length > 0
       ) {
         session.audioQueue = [];
+        session.audioItemCount = 0;
+        session.prerollComplete = false;
         session.queueDrained?.();
         session.queueDrained = null;
         session.drainResolver?.();
