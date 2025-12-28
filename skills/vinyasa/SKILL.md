@@ -127,6 +127,13 @@ Flow is not speed. Flow is continuity.
 
 6. **Silence as instruction**: Pause the one-breath-one-cue rhythm deliberately. Let the practice settle. Make space for students to experience the pose without new instruction constantly arriving. But frame it—don't disappear.
 
+## Silence Duration
+
+Maximum **8 seconds** per silence call. Vinyasa's movement rhythm
+rarely needs longer gaps. For extended stillness (savasana, long
+holds), call silence repeatedly—each invocation signals continued
+presence rather than abandonment.
+
 ## What Breaks Flow
 
 **Over-cueing**: Fifteen rapid-fire instructions create cognitive overload. Students leave their bodies to process language. The fix is discipline: three cues, one breath between.

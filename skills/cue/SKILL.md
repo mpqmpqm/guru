@@ -65,8 +65,8 @@ Holds space after speaking. The breath between cues.
 
 **Parameters:**
 
-- `durationMs`: Milliseconds of silence (100-5000). Invoke
-  repeatedly to extend beyond 5 seconds.
+- `durationMs`: Milliseconds of silence. Duration limits vary
+  by practice—see skill-specific guidance.
 
 ### Time: `mcp__guide__time`
 
@@ -97,11 +97,8 @@ you held as long as intended or explicitly forecasted?
 ```
 speak("Settling into dragon on the left side...")
 stopwatch(id: "dragon left", intent: "start")
-silence(5000)
-silence(5000)
-// ... continue holding
-silence(5000)
-stopwatch(id: "dragon left", intent: "check")  // verify before exit
+silence(30000)
+stopwatch(id: "dragon left", intent: "check")
 speak("Beginning to come out of the shape...")
 ```
 
@@ -146,9 +143,7 @@ Use spaced speaks when:
 
 ```
 speak("Stay here for a while. No voice needed.", voice)
-silence(5000)
-silence(5000)
-silence(5000)  // 15 seconds total
+silence(15000)
 ```
 
 **Example cue:**
@@ -163,10 +158,7 @@ speak(
           Let the provocative content land without
           dramatizing it."
 )
-silence(5000)
-silence(5000)
-silence(5000)
-// ... continue until ~45 seconds of space
+silence(45000)
 ```
 
 ---
@@ -185,9 +177,11 @@ state, what changes during delivery.
 speak(). Match duration to what you're asking:
 
 - 500-2000ms: Standard pacing between cues
-- 2000-5000ms: Let instruction land
-- 5000-20000ms: Exploration, noticing (invoke repeatedly)
-- 20000ms+: Extended holds (frame first, then chain silence calls)
+- 2000-8000ms: Let instruction land
+- 8000ms+: Extended holds—pair with stopwatch; frame first
+
+Skill-specific limits: vinyasa 8s, yin/meditation 60s. Repeated
+calls signal continued intentional presence through extended holds.
 
 **Frame before extended silence.** Silence longer than ~30 seconds
 without framing feels like system failure. Say something like

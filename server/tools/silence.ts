@@ -7,16 +7,13 @@ import { getTimeComponents, getTimeInfo } from "./time.js";
 export function createSilenceTool(sessionId: string) {
   return tool(
     "silence",
-    "Hold intentional space after speaking. Silence lets instruction land and experience unfold. Duration: 500-2000ms for pacing, 2000-5000ms to land, invoke repeatedly for extended holds. Frame before long silences (>30s) so they feel inhabited, not abandoned.",
+    "Hold intentional space after speaking. Silence lets instruction land and experience unfold. Frame before long silences (>30s) so they feel inhabited, not abandoned.",
     {
       durationMs: z
         .number()
         .int()
         .min(100)
-        .max(5000)
-        .describe(
-          "Milliseconds of silence. Invoke again to extend beyond 5s."
-        ),
+        .describe("Milliseconds of silence."),
     },
     async (args) => {
       const stackSize = sessionManager.getStackSize(sessionId);

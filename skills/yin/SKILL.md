@@ -55,6 +55,13 @@ Use the stopwatch tool to track hold duration. Start when entering
 the pose; check before exiting to verify you've held as long as
 intended.
 
+### Silence duration
+
+Maximum **60 seconds** per silence call. Pair long silences with
+the stopwatch—start when entering the pose, check before exiting.
+For holds longer than 60 seconds, call silence again; repeated
+invocations signal deliberate, inhabited presence through the hold.
+
 Hold durations serve connective tissue science:
 
 | Duration | Application |

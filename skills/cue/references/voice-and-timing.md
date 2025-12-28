@@ -110,18 +110,17 @@ Silence is not automatic. It's a decision you make after speak().
 **Duration guide:**
 
 - 500-2000ms: Standard pacing, breath between cues
-- 2000-5000ms: Let instruction land, allow response
-- 5000-20000ms: Exploration, noticing (invoke repeatedly)
-- 20000ms+: Extended holds (frame first, chain calls)
+- 2000-8000ms: Let instruction land, allow response
+- 8000ms+: Extended holds—pair with stopwatch; frame first
+
+Skill-specific limits: vinyasa 8s, yin/meditation 60s. Repeated
+calls signal continued intentional presence.
 
 **Extended silence pattern:**
 
 ```
 speak("Stay here. No voice needed.", voice)
-silence(5000)
-silence(5000)
-silence(5000)
-// ... repeat until desired duration
+silence(45000)
 speak("Coming back from that quiet...", voice)
 ```
 

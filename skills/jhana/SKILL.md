@@ -123,6 +123,14 @@ Only include if session length permits and sufficient time has passed in first j
 | Jhana | 2-5 minutes or none | 5% cue, 95% silence |
 | Emergence | 20-30 seconds | 40% cue, 60% silence |
 
+### Silence duration
+
+Maximum **60 seconds** per silence call. Pair long silences with
+the stopwatch. For jhana phases requiring 2-5 minutes of near-
+silence, call silence repeatedly—each invocation signals continued
+presence rather than abandonment. The act of invoking silence is
+itself a form of holding space.
+
 ### Tonal Qualities
 
 - **Unhurried**: Slower than conversational pace
