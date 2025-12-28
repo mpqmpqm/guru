@@ -67,9 +67,19 @@ function initSchema(database: Database.Database): void {
       FOREIGN KEY (session_id) REFERENCES sessions(id)
     );
 
+    CREATE TABLE IF NOT EXISTS silences (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      session_id TEXT NOT NULL,
+      sequence_num INTEGER NOT NULL,
+      duration_ms INTEGER NOT NULL,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (session_id) REFERENCES sessions(id)
+    );
+
     CREATE INDEX IF NOT EXISTS idx_cues_session ON cues(session_id, sequence_num);
     CREATE INDEX IF NOT EXISTS idx_thinking_session ON thinking_traces(session_id, sequence_num);
     CREATE INDEX IF NOT EXISTS idx_errors_session ON errors(session_id, sequence_num);
+    CREATE INDEX IF NOT EXISTS idx_silences_session ON silences(session_id, sequence_num);
   `);
   ensureCueWaitMsColumn(database);
 }
@@ -135,30 +145,47 @@ export const dbOps = {
     );
   },
 
-  insertCue(
+  insertSpeak(
     sessionId: string,
     seqNum: number,
-    text: string,
-    voice: string,
-    waitMs: number
+    content: string,
+    voice: string
   ): void {
     safeDbOperation(
       () => {
         const database = getDb();
         database
           .prepare(
-            `INSERT INTO cues (session_id, sequence_num, text, voice, wait_ms, created_at) VALUES (?, ?, ?, ?, ?, ?)`
+            `INSERT INTO cues (session_id, sequence_num, text, voice, created_at) VALUES (?, ?, ?, ?, ?)`
           )
           .run(
             sessionId,
             seqNum,
-            text,
+            content,
             voice,
-            waitMs,
             new Date().toISOString()
           );
       },
-      "insertCue",
+      "insertSpeak",
+      undefined
+    );
+  },
+
+  insertSilence(
+    sessionId: string,
+    seqNum: number,
+    durationMs: number
+  ): void {
+    safeDbOperation(
+      () => {
+        const database = getDb();
+        database
+          .prepare(
+            `INSERT INTO silences (session_id, sequence_num, duration_ms, created_at) VALUES (?, ?, ?, ?)`
+          )
+          .run(sessionId, seqNum, durationMs, new Date().toISOString());
+      },
+      "insertSilence",
       undefined
     );
   },
@@ -343,6 +370,9 @@ export const dbOps = {
         database
           .prepare(`DELETE FROM errors WHERE session_id = ?`)
           .run(sessionId);
+        database
+          .prepare(`DELETE FROM silences WHERE session_id = ?`)
+          .run(sessionId);
         const result = database
           .prepare(`DELETE FROM sessions WHERE id = ?`)
           .run(sessionId);
@@ -358,14 +388,13 @@ export const dbOps = {
   ): Array<
     | { type: "thinking"; sequence_num: number; content: string; created_at: string }
     | {
-        type: "cue";
+        type: "speak";
         sequence_num: number;
         text: string;
         voice: string;
-        pause: number;
-        waitMs: number | null;
         created_at: string;
       }
+    | { type: "silence"; sequence_num: number; durationMs: number; created_at: string }
     | { type: "error"; sequence_num: number; source: string; message: string; created_at: string }
   > {
     return safeDbOperation(
@@ -374,24 +403,26 @@ export const dbOps = {
         // Query all tables and union them, ordered by sequence_num
         const results = database
           .prepare(
-            `SELECT 'thinking' as type, sequence_num, content, NULL as text, NULL as voice, NULL as pause, NULL as wait_ms, NULL as source, NULL as message, created_at
+            `SELECT 'thinking' as type, sequence_num, content, NULL as text, NULL as voice, NULL as duration_ms, NULL as source, NULL as message, created_at
              FROM thinking_traces WHERE session_id = ?
              UNION ALL
-             SELECT 'cue' as type, sequence_num, NULL as content, text, voice, pause, wait_ms, NULL as source, NULL as message, created_at
+             SELECT 'speak' as type, sequence_num, NULL as content, text, voice, NULL as duration_ms, NULL as source, NULL as message, created_at
              FROM cues WHERE session_id = ?
              UNION ALL
-             SELECT 'error' as type, sequence_num, NULL as content, NULL as text, NULL as voice, NULL as pause, NULL as wait_ms, source, message, created_at
+             SELECT 'silence' as type, sequence_num, NULL as content, NULL as text, NULL as voice, duration_ms, NULL as source, NULL as message, created_at
+             FROM silences WHERE session_id = ?
+             UNION ALL
+             SELECT 'error' as type, sequence_num, NULL as content, NULL as text, NULL as voice, NULL as duration_ms, source, message, created_at
              FROM errors WHERE session_id = ?
              ORDER BY sequence_num`
           )
-          .all(sessionId, sessionId, sessionId) as Array<{
+          .all(sessionId, sessionId, sessionId, sessionId) as Array<{
             type: string;
             sequence_num: number;
             content: string | null;
             text: string | null;
             voice: string | null;
-            pause: number | null;
-            wait_ms: number | null;
+            duration_ms: number | null;
             source: string | null;
             message: string | null;
             created_at: string;
@@ -413,14 +444,19 @@ export const dbOps = {
               message: row.message!,
               created_at: row.created_at,
             };
+          } else if (row.type === "silence") {
+            return {
+              type: "silence" as const,
+              sequence_num: row.sequence_num,
+              durationMs: row.duration_ms!,
+              created_at: row.created_at,
+            };
           } else {
             return {
-              type: "cue" as const,
+              type: "speak" as const,
               sequence_num: row.sequence_num,
               text: row.text!,
               voice: row.voice!,
-              pause: row.pause!,
-              waitMs: row.wait_ms,
               created_at: row.created_at,
             };
           }

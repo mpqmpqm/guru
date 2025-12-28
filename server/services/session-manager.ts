@@ -1,5 +1,5 @@
-import { v4 as uuidv4 } from "uuid";
 import type { Response } from "express";
+import { v4 as uuidv4 } from "uuid";
 import {
   logAudioPlayEnd,
   logAudioPlayStart,
@@ -15,6 +15,9 @@ const BYTES_PER_SECOND = SAMPLE_RATE * BYTES_PER_SAMPLE; // 48000
 const BURST_SECONDS = 0.5;
 const BURST_BYTES = Math.floor(BURST_SECONDS * BYTES_PER_SECOND); // 24000
 
+// Fixed delay after audio for queue pacing
+const MIN_DELAY = 200;
+
 export interface TTSResult {
   chunks?: Uint8Array[];
   error?: string;
@@ -23,17 +26,24 @@ export interface TTSResult {
 type AudioItem = {
   type: "audio";
   ttsResult: TTSResult;
-  waitMs: number;
   sequenceNum: number;
   text: string;
 };
+
+type SilenceItem = {
+  type: "silence";
+  durationMs: number;
+  sequenceNum: number;
+};
+
+type QueueItem = AudioItem | SilenceItem;
 
 interface Session {
   id: string;
   createdAt: Date;
   timezone?: string;
   stackSize: number;
-  audioQueue: AudioItem[];
+  audioQueue: QueueItem[];
   audioStreamActive: boolean;
   agentSessionId?: string;
   sseResponse?: Response;
@@ -105,14 +115,20 @@ class SessionManager {
     }
   }
 
-  setAgentSessionId(sessionId: string, agentSessionId: string): void {
+  setAgentSessionId(
+    sessionId: string,
+    agentSessionId: string
+  ): void {
     const session = this.sessions.get(sessionId);
     if (session) {
       session.agentSessionId = agentSessionId;
     }
   }
 
-  setAbortController(sessionId: string, controller: AbortController): void {
+  setAbortController(
+    sessionId: string,
+    controller: AbortController
+  ): void {
     const session = this.sessions.get(sessionId);
     if (session) {
       session.abortController = controller;
@@ -175,7 +191,8 @@ class SessionManager {
     if (session?.thinkingStartTime) {
       // Only record thinking duration after first cue (initial thinking is longer)
       if (session.cueHasBeenCalled) {
-        session.lastThinkingDuration = (Date.now() - session.thinkingStartTime) / 1000;
+        session.lastThinkingDuration =
+          (Date.now() - session.thinkingStartTime) / 1000;
       }
       session.thinkingStartTime = undefined;
     }
@@ -206,7 +223,9 @@ class SessionManager {
     return this.sessions.get(sessionId)?.cueCallCount ?? 0;
   }
 
-  consumeThinkingDuration(sessionId: string): number | undefined {
+  consumeThinkingDuration(
+    sessionId: string
+  ): number | undefined {
     const session = this.sessions.get(sessionId);
     if (!session) return undefined;
     const duration = session.lastThinkingDuration;
@@ -224,10 +243,15 @@ class SessionManager {
 
   // Agent synthetic clock: tracks where the agent is on the timeline
   getAgentSyntheticElapsed(sessionId: string): number {
-    return this.sessions.get(sessionId)?.agentSyntheticElapsedMs ?? 0;
+    return (
+      this.sessions.get(sessionId)?.agentSyntheticElapsedMs ?? 0
+    );
   }
 
-  advanceAgentSyntheticClock(sessionId: string, ms: number): void {
+  advanceAgentSyntheticClock(
+    sessionId: string,
+    ms: number
+  ): void {
     const session = this.sessions.get(sessionId);
     if (session) {
       const before = session.agentSyntheticElapsedMs;
@@ -262,7 +286,6 @@ class SessionManager {
     sessionId: string,
     item: {
       ttsResult: TTSResult;
-      waitMs: number;
       sequenceNum: number;
       text: string;
     }
@@ -273,7 +296,6 @@ class SessionManager {
     session.audioQueue.push({
       type: "audio",
       ttsResult: item.ttsResult,
-      waitMs: item.waitMs,
       sequenceNum: item.sequenceNum,
       text: item.text,
     });
@@ -281,13 +303,38 @@ class SessionManager {
     session.audioReady?.();
   }
 
+  queueSilence(
+    sessionId: string,
+    item: {
+      durationMs: number;
+      sequenceNum: number;
+    }
+  ): void {
+    const session = this.sessions.get(sessionId);
+    if (!session) return;
+
+    session.audioQueue.push({
+      type: "silence",
+      durationMs: item.durationMs,
+      sequenceNum: item.sequenceNum,
+    });
+    // Signal that new item is available
+    session.audioReady?.();
+  }
+
   // Send an SSE event to the client
-  sendSSE(sessionId: string, event: string, data: unknown): void {
+  sendSSE(
+    sessionId: string,
+    event: string,
+    data: unknown
+  ): void {
     const session = this.sessions.get(sessionId);
     if (!session?.sseResponse) return;
 
     session.sseResponse.write(`event: ${event}\n`);
-    session.sseResponse.write(`data: ${JSON.stringify(data)}\n\n`);
+    session.sseResponse.write(
+      `data: ${JSON.stringify(data)}\n\n`
+    );
   }
 
   // Async generator that yields audio chunks from the queue.
@@ -295,7 +342,9 @@ class SessionManager {
   // Handles TTS promises, playback throttling, and silence.
   async *consumeAudioQueue(
     sessionId: string
-  ): AsyncGenerator<{ type: "data"; data: Buffer } | { type: "flush" }> {
+  ): AsyncGenerator<
+    { type: "data"; data: Buffer } | { type: "flush" }
+  > {
     const session = this.sessions.get(sessionId);
     if (!session) return;
 
@@ -335,14 +384,14 @@ class SessionManager {
           const logPrefix = `[audio:${sessionId.slice(0, 8)}:${item.sequenceNum}]`;
           const dequeueAt = Date.now();
 
-          // TTS result is already resolved (cue tool awaits it)
+          // TTS result is already resolved (speak tool awaits it)
           const result = item.ttsResult;
 
           if (result.error) {
-            // Log error, skip this cue but estimate the skipped duration.
+            // Log error, skip this item but estimate the skipped duration.
             const estSpeakingMs =
               (item.text.split(/\s+/).length / 2.5) * 1000;
-            const advanceMs = estSpeakingMs + item.waitMs;
+            const advanceMs = estSpeakingMs + MIN_DELAY;
             logAudioTtsSkip(logPrefix, result.error, advanceMs);
             // Signal queue room after error handling
             session.queueDrained?.();
@@ -358,17 +407,16 @@ class SessionManager {
 
           logAudioPlayStart(
             logPrefix,
-            0, // TTS already resolved in cue tool
+            0, // TTS already resolved in speak tool
             audioBytes,
             expectedSpeakingMs,
-            item.waitMs,
+            MIN_DELAY,
             session.audioQueue.length
           );
 
-          // Emit cue when playback starts so visuals align with audio.
-          this.sendSSE(sessionId, "cue", {
+          // Emit speak event when playback starts so visuals align with audio.
+          this.sendSSE(sessionId, "speak", {
             text: item.text,
-            waitMs: item.waitMs,
           });
 
           // Start timing AFTER TTS buffering so we measure only playback
@@ -380,7 +428,10 @@ class SessionManager {
           for (const chunk of result.chunks!) {
             if (!session.audioStreamActive) break;
             totalBytes += chunk.length;
-            yield { type: "data" as const, data: Buffer.from(chunk) };
+            yield {
+              type: "data" as const,
+              data: Buffer.from(chunk),
+            };
 
             // Skip throttling during burst phase to fill client buffer quickly
             if (totalBytes < BURST_BYTES) continue;
@@ -389,7 +440,8 @@ class SessionManager {
             if (!burstComplete) {
               burstComplete = true;
               playbackStart =
-                Date.now() - (BURST_BYTES / BYTES_PER_SECOND) * 1000;
+                Date.now() -
+                (BURST_BYTES / BYTES_PER_SECOND) * 1000;
             }
 
             // Throttle to real-time playback rate
@@ -408,25 +460,44 @@ class SessionManager {
           yield { type: "flush" as const };
 
           // Calculate speaking time from bytes (not wall time, for burst accuracy)
-          const speakingMs = (totalBytes / BYTES_PER_SECOND) * 1000;
+          const speakingMs =
+            (totalBytes / BYTES_PER_SECOND) * 1000;
 
-          // Apply explicit wait time (waitMs is the silence after speaking)
-          const silenceMs = item.waitMs;
-
-          if (silenceMs > 0) {
-            this.sendSSE(sessionId, "breathe_start", {
-              duration: silenceMs / 1000,
-            });
+          // Apply fixed MIN_DELAY after audio
+          if (MIN_DELAY > 0) {
             await new Promise((resolve) =>
-              setTimeout(resolve, silenceMs)
+              setTimeout(resolve, MIN_DELAY)
             );
-
           }
 
           const totalPlaybackMs = Date.now() - dequeueAt;
-          logAudioPlayEnd(logPrefix, speakingMs, silenceMs, totalPlaybackMs);
+          logAudioPlayEnd(
+            logPrefix,
+            speakingMs,
+            MIN_DELAY,
+            totalPlaybackMs
+          );
 
-          // Signal queue room after playback + silence completes
+          // Signal queue room after playback + delay completes
+          session.queueDrained?.();
+        } else if (item.type === "silence") {
+          const logPrefix = `[silence:${sessionId.slice(0, 8)}:${item.sequenceNum}]`;
+          console.log(
+            `${logPrefix} playing ${item.durationMs}ms`
+          );
+
+          // Emit silence event for client visuals
+          this.sendSSE(sessionId, "breathe_start", {
+            duration: item.durationMs / 1000,
+          });
+
+          await new Promise((resolve) =>
+            setTimeout(resolve, item.durationMs)
+          );
+
+          console.log(`${logPrefix} complete`);
+
+          // Signal queue room after silence completes
           session.queueDrained?.();
         }
       }
@@ -454,7 +525,10 @@ class SessionManager {
     if (!session) return Promise.resolve();
 
     const drainQueueWhenInactive = (): void => {
-      if (!session.audioStreamActive && session.audioQueue.length > 0) {
+      if (
+        !session.audioStreamActive &&
+        session.audioQueue.length > 0
+      ) {
         session.audioQueue = [];
         session.queueDrained?.();
         session.queueDrained = null;

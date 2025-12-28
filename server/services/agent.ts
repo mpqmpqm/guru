@@ -3,7 +3,8 @@ import {
   query,
 } from "@anthropic-ai/claude-agent-sdk";
 import { v4 as uuidv4 } from "uuid";
-import { createCueTool } from "../tools/cue.js";
+import { createSilenceTool } from "../tools/silence.js";
+import { createSpeakTool } from "../tools/speak.js";
 import { createTimeTool } from "../tools/time.js";
 import { logAgentError, logAgentResult } from "../utils/log.js";
 import { dbOps } from "./db.js";
@@ -11,7 +12,7 @@ import { sessionManager } from "./session-manager.js";
 
 const SYSTEM_PROMPT = `Load the cue skill now. It contains your orientation.
 
-You speak through \`mcp__guide__cue\`. Every response must include at least one cue.`;
+You guide through \`mcp__guide__speak\` and \`mcp__guide__silence\`. Every response must include at least one speak.`;
 
 interface ChatEvent {
   type:
@@ -49,7 +50,11 @@ export async function* streamChat(
   const guideServer = createSdkMcpServer({
     name: "guide",
     version: "1.0.0",
-    tools: [createCueTool(sessionId), createTimeTool(sessionId)],
+    tools: [
+      createSpeakTool(sessionId),
+      createSilenceTool(sessionId),
+      createTimeTool(sessionId),
+    ],
   });
 
   // Buffer for holding text events until after queue drains
@@ -77,7 +82,8 @@ export async function* streamChat(
         },
         allowedTools: [
           // "Bash",
-          "mcp__guide__cue",
+          "mcp__guide__speak",
+          "mcp__guide__silence",
           "mcp__guide__time",
           "Skill",
         ],
@@ -190,7 +196,7 @@ export async function* streamChat(
             message.session_id
           );
 
-          // Enforce at least one cue per query
+          // Enforce at least one speak per query
           if (
             sessionManager.getCueCallCount(sessionId) === 0 &&
             !isRetry
@@ -201,11 +207,11 @@ export async function* streamChat(
               sessionId,
               seqNum,
               "agent",
-              "No cue called, retrying"
+              "No speak called, retrying"
             );
             yield* streamChat(
               sessionId,
-              "You must speak aloud to guide the listener. Move the session forward by providing spoken cues.",
+              "You must speak aloud to guide the listener. Move the session forward by calling speak.",
               true
             );
             return;

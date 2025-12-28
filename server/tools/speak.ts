@@ -22,6 +22,9 @@ const OPENAI_TIMEOUT_MS = 10_000;
 // PCM audio: 24kHz, 16-bit mono
 const BYTES_PER_SECOND = 24000 * 2;
 
+// Fixed delay after audio for queue pacing
+const MIN_DELAY = 200;
+
 // Helper: fetch TTS and eagerly buffer the stream
 async function fetchAndBufferTTS(
   text: string,
@@ -71,51 +74,42 @@ async function fetchAndBufferTTS(
   }
 }
 
-export function createCueTool(sessionId: string) {
+export function createSpeakTool(sessionId: string) {
   return tool(
-    "cue",
-    "Speak text aloud, then wait.",
+    "speak",
+    "Speak text aloud.",
     {
-      text: z.string().describe("The text to speak aloud"),
+      content: z.string().describe("The text to speak aloud"),
       voice: z
         .string()
         .describe(
           "3-5 sentences controlling vocal delivery for this cue, including emotional range, intonation, speed, tone, and whispering."
         ),
-      waitMs: z
-        .number()
-        .int()
-        .min(100)
-        .describe(
-          "Milliseconds to wait after speaking completes (min 100ms)."
-        ),
     },
     async (args) => {
-      const waitMs = args.waitMs;
       const stackSize = sessionManager.getStackSize(sessionId);
 
-      // Persist cue to database
+      // Persist speak to database
       const seqNum =
         sessionManager.incrementEventSequence(sessionId);
-      const logPrefix = `[cue:${sessionId.slice(0, 8)}:${seqNum}]`;
+      const logPrefix = `[speak:${sessionId.slice(0, 8)}:${seqNum}]`;
 
-      const wordCount = args.text.split(/\s+/).length;
+      const wordCount = args.content.split(/\s+/).length;
 
-      logCueReceived(logPrefix, waitMs, wordCount);
-      logCueText(logPrefix, args.text);
-      dbOps.insertCue(
+      logCueReceived(logPrefix, MIN_DELAY, wordCount);
+      logCueText(logPrefix, args.content);
+      dbOps.insertSpeak(
         sessionId,
         seqNum,
-        args.text,
-        args.voice,
-        waitMs
+        args.content,
+        args.voice
       );
 
       // === AWAIT TTS TO GET DURATION ===
       // Block until we know the audio length for synthetic time
       const ttsStart = Date.now();
       const ttsResult = await fetchAndBufferTTS(
-        args.text,
+        args.content,
         args.voice
       );
       const ttsElapsedMs = Date.now() - ttsStart;
@@ -138,7 +132,7 @@ export function createCueTool(sessionId: string) {
       // Advance synthetic clock BEFORE returning
       sessionManager.advanceAgentSyntheticClock(
         sessionId,
-        speakingMs + waitMs
+        speakingMs + MIN_DELAY
       );
 
       // === BLOCK IF QUEUE IS FULL ===
@@ -153,24 +147,23 @@ export function createCueTool(sessionId: string) {
         sessionManager.getAudioQueueDepth(sessionId);
       sessionManager.queueAudio(sessionId, {
         ttsResult,
-        waitMs,
         sequenceNum: seqNum,
-        text: args.text,
+        text: args.content,
       });
       logCueQueued(
         logPrefix,
         queueDepthBefore,
-        waitMs,
+        MIN_DELAY,
         0,
         stackSize
       );
 
-      // Mark that a cue has been called
+      // Mark that a speak has been called
       sessionManager.markCueCalled(sessionId);
       sessionManager.incrementCueCallCount(sessionId);
 
       // === RETURN WITH ACTUAL DURATION ===
-      const ret = `Cue complete. Spoke for ${Math.round(speakingMs)}ms, waited ${waitMs}ms.`;
+      const ret = `Spoke for ${Math.round(speakingMs)}ms.`;
 
       return {
         content: [
