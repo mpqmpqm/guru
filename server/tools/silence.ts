@@ -35,6 +35,9 @@ export function createSilenceTool(sessionId: string) {
         args.durationMs
       );
 
+      // Track cumulative silence time for ratio
+      sessionManager.addSilenceTime(sessionId, args.durationMs);
+
       // === BLOCK IF QUEUE IS FULL ===
       await sessionManager.waitForQueueRoom(
         sessionId,
@@ -54,11 +57,13 @@ export function createSilenceTool(sessionId: string) {
           ? ` (${(sinceSpeakMs / 1000).toFixed(1)}s since last speak)`
           : "";
 
+      const ratio = sessionManager.getSpeakSilenceRatio(sessionId);
+
       return {
         content: [
           {
             type: "text" as const,
-            text: `Silence for ${args.durationMs}ms${sinceSpeakStr}. ${getTimeInfo(sessionId)}`,
+            text: `Silence for ${args.durationMs}ms${sinceSpeakStr}. ${ratio}. ${getTimeInfo(sessionId)}`,
           },
         ],
       };

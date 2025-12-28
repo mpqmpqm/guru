@@ -75,6 +75,9 @@ interface Session {
   agentSyntheticElapsedMs: number;
   // Synthetic clock time when last speak completed
   lastSpeakSyntheticMs?: number;
+  // Cumulative speaking and silence time for ratio tracking
+  totalSpeakingMs: number;
+  totalSilenceMs: number;
   // Signals that the producer (agent) is done queuing items
   producerDone: boolean;
   // Resolver for when queue has been fully drained
@@ -107,6 +110,8 @@ class SessionManager {
       pendingThinking: "",
       cueCallCount: 0,
       agentSyntheticElapsedMs: 0,
+      totalSpeakingMs: 0,
+      totalSilenceMs: 0,
       producerDone: false,
       drainResolver: null,
       audioItemCount: 0,
@@ -297,6 +302,36 @@ class SessionManager {
       session.agentSyntheticElapsedMs -
       session.lastSpeakSyntheticMs
     );
+  }
+
+  addSpeakingTime(sessionId: string, ms: number): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.totalSpeakingMs += ms;
+    }
+  }
+
+  addSilenceTime(sessionId: string, ms: number): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.totalSilenceMs += ms;
+    }
+  }
+
+  getSpeakSilenceRatio(sessionId: string): string {
+    const session = this.sessions.get(sessionId);
+    if (!session) return "0:0 speak:silence";
+
+    const { totalSpeakingMs, totalSilenceMs } = session;
+
+    if (totalSilenceMs === 0) {
+      return totalSpeakingMs === 0
+        ? "0:0 speak:silence"
+        : "∞:1 speak:silence";
+    }
+
+    const ratio = totalSpeakingMs / totalSilenceMs;
+    return `${ratio.toFixed(1)}:1 speak:silence this session`;
   }
 
   getAudioQueueDepth(sessionId: string): number {

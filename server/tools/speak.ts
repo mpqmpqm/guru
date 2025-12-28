@@ -137,6 +137,9 @@ export function createSpeakTool(sessionId: string) {
       // Mark when this speak completed (for silence tracking)
       sessionManager.markLastSpeak(sessionId);
 
+      // Track cumulative speaking time for ratio
+      sessionManager.addSpeakingTime(sessionId, speakingMs);
+
       // === BLOCK IF QUEUE IS FULL ===
       // Wait until an item is dequeued (playback completes)
       await sessionManager.waitForQueueRoom(
@@ -164,13 +167,9 @@ export function createSpeakTool(sessionId: string) {
       sessionManager.markCueCalled(sessionId);
       sessionManager.incrementCueCallCount(sessionId);
 
-      // === RETURN WITH ACTUAL DURATION + TIME ===
-      const longSpeakWarning =
-        speakingMs > 15_000
-          ? `\n\n${Math.round(speakingMs)}ms is a long time to speak uninterrupted. Next time prefer several chunked speak invocations.`
-          : "";
-
-      const ret = `Spoke for ${Math.round(speakingMs)}ms. ${getTimeInfo(sessionId)}${longSpeakWarning}`;
+      // === RETURN WITH ACTUAL DURATION + TIME + RATIO ===
+      const ratio = sessionManager.getSpeakSilenceRatio(sessionId);
+      const ret = `Spoke for ${Math.round(speakingMs)}ms. ${ratio}. ${getTimeInfo(sessionId)}`;
 
       return {
         content: [
