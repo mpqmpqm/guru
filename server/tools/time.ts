@@ -20,35 +20,37 @@ function formatWallClock(date: Date, timezone?: string): string {
   return date.toLocaleTimeString("en-US", options);
 }
 
+/**
+ * Get current session time info as a prose string.
+ * Can be appended to speak/silence returns.
+ */
+export function getTimeInfo(sessionId: string): string {
+  const timezone = sessionManager.getTimezone(sessionId);
+
+  // Use agent synthetic clock (sum of all speak/silence durations)
+  const elapsedMs =
+    sessionManager.getAgentSyntheticElapsed(sessionId);
+
+  // Wall clock: session start + synthetic elapsed
+  // Agent sees time at its position on the timeline
+  const sessionStartTime =
+    sessionManager.getSessionStartTime(sessionId) ?? Date.now();
+  const syntheticNow = new Date(sessionStartTime + elapsedMs);
+
+  const elapsed = formatDuration(elapsedMs / 1000);
+  const wallClock = formatWallClock(syntheticNow, timezone);
+
+  return `${elapsed} into the session. The time is ${wallClock}.`;
+}
+
 export function createTimeTool(sessionId: string) {
   return tool(
     "time",
     "Returns a natural language description of session timing: elapsed time and current wall clock time.",
     {},
     async () => {
-      const timezone = sessionManager.getTimezone(sessionId);
+      const prose = getTimeInfo(sessionId);
 
-      // Use agent synthetic clock (sum of all cue durations)
-      const elapsedMs =
-        sessionManager.getAgentSyntheticElapsed(sessionId);
-
-      // Wall clock: session start + synthetic elapsed
-      // Agent sees time at its position on the timeline
-      const sessionStartTime =
-        sessionManager.getSessionStartTime(sessionId) ??
-        Date.now();
-      const syntheticNow = new Date(
-        sessionStartTime + elapsedMs
-      );
-
-      const elapsed = formatDuration(elapsedMs / 1000);
-      const wallClock = formatWallClock(syntheticNow, timezone);
-
-      const prose = `${elapsed} into the session. The time is ${wallClock}.`;
-
-      console.log(
-        `[time] elapsedMs=${elapsedMs} sessionStart=${sessionStartTime} syntheticNow=${syntheticNow.toISOString()}`
-      );
       console.log(`[time] -> "${prose}"`);
 
       return {

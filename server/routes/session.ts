@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { sessionManager } from "../services/session-manager.js";
+import {
+  DEFAULT_STACK_SIZE,
+  MAX_STACK_SIZE,
+  sessionManager,
+} from "../services/session-manager.js";
 
 export const sessionRouter = Router();
-
-const DEFAULT_STACK_SIZE = 1;
-const MAX_STACK_SIZE = 6;
 
 function parseStackSize(value: unknown): number {
   const parsed =

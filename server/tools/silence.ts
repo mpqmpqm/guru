@@ -2,6 +2,7 @@ import { tool } from "@anthropic-ai/claude-agent-sdk";
 import { z } from "zod";
 import { dbOps } from "../services/db.js";
 import { sessionManager } from "../services/session-manager.js";
+import { getTimeInfo } from "./time.js";
 
 export function createSilenceTool(sessionId: string) {
   return tool(
@@ -51,7 +52,7 @@ export function createSilenceTool(sessionId: string) {
         content: [
           {
             type: "text" as const,
-            text: `Silence for ${args.durationMs}ms.`,
+            text: `Silence for ${args.durationMs}ms. ${getTimeInfo(sessionId)}`,
           },
         ],
       };

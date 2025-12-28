@@ -13,6 +13,7 @@ import {
   logCueTtsError,
   logCueTtsReady,
 } from "../utils/log.js";
+import { getTimeInfo } from "./time.js";
 
 const openai = new OpenAI();
 
@@ -162,8 +163,8 @@ export function createSpeakTool(sessionId: string) {
       sessionManager.markCueCalled(sessionId);
       sessionManager.incrementCueCallCount(sessionId);
 
-      // === RETURN WITH ACTUAL DURATION ===
-      const ret = `Spoke for ${Math.round(speakingMs)}ms.`;
+      // === RETURN WITH ACTUAL DURATION + TIME ===
+      const ret = `Spoke for ${Math.round(speakingMs)}ms. ${getTimeInfo(sessionId)}`;
 
       return {
         content: [

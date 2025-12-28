@@ -18,6 +18,10 @@ const BURST_BYTES = Math.floor(BURST_SECONDS * BYTES_PER_SECOND); // 24000
 // Fixed delay after audio for queue pacing
 const MIN_DELAY = 200;
 
+// Stack size constants
+export const DEFAULT_STACK_SIZE = 6;
+export const MAX_STACK_SIZE = 18;
+
 export interface TTSResult {
   chunks?: Uint8Array[];
   error?: string;
@@ -78,7 +82,10 @@ interface Session {
 class SessionManager {
   private sessions = new Map<string, Session>();
 
-  createSession(timezone?: string, stackSize = 1): string {
+  createSession(
+    timezone?: string,
+    stackSize = DEFAULT_STACK_SIZE
+  ): string {
     const id = uuidv4();
     this.sessions.set(id, {
       id,
@@ -105,7 +112,10 @@ class SessionManager {
   }
 
   getStackSize(sessionId: string): number {
-    return this.sessions.get(sessionId)?.stackSize ?? 1;
+    return (
+      this.sessions.get(sessionId)?.stackSize ??
+      DEFAULT_STACK_SIZE
+    );
   }
 
   setSSEResponse(sessionId: string, res: Response): void {
