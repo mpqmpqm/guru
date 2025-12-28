@@ -2,7 +2,7 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 import { logDbError } from "../utils/log.js";
-import { calculateTTSCost, type Usage } from "./pricing.js";
+import { calculateCost, calculateTTSCost, type Usage } from "./pricing.js";
 
 // Detect Fly.io environment vs local
 const DB_PATH = process.env.FLY_APP_NAME
@@ -473,6 +473,16 @@ export const dbOps = {
     export_started_at: string | null;
     export_error: string | null;
     export_progress: string | null;
+    // Cost tracking
+    input_tokens: number | null;
+    output_tokens: number | null;
+    cache_read_tokens: number | null;
+    cache_creation_tokens: number | null;
+    agent_cost_usd: number | null;
+    tts_input_tokens: number | null;
+    tts_cost_usd: number | null;
+    export_tts_input_tokens: number | null;
+    export_tts_cost_usd: number | null;
   } | null {
     return safeDbOperation(
       () => {
@@ -811,13 +821,15 @@ export const dbOps = {
     safeDbOperation(
       () => {
         const database = getDb();
+        const cost = calculateCost(usage);
         database
           .prepare(
             `UPDATE sessions SET
               input_tokens = input_tokens + ?,
               output_tokens = output_tokens + ?,
               cache_read_tokens = cache_read_tokens + ?,
-              cache_creation_tokens = cache_creation_tokens + ?
+              cache_creation_tokens = cache_creation_tokens + ?,
+              agent_cost_usd = COALESCE(agent_cost_usd, 0) + ?
             WHERE id = ?`
           )
           .run(
@@ -825,6 +837,7 @@ export const dbOps = {
             usage.output_tokens ?? 0,
             usage.cache_read_input_tokens ?? 0,
             usage.cache_creation_input_tokens ?? 0,
+            cost,
             sessionId
           );
       },

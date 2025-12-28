@@ -93,12 +93,46 @@
         font-size: 1.125rem;
         line-height: 1.5;
         margin-bottom: 1rem;
+        white-space: pre-wrap;
       }
 
       .session-meta {
         color: var(--text-secondary);
         font-size: 0.8125rem;
         margin-bottom: 1rem;
+      }
+
+      .session-costs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+        background: var(--bg-deep);
+        border-radius: 6px;
+        font-size: 0.8125rem;
+      }
+
+      .cost-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+      }
+
+      .cost-label {
+        color: var(--text-secondary);
+        font-size: 0.6875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .cost-value {
+        color: var(--text-primary);
+        font-family: monospace;
+      }
+
+      .cost-value.pending {
+        color: var(--accent-amber);
       }
 
       .session-actions {
@@ -479,6 +513,13 @@
             minute: "2-digit",
           });
 
+          // Format costs
+          const formatCost = (val) => val != null ? `$${val.toFixed(4)}` : '—';
+          const formatTokens = (val) => val != null ? val.toLocaleString() : '—';
+          // Cost is provisional (amber) unless session completed successfully
+          const agentCostClass = session.status === 'completed' ? '' : 'pending';
+          const totalCost = (session.agent_cost_usd || 0) + (session.tts_cost_usd || 0);
+
           infoContainer.innerHTML = `
             <div class="session-top-row">
               <span class="session-id">${session.id}</span>
@@ -486,6 +527,24 @@
             </div>
             <div class="session-prompt">${escapeHtml(session.initial_prompt || "(no prompt)")}</div>
             <div class="session-meta">${formatted}</div>
+            <div class="session-costs">
+              <div class="cost-item">
+                <span class="cost-label">Agent</span>
+                <span class="cost-value ${agentCostClass}">${formatCost(session.agent_cost_usd)}</span>
+              </div>
+              <div class="cost-item">
+                <span class="cost-label">TTS</span>
+                <span class="cost-value">${formatCost(session.tts_cost_usd)}</span>
+              </div>
+              <div class="cost-item">
+                <span class="cost-label">Total</span>
+                <span class="cost-value">${formatCost(totalCost)}</span>
+              </div>
+              <div class="cost-item">
+                <span class="cost-label">Tokens (in/out)</span>
+                <span class="cost-value">${formatTokens(session.input_tokens)} / ${formatTokens(session.output_tokens)}</span>
+              </div>
+            </div>
             <div class="session-actions">
               <button class="copy-btn" id="copy-btn" onclick="copyToClipboard()">Copy</button>
               <button class="export-btn" id="export-btn" onclick="startExport()">Export MP3</button>
