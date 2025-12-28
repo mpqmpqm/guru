@@ -3,7 +3,7 @@ import OpenAI from "openai";
 import { z } from "zod";
 import { dbOps } from "../services/db.js";
 import {
-  MIN_DELAY,
+  MIN_SPEAK_DELAY,
   sessionManager,
   type TTSResult,
 } from "../services/session-manager.js";
@@ -95,7 +95,7 @@ export function createSpeakTool(sessionId: string) {
 
       const wordCount = args.content.split(/\s+/).length;
 
-      logCueReceived(logPrefix, MIN_DELAY, wordCount);
+      logCueReceived(logPrefix, MIN_SPEAK_DELAY, wordCount);
       logCueText(logPrefix, args.content);
       dbOps.insertSpeak(
         sessionId,
@@ -131,7 +131,7 @@ export function createSpeakTool(sessionId: string) {
       // Advance synthetic clock BEFORE returning
       sessionManager.advanceAgentSyntheticClock(
         sessionId,
-        speakingMs + MIN_DELAY
+        speakingMs + MIN_SPEAK_DELAY
       );
 
       // Mark when this speak completed (for silence tracking)
@@ -155,7 +155,7 @@ export function createSpeakTool(sessionId: string) {
       logCueQueued(
         logPrefix,
         queueDepthBefore,
-        MIN_DELAY,
+        MIN_SPEAK_DELAY,
         0,
         stackSize
       );
@@ -165,10 +165,9 @@ export function createSpeakTool(sessionId: string) {
       sessionManager.incrementCueCallCount(sessionId);
 
       // === RETURN WITH ACTUAL DURATION + TIME ===
-      const speakingSec = speakingMs / 1000;
       const longSpeakWarning =
-        speakingSec > 10
-          ? `\n\n${speakingSec.toFixed(1)}s is a long time to speak uninterrupted. Prefer several speak() invocations with brief silence() between them.`
+        speakingMs > 15_000
+          ? `\n\n${Math.round(speakingMs)}ms is a long time to speak uninterrupted. Next time prefer several chunked speak invocations.`
           : "";
 
       const ret = `Spoke for ${Math.round(speakingMs)}ms. ${getTimeInfo(sessionId)}${longSpeakWarning}`;

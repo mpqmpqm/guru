@@ -16,7 +16,7 @@ const BURST_SECONDS = 0.5;
 const BURST_BYTES = Math.floor(BURST_SECONDS * BYTES_PER_SECOND); // 24000
 
 // Fixed delay after audio for queue pacing
-export const MIN_DELAY = 200;
+export const MIN_SPEAK_DELAY = 100; // ms
 
 // Stack size constants
 export const DEFAULT_STACK_SIZE = 1;
@@ -451,7 +451,7 @@ class SessionManager {
             // Log error, skip this item but estimate the skipped duration.
             const estSpeakingMs =
               (item.text.split(/\s+/).length / 2.5) * 1000;
-            const advanceMs = estSpeakingMs + MIN_DELAY;
+            const advanceMs = estSpeakingMs + MIN_SPEAK_DELAY;
             logAudioTtsSkip(logPrefix, result.error, advanceMs);
             // Signal queue room after error handling
             session.queueDrained?.();
@@ -470,7 +470,7 @@ class SessionManager {
             0, // TTS already resolved in speak tool
             audioBytes,
             expectedSpeakingMs,
-            MIN_DELAY,
+            MIN_SPEAK_DELAY,
             session.audioQueue.length
           );
 
@@ -524,9 +524,9 @@ class SessionManager {
             (totalBytes / BYTES_PER_SECOND) * 1000;
 
           // Apply fixed MIN_DELAY after audio
-          if (MIN_DELAY > 0) {
+          if (MIN_SPEAK_DELAY > 0) {
             await new Promise((resolve) =>
-              setTimeout(resolve, MIN_DELAY)
+              setTimeout(resolve, MIN_SPEAK_DELAY)
             );
           }
 
@@ -534,7 +534,7 @@ class SessionManager {
           logAudioPlayEnd(
             logPrefix,
             speakingMs,
-            MIN_DELAY,
+            MIN_SPEAK_DELAY,
             totalPlaybackMs
           );
 
