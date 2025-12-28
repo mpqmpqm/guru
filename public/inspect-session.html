@@ -432,16 +432,24 @@
 
       async function copyToClipboard() {
         const events = window.sessionEvents || [];
-        const cueTexts = events
-          .filter((e) => e.type === "cue")
-          .map((e) => e.text);
 
-        if (cueTexts.length === 0) {
+        if (events.length === 0) {
           return;
         }
 
-        const text = cueTexts.join("\n\n");
-        await navigator.clipboard.writeText(text);
+        const formatted = events
+          .map((e) => {
+            if (e.type === "thinking") {
+              return `[thinking]\n${e.content}`;
+            } else if (e.type === "silence") {
+              return `[silence ${(e.durationMs / 1000).toFixed(1)}s]`;
+            } else {
+              return e.text;
+            }
+          })
+          .join("\n\n");
+
+        await navigator.clipboard.writeText(formatted);
 
         const btn = document.getElementById("copy-btn");
         btn.textContent = "Copied";
