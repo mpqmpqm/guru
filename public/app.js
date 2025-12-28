@@ -38,8 +38,8 @@ const FRAME_HEADER_SIZE = 5;
 const FRAME_TYPE_DATA = 1;
 const FRAME_TYPE_FLUSH = 2;
 
-const STACK_SIZE_MIN = 6;
-const STACK_SIZE_MAX = 18;
+const STACK_SIZE_MIN = 1;
+const STACK_SIZE_MAX = 9;
 
 // State
 let sessionId = null;
@@ -520,7 +520,7 @@ function connectSSE() {
     }
   });
 
-  eventSource.addEventListener("cue", (event) => {
+  eventSource.addEventListener("speak", (event) => {
     const data = JSON.parse(event.data);
     stopStatus();
     showCue(data.text);

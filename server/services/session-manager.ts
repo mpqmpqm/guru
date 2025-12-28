@@ -19,8 +19,8 @@ const BURST_BYTES = Math.floor(BURST_SECONDS * BYTES_PER_SECOND); // 24000
 const MIN_DELAY = 200;
 
 // Stack size constants
-export const DEFAULT_STACK_SIZE = 6;
-export const MAX_STACK_SIZE = 18;
+export const DEFAULT_STACK_SIZE = 1;
+export const MAX_STACK_SIZE = 9;
 
 export interface TTSResult {
   chunks?: Uint8Array[];

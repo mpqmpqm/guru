@@ -24,7 +24,7 @@ const OPENAI_TIMEOUT_MS = 10_000;
 const BYTES_PER_SECOND = 24000 * 2;
 
 // Fixed delay after audio for queue pacing
-const MIN_DELAY = 200;
+const MIN_DELAY = 100;
 
 // Helper: fetch TTS and eagerly buffer the stream
 async function fetchAndBufferTTS(
@@ -169,7 +169,7 @@ export function createSpeakTool(sessionId: string) {
       // === RETURN WITH ACTUAL DURATION + TIME ===
       const speakingSec = speakingMs / 1000;
       const longSpeakWarning =
-        speakingSec > 5
+        speakingSec > 10
           ? `\n\n${speakingSec.toFixed(1)}s is a long time to speak uninterrupted. Prefer several speak() invocations with brief silence() between them.`
           : "";
 
