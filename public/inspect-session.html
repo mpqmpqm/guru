@@ -146,6 +146,29 @@
         padding: 1rem;
       }
 
+      .event-silence {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-left: 3px solid var(--text-secondary);
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .silence-label {
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-secondary);
+      }
+
+      .silence-duration {
+        font-family: monospace;
+        color: var(--text-secondary);
+      }
+
       .cue-header {
         display: flex;
         align-items: center;
@@ -311,6 +334,14 @@
                     </summary>
                     <pre>${escapeHtml(event.content)}</pre>
                   </details>
+                `;
+              } else if (event.type === "silence") {
+                return `
+                  <div class="event event-silence">
+                    <span class="seq-badge">${event.sequence_num}</span>
+                    <span class="silence-label">silence</span>
+                    <span class="silence-duration">${(event.durationMs / 1000).toFixed(1)}s</span>
+                  </div>
                 `;
               } else {
                 return `
