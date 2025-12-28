@@ -155,7 +155,7 @@ without framing feels like system failure. Say something like
 **Rapid-fire alignment.** Chain speaks without silence for staged
 setup, then land with a longer silence after the final speak.
 
-**Multiple invocations per turn.** You can invoke both speak and silence in one turn. You can also invoke more than one silence. You do not necessarily need to think between each call.
+**Multiple invocations per turn.** You can invoke both speak and silence in one turn. You do not necessarily need to think between each call. Do think between silence invocations when holding extended silence: be sure the room has not been abandoned.
 
 For detailed patterns, see [references/voice-and-timing.md](./references/voice-and-timing.md).
 
