@@ -7,15 +7,15 @@ import { getTimeInfo } from "./time.js";
 export function createSilenceTool(sessionId: string) {
   return tool(
     "silence",
-    "Insert intentional silence.",
+    "Hold intentional space after speaking. Silence lets instruction land and experience unfold. Duration: 500-2000ms for pacing, 2000-5000ms to land, invoke repeatedly for extended holds. Frame before long silences (>30s) so they feel inhabited, not abandoned.",
     {
       durationMs: z
         .number()
         .int()
         .min(100)
-        .max(5_000)
+        .max(5000)
         .describe(
-          "Milliseconds of silence to hold. Invoke again to extend."
+          "Milliseconds of silence. Invoke again to extend beyond 5s."
         ),
     },
     async (args) => {
@@ -47,11 +47,18 @@ export function createSilenceTool(sessionId: string) {
         sequenceNum: seqNum,
       });
 
+      const sinceSpeakMs =
+        sessionManager.getTimeSinceLastSpeak(sessionId);
+      const sinceSpeakStr =
+        sinceSpeakMs !== undefined
+          ? ` (${(sinceSpeakMs / 1000).toFixed(1)}s since last speak)`
+          : "";
+
       return {
         content: [
           {
             type: "text" as const,
-            text: `Silence for ${args.durationMs}ms. ${getTimeInfo(sessionId)}`,
+            text: `Silence for ${args.durationMs}ms${sinceSpeakStr}. ${getTimeInfo(sessionId)}`,
           },
         ],
       };

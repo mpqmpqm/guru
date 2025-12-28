@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Guru is a voice-guided yoga/meditation instruction system. It uses Claude (via the Agent SDK) to generate spoken guidance, with OpenAI TTS for audio synthesis. The agent speaks through a custom `cue` tool that converts text to audio and streams it to the client in real-time.
+Guru is a voice-guided yoga/meditation instruction system. It uses Claude (via the Agent SDK) to generate spoken guidance, with OpenAI TTS for audio synthesis. The agent guides through `speak` and `silence` tools that convert text to audio and stream it to the client in real-time.
 
 ## Commands
 
@@ -27,7 +27,8 @@ Express server with SSE for events and framed PCM streaming for audio.
 - `services/agent.ts` - Claude Agent SDK integration, `streamChat()` generator
 - `services/session-manager.ts` - In-memory session state, audio queue management
 - `services/db.ts` - SQLite persistence (better-sqlite3) for sessions, cues, thinking traces, errors
-- `tools/cue.ts` - The core tool: converts text to speech via OpenAI TTS, streams to client
+- `tools/speak.ts` - Delivers spoken guidance via OpenAI TTS
+- `tools/silence.ts` - Holds intentional space between speech
 - `tools/time.ts` - Session timing tool for pacing guidance
 
 ### Skills (`skills/`)
@@ -46,7 +47,7 @@ Vanilla JS frontend that connects via SSE for events and fetches PCM audio strea
 
 ## Key Patterns
 
-**Agent Communication**: The agent speaks only through `mcp__guide__cue`. Every response must include at least one cue. The system auto-retries if no cue is called.
+**Agent Communication**: The agent guides through `mcp__guide__speak` and `mcp__guide__silence`. Every response must include at least one speak. The system auto-retries if no speak is called.
 
 **Audio Flow**: OpenAI TTS → PCM chunks → session audio queue → framed stream at playback rate (24kHz, 16-bit mono). The queue throttles to real-time to sync `onComplete` with actual playback.
 
@@ -56,7 +57,7 @@ Vanilla JS frontend that connects via SSE for events and fetches PCM audio strea
 
 ## Database Schema
 
-SQLite with WAL mode. Tables: `sessions`, `cues`, `thinking_traces`, `errors`. All have `sequence_num` for ordering within a session.
+SQLite with WAL mode. Tables: `sessions`, `cues`, `silences`, `thinking_traces`, `errors`. All have `sequence_num` for ordering within a session.
 
 ## Code Style
 

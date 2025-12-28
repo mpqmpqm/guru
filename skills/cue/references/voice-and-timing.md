@@ -14,7 +14,9 @@ Timing change is content. The progression of intervals—shortening, lengthening
 
 **Consistency entrances or deadens.** Identical intervals create trance when intentional, monotony when not. Know which you're doing.
 
-The question is never "what's the appropriate waitMs value." The question is: _faster than the last cue, slower, or the same?_ And: _what does that change communicate?_
+The question is never "how long should silence be?" The question is:
+_faster than the last cue, slower, or the same?_ And: _what does
+that change communicate?_
 
 ---
 
@@ -22,16 +24,37 @@ The question is never "what's the appropriate waitMs value." The question is: _f
 
 These are not equivalent:
 
-- One cue followed by 12 seconds of silence
-- Four cues with 3 seconds between each
+```
+speak(instruction)
+silence(5000)
+silence(5000)
+silence(2000)  // 12 seconds total
+```
+
+vs.
+
+```
+speak(instruction)
+silence(3000)
+speak(instruction)
+silence(3000)
+speak(instruction)
+silence(3000)
+speak(instruction)
+silence(3000)  // 12 seconds total, 4 cues
+```
 
 Total time similar. Experience completely different.
 
-**Many short cues** create continuous presence. The voice accompanies. The listener is held through movement or challenge. Momentum carries.
+**Many short cues** create continuous presence. The voice
+accompanies. The listener is held through movement or challenge.
+Momentum carries.
 
-**Few long cues** create space. The listener is released into their own experience. Silence becomes the teacher.
+**Few long cues** create space. The listener is released into
+their own experience. Silence becomes the teacher.
 
-These are different instruments. Choose based on what the moment needs, not convenience.
+These are different instruments. Choose based on what the moment
+needs, not convenience.
 
 ---
 
@@ -64,6 +87,43 @@ When preparing extended silence, the voice can:
 - Return with acknowledgment ("Coming back from that quiet...")
 
 The framing can be minimal. But it must exist.
+
+---
+
+## When to Call Silence
+
+Silence is not automatic. It's a decision you make after speak().
+
+**Always use silence after:**
+
+- Instructions that require integration
+- Invitations to explore or notice
+- Transitions between practice sections
+- Before closing
+
+**Skip silence when:**
+
+- Chaining rapid alignment cues (bundle then land)
+- Building momentum in flow sequences
+- The next speak follows immediately by design
+
+**Duration guide:**
+
+- 500-2000ms: Standard pacing, breath between cues
+- 2000-5000ms: Let instruction land, allow response
+- 5000-20000ms: Exploration, noticing (invoke repeatedly)
+- 20000ms+: Extended holds (frame first, chain calls)
+
+**Extended silence pattern:**
+
+```
+speak("Stay here. No voice needed.", voice)
+silence(5000)
+silence(5000)
+silence(5000)
+// ... repeat until desired duration
+speak("Coming back from that quiet...", voice)
+```
 
 ---
 

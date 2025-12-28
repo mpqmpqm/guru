@@ -73,6 +73,8 @@ interface Session {
   cueCallCount: number;
   // Agent synthetic clock: sum of all cue durations (speaking + wait)
   agentSyntheticElapsedMs: number;
+  // Synthetic clock time when last speak completed
+  lastSpeakSyntheticMs?: number;
   // Signals that the producer (agent) is done queuing items
   producerDone: boolean;
   // Resolver for when queue has been fully drained
@@ -270,6 +272,25 @@ class SessionManager {
         `[synthetic] advance +${ms}ms: ${before} -> ${session.agentSyntheticElapsedMs}`
       );
     }
+  }
+
+  markLastSpeak(sessionId: string): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.lastSpeakSyntheticMs =
+        session.agentSyntheticElapsedMs;
+    }
+  }
+
+  getTimeSinceLastSpeak(sessionId: string): number | undefined {
+    const session = this.sessions.get(sessionId);
+    if (!session || session.lastSpeakSyntheticMs === undefined) {
+      return undefined;
+    }
+    return (
+      session.agentSyntheticElapsedMs -
+      session.lastSpeakSyntheticMs
+    );
   }
 
   getAudioQueueDepth(sessionId: string): number {

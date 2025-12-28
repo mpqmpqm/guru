@@ -78,7 +78,7 @@ async function fetchAndBufferTTS(
 export function createSpeakTool(sessionId: string) {
   return tool(
     "speak",
-    "Speak text aloud.",
+    "Deliver spoken guidance. Pair with silence() to create complete cues—speak provides words, silence holds space for integration.",
     {
       content: z.string().describe("The text to speak aloud"),
       voice: z
@@ -135,6 +135,9 @@ export function createSpeakTool(sessionId: string) {
         sessionId,
         speakingMs + MIN_DELAY
       );
+
+      // Mark when this speak completed (for silence tracking)
+      sessionManager.markLastSpeak(sessionId);
 
       // === BLOCK IF QUEUE IS FULL ===
       // Wait until an item is dequeued (playback completes)
