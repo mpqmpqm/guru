@@ -167,7 +167,13 @@ export function createSpeakTool(sessionId: string) {
       sessionManager.incrementCueCallCount(sessionId);
 
       // === RETURN WITH ACTUAL DURATION + TIME ===
-      const ret = `Spoke for ${Math.round(speakingMs)}ms. ${getTimeInfo(sessionId)}`;
+      const speakingSec = speakingMs / 1000;
+      const longSpeakWarning =
+        speakingSec > 5
+          ? `\n\n${speakingSec.toFixed(1)}s is a long time to speak uninterrupted. Prefer several speak() invocations with brief silence() between them.`
+          : "";
+
+      const ret = `Spoke for ${Math.round(speakingMs)}ms. ${getTimeInfo(sessionId)}${longSpeakWarning}`;
 
       return {
         content: [
