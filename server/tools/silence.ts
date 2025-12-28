@@ -13,8 +13,9 @@ export function createSilenceTool(sessionId: string) {
         .number()
         .int()
         .min(100)
+        .max(5_000)
         .describe(
-          "Milliseconds of silence to insert (min 100ms)."
+          "Milliseconds of silence to hold. Invoke again to extend."
         ),
     },
     async (args) => {
@@ -25,9 +26,7 @@ export function createSilenceTool(sessionId: string) {
         sessionManager.incrementEventSequence(sessionId);
       const logPrefix = `[silence:${sessionId.slice(0, 8)}:${seqNum}]`;
 
-      console.log(
-        `${logPrefix} ${args.durationMs}ms`
-      );
+      console.log(`${logPrefix} ${args.durationMs}ms`);
       dbOps.insertSilence(sessionId, seqNum, args.durationMs);
 
       // Advance synthetic clock
