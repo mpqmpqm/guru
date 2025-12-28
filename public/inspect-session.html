@@ -444,7 +444,7 @@
             } else if (e.type === "silence") {
               return `[silence ${(e.durationMs / 1000).toFixed(1)}s]`;
             } else {
-              return e.text;
+              return `[${e.voice}]\n${e.text}`;
             }
           })
           .join("\n\n");
