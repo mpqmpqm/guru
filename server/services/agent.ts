@@ -70,6 +70,9 @@ export async function* streamChat(
     sessionManager.resetCueCallCount(sessionId);
     sessionManager.resetProducerState(sessionId);
 
+    // Track processed message IDs for cost deduplication
+    const processedMessageIds = new Set<string>();
+
     // Query Claude with streaming
     for await (const message of query({
       prompt: userMessage,
@@ -107,6 +110,15 @@ export async function* streamChat(
       }
 
       if (message.type === "assistant") {
+        // Track costs (for aborted session handling)
+        if (!processedMessageIds.has(message.message.id)) {
+          processedMessageIds.add(message.message.id);
+          dbOps.accumulateAgentCosts(
+            sessionId,
+            message.message.usage
+          );
+        }
+
         // Extract text content from the assistant message
         const content = message.message.content;
         if (typeof content === "string") {
@@ -200,6 +212,11 @@ export async function* streamChat(
           sessionManager.setAgentSessionId(
             sessionId,
             message.session_id
+          );
+
+          dbOps.finalizeAgentCosts(
+            sessionId,
+            message.total_cost_usd
           );
 
           // Enforce at least one speak per query

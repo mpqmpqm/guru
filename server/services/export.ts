@@ -1,9 +1,13 @@
 import { spawn } from "child_process";
 import OpenAI from "openai";
+import { encoding_for_model } from "tiktoken";
 import { dbOps } from "./db.js";
 import { uploadExport } from "./s3.js";
 
 const openai = new OpenAI();
+
+// Reusable encoder for TTS token counting
+const ttsEncoder = encoding_for_model("gpt-4o-mini");
 
 const VOICE = "alloy";
 const SAMPLE_RATE = 24000;
@@ -33,7 +37,9 @@ async function generateTTS(
 }
 
 function generateSilence(durationMs: number): Buffer {
-  const bytes = Math.floor((durationMs / 1000) * BYTES_PER_SECOND);
+  const bytes = Math.floor(
+    (durationMs / 1000) * BYTES_PER_SECOND
+  );
   return Buffer.alloc(bytes, 0);
 }
 
@@ -77,7 +83,9 @@ async function pcmToMp3(pcm: Buffer): Promise<Buffer> {
   });
 }
 
-export async function processExport(sessionId: string): Promise<void> {
+export async function processExport(
+  sessionId: string
+): Promise<void> {
   try {
     dbOps.updateExportStatus(sessionId, "processing");
 
@@ -97,6 +105,12 @@ export async function processExport(sessionId: string): Promise<void> {
       if (event.type === "speak") {
         const pcm = await generateTTS(event.text, event.voice);
         pcmChunks.push(pcm);
+
+        // Track export TTS cost (text + voice instructions)
+        const inputTokens = ttsEncoder.encode(
+          event.text + event.voice
+        ).length;
+        dbOps.accumulateExportTTSCost(sessionId, inputTokens);
       } else if (event.type === "silence") {
         const silence = generateSilence(event.durationMs);
         pcmChunks.push(silence);

@@ -2,6 +2,7 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 import { logDbError } from "../utils/log.js";
+import { calculateTTSCost, type Usage } from "./pricing.js";
 
 // Detect Fly.io environment vs local
 const DB_PATH = process.env.FLY_APP_NAME
@@ -100,6 +101,7 @@ function initSchema(database: Database.Database): void {
   ensureCueWaitMsColumn(database);
   ensureResultColumns(database);
   ensureExportColumns(database);
+  ensureCostColumns(database);
 }
 
 function ensureCueWaitMsColumn(database: Database.Database): void {
@@ -185,6 +187,62 @@ function ensureExportColumns(database: Database.Database): void {
   }
   if (!colNames.has("export_progress")) {
     database.exec(`ALTER TABLE sessions ADD COLUMN export_progress TEXT`);
+  }
+}
+
+function ensureCostColumns(database: Database.Database): void {
+  const columns = database
+    .prepare(`PRAGMA table_info(sessions)`)
+    .all() as Array<{ name: string }>;
+  const colNames = new Set(columns.map((c) => c.name));
+
+  // Agent SDK costs
+  if (!colNames.has("input_tokens")) {
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN input_tokens INTEGER DEFAULT 0`
+    );
+  }
+  if (!colNames.has("output_tokens")) {
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN output_tokens INTEGER DEFAULT 0`
+    );
+  }
+  if (!colNames.has("cache_read_tokens")) {
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN cache_read_tokens INTEGER DEFAULT 0`
+    );
+  }
+  if (!colNames.has("cache_creation_tokens")) {
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN cache_creation_tokens INTEGER DEFAULT 0`
+    );
+  }
+  if (!colNames.has("agent_cost_usd")) {
+    database.exec(`ALTER TABLE sessions ADD COLUMN agent_cost_usd REAL`);
+  }
+
+  // TTS costs
+  if (!colNames.has("tts_input_tokens")) {
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN tts_input_tokens INTEGER DEFAULT 0`
+    );
+  }
+  if (!colNames.has("tts_cost_usd")) {
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN tts_cost_usd REAL DEFAULT 0`
+    );
+  }
+
+  // Export TTS costs (separate from live session TTS)
+  if (!colNames.has("export_tts_input_tokens")) {
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN export_tts_input_tokens INTEGER DEFAULT 0`
+    );
+  }
+  if (!colNames.has("export_tts_cost_usd")) {
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN export_tts_cost_usd REAL DEFAULT 0`
+    );
   }
 }
 
@@ -746,6 +804,83 @@ export const dbOps = {
       },
       "getSessionEvents",
       []
+    );
+  },
+
+  accumulateAgentCosts(sessionId: string, usage: Usage): void {
+    safeDbOperation(
+      () => {
+        const database = getDb();
+        database
+          .prepare(
+            `UPDATE sessions SET
+              input_tokens = input_tokens + ?,
+              output_tokens = output_tokens + ?,
+              cache_read_tokens = cache_read_tokens + ?,
+              cache_creation_tokens = cache_creation_tokens + ?
+            WHERE id = ?`
+          )
+          .run(
+            usage.input_tokens ?? 0,
+            usage.output_tokens ?? 0,
+            usage.cache_read_input_tokens ?? 0,
+            usage.cache_creation_input_tokens ?? 0,
+            sessionId
+          );
+      },
+      "accumulateAgentCosts",
+      undefined
+    );
+  },
+
+  finalizeAgentCosts(sessionId: string, totalCostUsd: number): void {
+    safeDbOperation(
+      () => {
+        const database = getDb();
+        database
+          .prepare(`UPDATE sessions SET agent_cost_usd = ? WHERE id = ?`)
+          .run(totalCostUsd, sessionId);
+      },
+      "finalizeAgentCosts",
+      undefined
+    );
+  },
+
+  accumulateTTSCost(sessionId: string, inputTokens: number): void {
+    safeDbOperation(
+      () => {
+        const database = getDb();
+        const cost = calculateTTSCost(inputTokens);
+        database
+          .prepare(
+            `UPDATE sessions SET
+              tts_input_tokens = tts_input_tokens + ?,
+              tts_cost_usd = tts_cost_usd + ?
+            WHERE id = ?`
+          )
+          .run(inputTokens, cost, sessionId);
+      },
+      "accumulateTTSCost",
+      undefined
+    );
+  },
+
+  accumulateExportTTSCost(sessionId: string, inputTokens: number): void {
+    safeDbOperation(
+      () => {
+        const database = getDb();
+        const cost = calculateTTSCost(inputTokens);
+        database
+          .prepare(
+            `UPDATE sessions SET
+              export_tts_input_tokens = export_tts_input_tokens + ?,
+              export_tts_cost_usd = export_tts_cost_usd + ?
+            WHERE id = ?`
+          )
+          .run(inputTokens, cost, sessionId);
+      },
+      "accumulateExportTTSCost",
+      undefined
     );
   },
 };

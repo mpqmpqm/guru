@@ -1,5 +1,6 @@
 import { tool } from "@anthropic-ai/claude-agent-sdk";
 import OpenAI from "openai";
+import { encoding_for_model } from "tiktoken";
 import { z } from "zod";
 import { dbOps } from "../services/db.js";
 import {
@@ -15,6 +16,9 @@ import {
   logCueTtsReady,
 } from "../utils/log.js";
 import { getTimeComponents, getTimeInfo } from "./time.js";
+
+// Reusable encoder for TTS token counting
+const ttsEncoder = encoding_for_model("gpt-4o");
 
 const openai = new OpenAI();
 
@@ -120,6 +124,12 @@ export function createSpeakTool(sessionId: string) {
         );
         logCueTtsReady(logPrefix, ttsElapsedMs, bytes);
         speakingMs = (bytes / BYTES_PER_SECOND) * 1000;
+
+        // Track TTS cost (text + voice instructions)
+        const inputTokens = ttsEncoder.encode(
+          args.content + args.voice
+        ).length;
+        dbOps.accumulateTTSCost(sessionId, inputTokens);
       }
 
       // Advance synthetic clock BEFORE returning

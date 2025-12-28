@@ -20,13 +20,15 @@
     "typescript": "~5.9.3"
   },
   "dependencies": {
-    "@anthropic-ai/claude-agent-sdk": "^0.1.62",
+    "@anthropic-ai/claude-agent-sdk": "^0.1.76",
+    "@anthropic-ai/sdk": "^0.71.2",
     "@aws-sdk/client-s3": "^3.958.0",
     "@modelcontextprotocol/sdk": "^1.24.3",
     "better-sqlite3": "^12.5.0",
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
     "openai": "^6.10.0",
+    "tiktoken": "^1.0.22",
     "uuid": "^11.1.0",
     "zod": "^3.24.4"
   }
