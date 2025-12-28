@@ -51,6 +51,10 @@ See [references/cueing-examples.md](references/cueing-examples.md) for specific 
 
 ## Timing protocol
 
+Use the stopwatch tool to track hold duration. Start when entering
+the pose; check before exiting to verify you've held as long as
+intended.
+
 Hold durations serve connective tissue science:
 
 | Duration | Application |

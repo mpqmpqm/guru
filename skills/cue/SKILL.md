@@ -74,6 +74,37 @@ Returns how long the session has been running and the current
 wall clock time. Invoke at the start of every session. Use to
 pace toward duration targets.
 
+### Stopwatch: `mcp__guide__stopwatch`
+
+Track elapsed time during holds. Start when entering a shape or
+phase; check before exiting to verify duration.
+
+**Parameters:**
+
+- `id`: Human-readable name (e.g., "dragon left", "access phase")
+- `intent`: `start` or `check`
+
+Starting a new stopwatch overwrites any previous one. The `id` is
+for your own reasoning—only one stopwatch runs at a time.
+
+**When to use:** Hold-oriented practices (yin, meditation, pranayama)
+where duration matters. Less useful for flow-based guidance where
+movement provides natural pacing.
+
+**Pattern:** Start when entering a hold. Check before exiting—have
+you held as long as intended or explicitly forecasted?
+
+```
+speak("Settling into dragon on the left side...")
+stopwatch(id: "dragon left", intent: "start")
+silence(5000)
+silence(5000)
+// ... continue holding
+silence(5000)
+stopwatch(id: "dragon left", intent: "check")  // verify before exit
+speak("Beginning to come out of the shape...")
+```
+
 ### Composing Cues
 
 Two modes. Use both.

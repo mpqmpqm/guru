@@ -86,6 +86,8 @@ interface Session {
   audioItemCount: number;
   // Whether pre-roll buffering is complete (first audio waited for buffer)
   prerollComplete: boolean;
+  // Stopwatch: synthetic clock time when started
+  stopwatchStartMs?: number;
 }
 
 class SessionManager {
@@ -332,6 +334,23 @@ class SessionManager {
 
     const ratio = totalSpeakingMs / totalSilenceMs;
     return `${ratio.toFixed(1)}:1 speak:silence this session`;
+  }
+
+  startStopwatch(sessionId: string): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.stopwatchStartMs = session.agentSyntheticElapsedMs;
+    }
+  }
+
+  checkStopwatch(sessionId: string): number | null {
+    const session = this.sessions.get(sessionId);
+    if (!session || session.stopwatchStartMs === undefined) {
+      return null;
+    }
+    return (
+      session.agentSyntheticElapsedMs - session.stopwatchStartMs
+    );
   }
 
   getAudioQueueDepth(sessionId: string): number {

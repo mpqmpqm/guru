@@ -14,7 +14,7 @@ import {
   logCueTtsError,
   logCueTtsReady,
 } from "../utils/log.js";
-import { getTimeInfo } from "./time.js";
+import { getTimeComponents, getTimeInfo } from "./time.js";
 
 const openai = new OpenAI();
 
@@ -97,12 +97,6 @@ export function createSpeakTool(sessionId: string) {
 
       logCueReceived(logPrefix, MIN_SPEAK_DELAY, wordCount);
       logCueText(logPrefix, args.content);
-      dbOps.insertSpeak(
-        sessionId,
-        seqNum,
-        args.content,
-        args.voice
-      );
 
       // === AWAIT TTS TO GET DURATION ===
       // Block until we know the audio length for synthetic time
@@ -169,7 +163,21 @@ export function createSpeakTool(sessionId: string) {
 
       // === RETURN WITH ACTUAL DURATION + TIME + RATIO ===
       const ratio = sessionManager.getSpeakSilenceRatio(sessionId);
+      const { elapsedMs, wallClock } = getTimeComponents(sessionId);
       const ret = `Spoke for ${Math.round(speakingMs)}ms. ${ratio}. ${getTimeInfo(sessionId)}`;
+
+      // Persist speak to database (after we have all data)
+      dbOps.insertSpeak(
+        sessionId,
+        seqNum,
+        args.content,
+        args.voice,
+        Math.round(speakingMs),
+        ratio,
+        elapsedMs,
+        wallClock,
+        queueDepthBefore + 1
+      );
 
       return {
         content: [

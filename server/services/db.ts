@@ -76,12 +76,29 @@ function initSchema(database: Database.Database): void {
       FOREIGN KEY (session_id) REFERENCES sessions(id)
     );
 
+    CREATE TABLE IF NOT EXISTS tool_calls (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      session_id TEXT NOT NULL,
+      sequence_num INTEGER NOT NULL,
+      tool_name TEXT NOT NULL,
+      intent TEXT,
+      stopwatch_id TEXT,
+      stopwatch_elapsed_ms INTEGER,
+      elapsed_ms INTEGER NOT NULL,
+      wall_clock TEXT NOT NULL,
+      result TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (session_id) REFERENCES sessions(id)
+    );
+
     CREATE INDEX IF NOT EXISTS idx_cues_session ON cues(session_id, sequence_num);
     CREATE INDEX IF NOT EXISTS idx_thinking_session ON thinking_traces(session_id, sequence_num);
     CREATE INDEX IF NOT EXISTS idx_errors_session ON errors(session_id, sequence_num);
     CREATE INDEX IF NOT EXISTS idx_silences_session ON silences(session_id, sequence_num);
+    CREATE INDEX IF NOT EXISTS idx_tool_calls_session ON tool_calls(session_id, sequence_num);
   `);
   ensureCueWaitMsColumn(database);
+  ensureResultColumns(database);
 }
 
 function ensureCueWaitMsColumn(database: Database.Database): void {
@@ -91,6 +108,57 @@ function ensureCueWaitMsColumn(database: Database.Database): void {
   const hasWaitMs = columns.some((column) => column.name === "wait_ms");
   if (!hasWaitMs) {
     database.exec(`ALTER TABLE cues ADD COLUMN wait_ms INTEGER`);
+  }
+}
+
+function ensureResultColumns(database: Database.Database): void {
+  const cueColumns = database
+    .prepare(`PRAGMA table_info(cues)`)
+    .all() as Array<{ name: string }>;
+  const cueColNames = new Set(cueColumns.map((c) => c.name));
+  if (!cueColNames.has("speaking_ms")) {
+    database.exec(`ALTER TABLE cues ADD COLUMN speaking_ms INTEGER`);
+  }
+  if (!cueColNames.has("ratio")) {
+    database.exec(`ALTER TABLE cues ADD COLUMN ratio TEXT`);
+  }
+  if (!cueColNames.has("elapsed_ms")) {
+    database.exec(`ALTER TABLE cues ADD COLUMN elapsed_ms INTEGER`);
+  }
+  if (!cueColNames.has("wall_clock")) {
+    database.exec(`ALTER TABLE cues ADD COLUMN wall_clock TEXT`);
+  }
+  if (!cueColNames.has("queue_depth")) {
+    database.exec(`ALTER TABLE cues ADD COLUMN queue_depth INTEGER`);
+  }
+
+  // Add queue_depth to thinking_traces
+  const thinkingColumns = database
+    .prepare(`PRAGMA table_info(thinking_traces)`)
+    .all() as Array<{ name: string }>;
+  if (!thinkingColumns.some((c) => c.name === "queue_depth")) {
+    database.exec(
+      `ALTER TABLE thinking_traces ADD COLUMN queue_depth INTEGER`
+    );
+  }
+
+  const silenceColumns = database
+    .prepare(`PRAGMA table_info(silences)`)
+    .all() as Array<{ name: string }>;
+  const silColNames = new Set(silenceColumns.map((c) => c.name));
+  if (!silColNames.has("since_speak_ms")) {
+    database.exec(
+      `ALTER TABLE silences ADD COLUMN since_speak_ms INTEGER`
+    );
+  }
+  if (!silColNames.has("ratio")) {
+    database.exec(`ALTER TABLE silences ADD COLUMN ratio TEXT`);
+  }
+  if (!silColNames.has("elapsed_ms")) {
+    database.exec(`ALTER TABLE silences ADD COLUMN elapsed_ms INTEGER`);
+  }
+  if (!silColNames.has("wall_clock")) {
+    database.exec(`ALTER TABLE silences ADD COLUMN wall_clock TEXT`);
   }
 }
 
@@ -129,16 +197,24 @@ export const dbOps = {
     id: string,
     sessionId: string,
     seqNum: number,
-    content: string
+    content: string,
+    queueDepth: number
   ): void {
     safeDbOperation(
       () => {
         const database = getDb();
         database
           .prepare(
-            `INSERT INTO thinking_traces (id, session_id, sequence_num, content, created_at) VALUES (?, ?, ?, ?, ?)`
+            `INSERT INTO thinking_traces (id, session_id, sequence_num, content, queue_depth, created_at) VALUES (?, ?, ?, ?, ?, ?)`
           )
-          .run(id, sessionId, seqNum, content, new Date().toISOString());
+          .run(
+            id,
+            sessionId,
+            seqNum,
+            content,
+            queueDepth,
+            new Date().toISOString()
+          );
       },
       "insertThinkingTrace",
       undefined
@@ -149,20 +225,30 @@ export const dbOps = {
     sessionId: string,
     seqNum: number,
     content: string,
-    voice: string
+    voice: string,
+    speakingMs: number,
+    ratio: string,
+    elapsedMs: number,
+    wallClock: string,
+    queueDepth: number
   ): void {
     safeDbOperation(
       () => {
         const database = getDb();
         database
           .prepare(
-            `INSERT INTO cues (session_id, sequence_num, text, voice, created_at) VALUES (?, ?, ?, ?, ?)`
+            `INSERT INTO cues (session_id, sequence_num, text, voice, speaking_ms, ratio, elapsed_ms, wall_clock, queue_depth, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
           )
           .run(
             sessionId,
             seqNum,
             content,
             voice,
+            speakingMs,
+            ratio,
+            elapsedMs,
+            wallClock,
+            queueDepth,
             new Date().toISOString()
           );
       },
@@ -174,18 +260,67 @@ export const dbOps = {
   insertSilence(
     sessionId: string,
     seqNum: number,
-    durationMs: number
+    durationMs: number,
+    sinceSpeakMs: number | null,
+    ratio: string,
+    elapsedMs: number,
+    wallClock: string
   ): void {
     safeDbOperation(
       () => {
         const database = getDb();
         database
           .prepare(
-            `INSERT INTO silences (session_id, sequence_num, duration_ms, created_at) VALUES (?, ?, ?, ?)`
+            `INSERT INTO silences (session_id, sequence_num, duration_ms, since_speak_ms, ratio, elapsed_ms, wall_clock, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
           )
-          .run(sessionId, seqNum, durationMs, new Date().toISOString());
+          .run(
+            sessionId,
+            seqNum,
+            durationMs,
+            sinceSpeakMs,
+            ratio,
+            elapsedMs,
+            wallClock,
+            new Date().toISOString()
+          );
       },
       "insertSilence",
+      undefined
+    );
+  },
+
+  insertToolCall(
+    sessionId: string,
+    seqNum: number,
+    toolName: string,
+    intent: string | null,
+    stopwatchId: string | null,
+    stopwatchElapsedMs: number | null,
+    elapsedMs: number,
+    wallClock: string,
+    result: string
+  ): void {
+    safeDbOperation(
+      () => {
+        const database = getDb();
+        database
+          .prepare(
+            `INSERT INTO tool_calls (session_id, sequence_num, tool_name, intent, stopwatch_id, stopwatch_elapsed_ms, elapsed_ms, wall_clock, result, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          )
+          .run(
+            sessionId,
+            seqNum,
+            toolName,
+            intent,
+            stopwatchId,
+            stopwatchElapsedMs,
+            elapsedMs,
+            wallClock,
+            result,
+            new Date().toISOString()
+          );
+      },
+      "insertToolCall",
       undefined
     );
   },
@@ -373,6 +508,9 @@ export const dbOps = {
         database
           .prepare(`DELETE FROM silences WHERE session_id = ?`)
           .run(sessionId);
+        database
+          .prepare(`DELETE FROM tool_calls WHERE session_id = ?`)
+          .run(sessionId);
         const result = database
           .prepare(`DELETE FROM sessions WHERE id = ?`)
           .run(sessionId);
@@ -386,16 +524,52 @@ export const dbOps = {
   getSessionEvents(
     sessionId: string
   ): Array<
-    | { type: "thinking"; sequence_num: number; content: string; created_at: string }
+    | {
+        type: "thinking";
+        sequence_num: number;
+        content: string;
+        queueDepth: number | null;
+        created_at: string;
+      }
     | {
         type: "speak";
         sequence_num: number;
         text: string;
         voice: string;
+        speakingMs: number | null;
+        ratio: string | null;
+        elapsedMs: number | null;
+        wallClock: string | null;
+        queueDepth: number | null;
         created_at: string;
       }
-    | { type: "silence"; sequence_num: number; durationMs: number; created_at: string }
-    | { type: "error"; sequence_num: number; source: string; message: string; created_at: string }
+    | {
+        type: "silence";
+        sequence_num: number;
+        durationMs: number;
+        sinceSpeakMs: number | null;
+        ratio: string | null;
+        elapsedMs: number | null;
+        wallClock: string | null;
+        created_at: string;
+      }
+    | {
+        type: "error";
+        sequence_num: number;
+        source: string;
+        message: string;
+        created_at: string;
+      }
+    | {
+        type: "tool_call";
+        sequence_num: number;
+        toolName: string;
+        intent: string | null;
+        stopwatchId: string | null;
+        stopwatchElapsedMs: number | null;
+        result: string;
+        created_at: string;
+      }
   > {
     return safeDbOperation(
       () => {
@@ -403,28 +577,48 @@ export const dbOps = {
         // Query all tables and union them, ordered by sequence_num
         const results = database
           .prepare(
-            `SELECT 'thinking' as type, sequence_num, content, NULL as text, NULL as voice, NULL as duration_ms, NULL as source, NULL as message, created_at
+            `SELECT 'thinking' as type, sequence_num, content, queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, NULL as ratio, NULL as elapsed_ms, NULL as wall_clock, NULL as duration_ms, NULL as since_speak_ms, NULL as source, NULL as message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, created_at
              FROM thinking_traces WHERE session_id = ?
              UNION ALL
-             SELECT 'speak' as type, sequence_num, NULL as content, text, voice, NULL as duration_ms, NULL as source, NULL as message, created_at
+             SELECT 'speak' as type, sequence_num, NULL as content, queue_depth, text, voice, speaking_ms, ratio, elapsed_ms, wall_clock, NULL as duration_ms, NULL as since_speak_ms, NULL as source, NULL as message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, created_at
              FROM cues WHERE session_id = ?
              UNION ALL
-             SELECT 'silence' as type, sequence_num, NULL as content, NULL as text, NULL as voice, duration_ms, NULL as source, NULL as message, created_at
+             SELECT 'silence' as type, sequence_num, NULL as content, NULL as queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, ratio, elapsed_ms, wall_clock, duration_ms, since_speak_ms, NULL as source, NULL as message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, created_at
              FROM silences WHERE session_id = ?
              UNION ALL
-             SELECT 'error' as type, sequence_num, NULL as content, NULL as text, NULL as voice, NULL as duration_ms, source, message, created_at
+             SELECT 'error' as type, sequence_num, NULL as content, NULL as queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, NULL as ratio, NULL as elapsed_ms, NULL as wall_clock, NULL as duration_ms, NULL as since_speak_ms, source, message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, created_at
              FROM errors WHERE session_id = ?
+             UNION ALL
+             SELECT 'tool_call' as type, sequence_num, NULL as content, NULL as queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, NULL as ratio, NULL as elapsed_ms, NULL as wall_clock, NULL as duration_ms, NULL as since_speak_ms, NULL as source, NULL as message, tool_name, intent, stopwatch_id, stopwatch_elapsed_ms, result, created_at
+             FROM tool_calls WHERE session_id = ?
              ORDER BY sequence_num`
           )
-          .all(sessionId, sessionId, sessionId, sessionId) as Array<{
+          .all(
+            sessionId,
+            sessionId,
+            sessionId,
+            sessionId,
+            sessionId
+          ) as Array<{
             type: string;
             sequence_num: number;
             content: string | null;
+            queue_depth: number | null;
             text: string | null;
             voice: string | null;
+            speaking_ms: number | null;
+            ratio: string | null;
+            elapsed_ms: number | null;
+            wall_clock: string | null;
             duration_ms: number | null;
+            since_speak_ms: number | null;
             source: string | null;
             message: string | null;
+            tool_name: string | null;
+            intent: string | null;
+            stopwatch_id: string | null;
+            stopwatch_elapsed_ms: number | null;
+            result: string | null;
             created_at: string;
           }>;
 
@@ -434,6 +628,7 @@ export const dbOps = {
               type: "thinking" as const,
               sequence_num: row.sequence_num,
               content: row.content!,
+              queueDepth: row.queue_depth,
               created_at: row.created_at,
             };
           } else if (row.type === "error") {
@@ -449,6 +644,21 @@ export const dbOps = {
               type: "silence" as const,
               sequence_num: row.sequence_num,
               durationMs: row.duration_ms!,
+              sinceSpeakMs: row.since_speak_ms,
+              ratio: row.ratio,
+              elapsedMs: row.elapsed_ms,
+              wallClock: row.wall_clock,
+              created_at: row.created_at,
+            };
+          } else if (row.type === "tool_call") {
+            return {
+              type: "tool_call" as const,
+              sequence_num: row.sequence_num,
+              toolName: row.tool_name!,
+              intent: row.intent,
+              stopwatchId: row.stopwatch_id,
+              stopwatchElapsedMs: row.stopwatch_elapsed_ms,
+              result: row.result!,
               created_at: row.created_at,
             };
           } else {
@@ -457,6 +667,11 @@ export const dbOps = {
               sequence_num: row.sequence_num,
               text: row.text!,
               voice: row.voice!,
+              speakingMs: row.speaking_ms,
+              ratio: row.ratio,
+              elapsedMs: row.elapsed_ms,
+              wallClock: row.wall_clock,
+              queueDepth: row.queue_depth,
               created_at: row.created_at,
             };
           }

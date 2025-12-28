@@ -230,4 +230,7 @@ Design sessions to accommodate variance without diagnosis. See [references/resil
 
 ## Session Structures
 
+Use the stopwatch tool to track phase duration. Start at phase entry;
+check before transitioning to verify duration.
+
 See [references/session-structure.md](references/session-structure.md) for phase timing, duration options, and structural templates.

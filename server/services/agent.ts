@@ -5,6 +5,7 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { createSilenceTool } from "../tools/silence.js";
 import { createSpeakTool } from "../tools/speak.js";
+import { createStopwatchTool } from "../tools/stopwatch.js";
 import { createTimeTool } from "../tools/time.js";
 import { logAgentError, logAgentResult } from "../utils/log.js";
 import { dbOps } from "./db.js";
@@ -54,6 +55,7 @@ export async function* streamChat(
       createSpeakTool(sessionId),
       createSilenceTool(sessionId),
       createTimeTool(sessionId),
+      createStopwatchTool(sessionId),
     ],
   });
 
@@ -85,6 +87,7 @@ export async function* streamChat(
           "mcp__guide__speak",
           "mcp__guide__silence",
           "mcp__guide__time",
+          "mcp__guide__stopwatch",
           "Skill",
         ],
         disallowedTools: ["TodoWrite"],
@@ -177,11 +180,14 @@ export async function* streamChat(
           const content =
             sessionManager.consumePendingThinking(sessionId);
           if (content) {
+            const queueDepth =
+              sessionManager.getAudioQueueDepth(sessionId);
             dbOps.insertThinkingTrace(
               uuidv4(),
               sessionId,
               seqNum,
-              content
+              content,
+              queueDepth
             );
           }
           thinkingBlockIndex = null;
