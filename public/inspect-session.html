@@ -44,38 +44,33 @@
         background: var(--bg-surface);
         border: 1px solid var(--border-subtle);
         border-radius: 8px;
-        padding: 1rem;
+        padding: 1.25rem;
         margin-bottom: 1.5rem;
+      }
+
+      .session-top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-subtle);
       }
 
       .session-id {
         font-family: monospace;
-        font-size: 0.75rem;
+        font-size: 0.6875rem;
         color: var(--text-secondary);
-        margin-bottom: 0.5rem;
-      }
-
-      .session-prompt {
-        color: var(--text-primary);
-        font-size: 1rem;
-        line-height: 1.5;
-        margin-bottom: 0.75rem;
-      }
-
-      .session-meta {
-        color: var(--text-secondary);
-        font-size: 0.8125rem;
-        display: flex;
-        gap: 0.75rem;
-        align-items: center;
+        opacity: 0.7;
       }
 
       .session-status {
-        padding: 0.125rem 0.5rem;
+        padding: 0.25rem 0.625rem;
         border-radius: 4px;
-        font-size: 0.75rem;
+        font-size: 0.6875rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
+        font-weight: 500;
       }
 
       .session-status.completed {
@@ -91,6 +86,31 @@
       .session-status.closed {
         background: rgba(199, 95, 95, 0.2);
         color: var(--accent-error);
+      }
+
+      .session-prompt {
+        color: var(--text-primary);
+        font-size: 1.125rem;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+      }
+
+      .session-meta {
+        color: var(--text-secondary);
+        font-size: 0.8125rem;
+        margin-bottom: 1rem;
+      }
+
+      .session-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .export-section {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-subtle);
       }
 
       .timeline {
@@ -302,16 +322,61 @@
         color: var(--accent-success);
       }
 
-      .header-buttons {
-        display: flex;
-        gap: 0.5rem;
+      .export-btn {
+        background: transparent;
+        border: 1px solid var(--text-secondary);
+        color: var(--text-secondary);
+        padding: 0.375rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.8125rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
       }
 
-      .session-header-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 1rem;
+      .export-btn:hover:not(:disabled) {
+        border-color: var(--accent-amber);
+        color: var(--accent-amber);
+      }
+
+      .export-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .export-btn.exporting {
+        border-color: var(--accent-amber);
+        color: var(--accent-amber);
+      }
+
+      .export-btn.complete {
+        border-color: var(--accent-error);
+        color: var(--accent-error);
+      }
+
+      .export-btn.error {
+        border-color: var(--accent-error);
+        color: var(--accent-error);
+      }
+
+      .export-status {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+      }
+
+      .export-status:not(:empty) {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-subtle);
+      }
+
+      .export-link {
+        color: var(--accent-success);
+        text-decoration: none;
+        font-size: 0.8125rem;
+      }
+
+      .export-link:hover {
+        text-decoration: underline;
       }
 
       .seq-badge {
@@ -415,21 +480,22 @@
           });
 
           infoContainer.innerHTML = `
-            <div class="session-header-row">
-              <div>
-                <div class="session-id">${session.id}</div>
-                <div class="session-prompt">${escapeHtml(session.initial_prompt || "(no prompt)")}</div>
-                <div class="session-meta">
-                  <span>${formatted}</span>
-                  <span class="session-status ${session.status}">${session.status}</span>
-                </div>
-              </div>
-              <div class="header-buttons">
-                <button class="copy-btn" id="copy-btn" onclick="copyToClipboard()">Copy</button>
-                <button class="delete-btn" onclick="deleteSession()">Delete</button>
-              </div>
+            <div class="session-top-row">
+              <span class="session-id">${session.id}</span>
+              <span class="session-status ${session.status}">${session.status}</span>
             </div>
+            <div class="session-prompt">${escapeHtml(session.initial_prompt || "(no prompt)")}</div>
+            <div class="session-meta">${formatted}</div>
+            <div class="session-actions">
+              <button class="copy-btn" id="copy-btn" onclick="copyToClipboard()">Copy</button>
+              <button class="export-btn" id="export-btn" onclick="startExport()">Export MP3</button>
+              <button class="delete-btn" onclick="deleteSession()">Delete</button>
+            </div>
+            <div id="export-status" class="export-status"></div>
           `;
+
+          // Update export UI based on current status
+          updateExportUI(session);
 
           // Store session and events for copy function
           window.sessionData = session;
@@ -445,9 +511,10 @@
           timelineContainer.innerHTML = events
             .map((event) => {
               if (event.type === "thinking") {
-                const queueBadge = event.queueDepth != null
-                  ? `<span class="queue-badge">q${event.queueDepth}</span>`
-                  : "";
+                const queueBadge =
+                  event.queueDepth != null
+                    ? `<span class="queue-badge">q${event.queueDepth}</span>`
+                    : "";
                 return `
                   <details class="event event-thinking" open>
                     <summary>
@@ -459,10 +526,13 @@
                   </details>
                 `;
               } else if (event.type === "silence") {
-                const sinceSpeakStr = event.sinceSpeakMs != null
-                  ? ` (${(event.sinceSpeakMs / 1000).toFixed(1)}s since speak)`
+                const sinceSpeakStr =
+                  event.sinceSpeakMs != null
+                    ? ` (${(event.sinceSpeakMs / 1000).toFixed(1)}s since speak)`
+                    : "";
+                const metaStr = event.wallClock
+                  ? `@ ${event.wallClock}`
                   : "";
-                const metaStr = event.wallClock ? `@ ${event.wallClock}` : "";
                 return `
                   <div class="event event-silence">
                     <span class="seq-badge">${event.sequence_num}</span>
@@ -481,9 +551,10 @@
                   </div>
                 `;
               } else if (event.type === "tool_call") {
-                const toolDisplay = event.toolName === "stopwatch"
-                  ? `${event.toolName}:${event.intent}${event.stopwatchId ? ` "${event.stopwatchId}"` : ""}`
-                  : event.toolName;
+                const toolDisplay =
+                  event.toolName === "stopwatch"
+                    ? `${event.toolName}:${event.intent}${event.stopwatchId ? ` "${event.stopwatchId}"` : ""}`
+                    : event.toolName;
                 return `
                   <div class="event event-tool">
                     <span class="seq-badge">${event.sequence_num}</span>
@@ -494,10 +565,15 @@
                 `;
               } else {
                 const footerParts = [];
-                if (event.queueDepth != null) footerParts.push(`q${event.queueDepth}`);
-                if (event.speakingMs != null) footerParts.push(`${(event.speakingMs / 1000).toFixed(1)}s`);
+                if (event.queueDepth != null)
+                  footerParts.push(`q${event.queueDepth}`);
+                if (event.speakingMs != null)
+                  footerParts.push(
+                    `${(event.speakingMs / 1000).toFixed(1)}s`
+                  );
                 if (event.ratio) footerParts.push(event.ratio);
-                if (event.wallClock) footerParts.push(`@ ${event.wallClock}`);
+                if (event.wallClock)
+                  footerParts.push(`@ ${event.wallClock}`);
                 const footerStr = footerParts.join(" · ");
                 return `
                   <div class="event event-cue">
@@ -534,9 +610,12 @@
         if (!confirm("Delete this session?")) return;
 
         try {
-          const response = await fetch(`/api/inspect/sessions/${sessionId}`, {
-            method: "DELETE",
-          });
+          const response = await fetch(
+            `/api/inspect/sessions/${sessionId}`,
+            {
+              method: "DELETE",
+            }
+          );
           if (response.ok) {
             window.location.href = "/inspect";
           } else {
@@ -582,7 +661,9 @@
           })
           .join("\n\n");
 
-        const formatted = header + (events.length > 0 ? "\n\n" + eventsFormatted : "");
+        const formatted =
+          header +
+          (events.length > 0 ? "\n\n" + eventsFormatted : "");
 
         await navigator.clipboard.writeText(formatted);
 
@@ -593,6 +674,114 @@
           btn.textContent = "Copy";
           btn.classList.remove("copied");
         }, 2000);
+      }
+
+      let exportPollInterval = null;
+
+      async function startExport() {
+        const btn = document.getElementById("export-btn");
+        btn.disabled = true;
+
+        try {
+          const res = await fetch(
+            `/api/inspect/sessions/${sessionId}/export`,
+            { method: "POST" }
+          );
+          const data = await res.json();
+
+          if (res.ok) {
+            updateExportUI({ export_status: "pending" });
+            startExportPolling();
+          } else {
+            alert(data.error || "Export failed");
+            btn.disabled = false;
+          }
+        } catch (err) {
+          alert("Export request failed: " + err.message);
+          btn.disabled = false;
+        }
+      }
+
+      function startExportPolling() {
+        if (exportPollInterval) {
+          clearInterval(exportPollInterval);
+        }
+
+        exportPollInterval = setInterval(async () => {
+          try {
+            const res = await fetch(
+              `/api/inspect/sessions/${sessionId}`
+            );
+            const { session } = await res.json();
+            updateExportUI(session);
+
+            if (
+              session.export_status === "complete" ||
+              session.export_status === "error"
+            ) {
+              clearInterval(exportPollInterval);
+              exportPollInterval = null;
+            }
+          } catch (err) {
+            console.error("Poll failed:", err);
+          }
+        }, 2000);
+      }
+
+      function updateExportUI(session) {
+        const btn = document.getElementById("export-btn");
+        const status = document.getElementById("export-status");
+
+        if (!btn || !status) return;
+
+        btn.classList.remove("exporting", "complete", "error");
+
+        switch (session.export_status) {
+          case "pending":
+            btn.disabled = true;
+            btn.classList.add("exporting");
+            btn.textContent = "Starting...";
+            status.innerHTML = "";
+            startExportPolling();
+            break;
+          case "processing":
+            btn.disabled = true;
+            btn.classList.add("exporting");
+            let progressText = "Processing...";
+            if (session.export_progress) {
+              try {
+                const progress = JSON.parse(
+                  session.export_progress
+                );
+                if (progress.phase === "tts") {
+                  progressText = `Generating audio (${progress.current}/${progress.total})`;
+                } else if (progress.phase === "encoding") {
+                  progressText = "Encoding MP3...";
+                } else if (progress.phase === "uploading") {
+                  progressText = "Uploading...";
+                }
+              } catch (e) {}
+            }
+            btn.textContent = progressText;
+            status.innerHTML = "";
+            break;
+          case "complete":
+            btn.disabled = false;
+            btn.classList.add("complete");
+            btn.textContent = "Re-export";
+            status.innerHTML = `<audio controls src="${session.export_url}" style="display:block; width:100%;"></audio>`;
+            break;
+          case "error":
+            btn.disabled = false;
+            btn.classList.add("error");
+            btn.textContent = "Retry Export";
+            status.innerHTML = `Error: ${escapeHtml(session.export_error || "Unknown error")}`;
+            break;
+          default:
+            btn.disabled = false;
+            btn.textContent = "Export MP3";
+            status.innerHTML = "";
+        }
       }
 
       loadSession();

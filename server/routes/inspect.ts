@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { dbOps } from "../services/db.js";
+import { isS3Configured } from "../services/s3.js";
+import { processExport } from "../services/export.js";
 
 export const inspectRouter = Router();
 
@@ -33,4 +35,36 @@ inspectRouter.delete("/sessions/:sessionId", (req, res) => {
   }
 
   res.json({ success: true });
+});
+
+// Export session to MP3
+inspectRouter.post("/sessions/:sessionId/export", (req, res) => {
+  const { sessionId } = req.params;
+
+  if (!isS3Configured()) {
+    return res.status(503).json({ error: "S3 not configured" });
+  }
+
+  const session = dbOps.getSession(sessionId);
+  if (!session) {
+    return res.status(404).json({ error: "Session not found" });
+  }
+
+  if (
+    session.export_status === "processing" ||
+    session.export_status === "pending"
+  ) {
+    return res.status(409).json({
+      error: "Export already in progress",
+      status: session.export_status,
+    });
+  }
+
+  dbOps.updateExportStatus(sessionId, "pending");
+
+  processExport(sessionId).catch((err) => {
+    console.error(`Export failed for ${sessionId}:`, err);
+  });
+
+  res.json({ status: "pending" });
 });

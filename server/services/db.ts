@@ -99,6 +99,7 @@ function initSchema(database: Database.Database): void {
   `);
   ensureCueWaitMsColumn(database);
   ensureResultColumns(database);
+  ensureExportColumns(database);
 }
 
 function ensureCueWaitMsColumn(database: Database.Database): void {
@@ -159,6 +160,31 @@ function ensureResultColumns(database: Database.Database): void {
   }
   if (!silColNames.has("wall_clock")) {
     database.exec(`ALTER TABLE silences ADD COLUMN wall_clock TEXT`);
+  }
+}
+
+function ensureExportColumns(database: Database.Database): void {
+  const columns = database
+    .prepare(`PRAGMA table_info(sessions)`)
+    .all() as Array<{ name: string }>;
+  const colNames = new Set(columns.map((c) => c.name));
+
+  if (!colNames.has("export_status")) {
+    database.exec(`ALTER TABLE sessions ADD COLUMN export_status TEXT`);
+  }
+  if (!colNames.has("export_url")) {
+    database.exec(`ALTER TABLE sessions ADD COLUMN export_url TEXT`);
+  }
+  if (!colNames.has("export_started_at")) {
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN export_started_at TEXT`
+    );
+  }
+  if (!colNames.has("export_error")) {
+    database.exec(`ALTER TABLE sessions ADD COLUMN export_error TEXT`);
+  }
+  if (!colNames.has("export_progress")) {
+    database.exec(`ALTER TABLE sessions ADD COLUMN export_progress TEXT`);
   }
 }
 
@@ -384,6 +410,11 @@ export const dbOps = {
     initial_prompt: string | null;
     completed_at: string | null;
     status: string;
+    export_status: string | null;
+    export_url: string | null;
+    export_started_at: string | null;
+    export_error: string | null;
+    export_progress: string | null;
   } | null {
     return safeDbOperation(
       () => {
@@ -394,6 +425,42 @@ export const dbOps = {
       },
       "getSession",
       null
+    );
+  },
+
+  updateExportStatus(
+    sessionId: string,
+    status: "pending" | "processing" | "complete" | "error",
+    url?: string | null,
+    error?: string | null,
+    progress?: string | null
+  ): void {
+    safeDbOperation(
+      () => {
+        const database = getDb();
+        const now = new Date().toISOString();
+        database
+          .prepare(
+            `UPDATE sessions SET
+              export_status = ?,
+              export_url = COALESCE(?, export_url),
+              export_started_at = CASE WHEN ? = 'pending' THEN ? ELSE export_started_at END,
+              export_error = ?,
+              export_progress = ?
+            WHERE id = ?`
+          )
+          .run(
+            status,
+            url ?? null,
+            status,
+            now,
+            error ?? null,
+            progress ?? null,
+            sessionId
+          );
+      },
+      "updateExportStatus",
+      undefined
     );
   },
 

@@ -17,8 +17,8 @@ FROM node:24-slim
 
 WORKDIR /app
 
-# Install Python for skill scripts
-RUN apt-get update && apt-get install -y --no-install-recommends python3 \
+# Install ffmpeg for MP3 export
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # Install production dependencies only
