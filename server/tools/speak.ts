@@ -76,7 +76,7 @@ async function fetchAndBufferTTS(
 export function createSpeakTool(sessionId: string) {
   return tool(
     "speak",
-    "Deliver spoken guidance. Pair with silence() to create complete cues—speak provides words, silence holds space for integration.",
+    "Deliver spoken guidance. Chain multiple speaks for rapid alignment or momentum, then land with silence(). Or pair each speak with silence() for standard pacing.",
     {
       content: z.string().describe("The text to speak aloud"),
       voice: z

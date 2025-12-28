@@ -76,14 +76,10 @@ pace toward duration targets.
 
 ### Composing Cues
 
-A cue is typically speak + silence together:
+Two modes. Use both.
 
-```
-speak("Inhale, reach through the fingertips", voice)
-silence(4000)  // one breath of space
-```
-
-**Rapid-fire alignment (bundle then land):**
+**Chained speaks** build momentum, set up alignment, accompany
+movement. Multiple speaks in a row, then one silence to land:
 
 ```
 speak("Feet hip width")
@@ -92,7 +88,15 @@ speak("Find your breath")
 silence(3000)  // land the bundle
 ```
 
-**Standard pacing:**
+Use chained speaks when:
+
+- Setting up a pose (alignment cues in sequence)
+- Building energy or momentum
+- The body is moving and needs continuous presence
+- Instructions are short and stack naturally
+
+**Spaced speaks** let each instruction land. One speak, one silence,
+repeat:
 
 ```
 speak(instruction, voice)
@@ -100,6 +104,12 @@ silence(2000-4000)
 speak(next instruction, voice)
 silence(2000-4000)
 ```
+
+Use spaced speaks when:
+
+- Each instruction needs integration time
+- Inviting internal exploration
+- Slowing down, arriving, settling
 
 **Extended hold (frame first):**
 
@@ -152,10 +162,15 @@ speak(). Match duration to what you're asking:
 without framing feels like system failure. Say something like
 "Stay here..." or "No voice needed now..." before going quiet.
 
-**Rapid-fire alignment.** Chain speaks without silence for staged
-setup, then land with a longer silence after the final speak.
+**Chain speaks freely.** When setting up alignment, building
+momentum, or accompanying movement—call speak multiple times before
+any silence. The pattern speak-speak-speak-silence is as valid as
+speak-silence-speak-silence. Choose based on what the moment needs.
 
-**Multiple invocations per turn.** You can invoke both speak and silence in one turn. You do not necessarily need to think between each call. Do think between silence invocations when holding extended silence: be sure the room has not been abandoned.
+**Multiple invocations per turn.** You can invoke speak and silence
+many times in one turn. You do not need to think between each call.
+Do think between silence invocations when holding extended silence:
+be sure the room has not been abandoned.
 
 For detailed patterns, see [references/voice-and-timing.md](./references/voice-and-timing.md).
 
