@@ -3,6 +3,7 @@ import OpenAI from "openai";
 import { z } from "zod";
 import { dbOps } from "../services/db.js";
 import {
+  MIN_DELAY,
   sessionManager,
   type TTSResult,
 } from "../services/session-manager.js";
@@ -22,9 +23,6 @@ const OPENAI_TIMEOUT_MS = 10_000;
 
 // PCM audio: 24kHz, 16-bit mono
 const BYTES_PER_SECOND = 24000 * 2;
-
-// Fixed delay after audio for queue pacing
-const MIN_DELAY = 100;
 
 // Helper: fetch TTS and eagerly buffer the stream
 async function fetchAndBufferTTS(

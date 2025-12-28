@@ -16,7 +16,7 @@ const BURST_SECONDS = 0.5;
 const BURST_BYTES = Math.floor(BURST_SECONDS * BYTES_PER_SECOND); // 24000
 
 // Fixed delay after audio for queue pacing
-const MIN_DELAY = 200;
+export const MIN_DELAY = 200;
 
 // Stack size constants
 export const DEFAULT_STACK_SIZE = 1;
@@ -79,6 +79,10 @@ interface Session {
   producerDone: boolean;
   // Resolver for when queue has been fully drained
   drainResolver: (() => void) | null;
+  // Count of audio items in queue (silences don't count)
+  audioItemCount: number;
+  // Whether pre-roll buffering is complete (first audio waited for buffer)
+  prerollComplete: boolean;
 }
 
 class SessionManager {
@@ -105,6 +109,8 @@ class SessionManager {
       agentSyntheticElapsedMs: 0,
       producerDone: false,
       drainResolver: null,
+      audioItemCount: 0,
+      prerollComplete: false,
     });
     return id;
   }
@@ -297,7 +303,8 @@ class SessionManager {
     return this.sessions.get(sessionId)?.audioQueue.length ?? 0;
   }
 
-  // Block until queue has room for a new item
+  // Block until queue has room for a new audio item.
+  // Only audio items count against maxItems; silences are free.
   async waitForQueueRoom(
     sessionId: string,
     maxItems: number
@@ -305,7 +312,7 @@ class SessionManager {
     const session = this.sessions.get(sessionId);
     if (!session) return;
 
-    while (session.audioQueue.length >= maxItems) {
+    while (session.audioItemCount >= maxItems) {
       await new Promise<void>((resolve) => {
         session.queueDrained = resolve;
       });
@@ -330,6 +337,7 @@ class SessionManager {
       sequenceNum: item.sequenceNum,
       text: item.text,
     });
+    session.audioItemCount++;
     // Signal that new audio is available
     session.audioReady?.();
   }
@@ -412,6 +420,27 @@ class SessionManager {
         if (!item) continue;
 
         if (item.type === "audio") {
+          session.audioItemCount--;
+
+          // Pre-roll: before first audio, wait for stackSize/2 items
+          if (!session.prerollComplete) {
+            const targetBuffer = Math.ceil(
+              session.stackSize / 2
+            );
+            while (session.audioItemCount < targetBuffer) {
+              await new Promise<void>((resolve) => {
+                session.audioReady = resolve;
+              });
+              session.audioReady = null;
+              if (
+                session.producerDone ||
+                !session.audioStreamActive
+              )
+                break;
+            }
+            session.prerollComplete = true;
+          }
+
           const logPrefix = `[audio:${sessionId.slice(0, 8)}:${item.sequenceNum}]`;
           const dequeueAt = Date.now();
 
