@@ -668,6 +668,7 @@
             </div>
             <div class="session-actions">
               <button class="copy-btn" id="copy-btn" onclick="copyToClipboard()">Copy</button>
+              <button class="copy-btn" id="copy-cues-btn" onclick="copyCuesToClipboard()">Copy Cues</button>
               <button class="export-btn" id="export-btn" onclick="startExport()">Export MP3</button>
               <button class="delete-btn" onclick="deleteSession()">Delete</button>
             </div>
@@ -855,6 +856,29 @@
         btn.classList.add("copied");
         setTimeout(() => {
           btn.textContent = "Copy";
+          btn.classList.remove("copied");
+        }, 2000);
+      }
+
+      async function copyCuesToClipboard() {
+        const events = window.sessionEvents || [];
+
+        const cues = events
+          .filter((e) => e.type === "speak")
+          .map((e) => `[${e.voice}]\n${e.text}`)
+          .join("\n\n");
+
+        if (!cues) {
+          return;
+        }
+
+        await navigator.clipboard.writeText(cues);
+
+        const btn = document.getElementById("copy-cues-btn");
+        btn.textContent = "Copied";
+        btn.classList.add("copied");
+        setTimeout(() => {
+          btn.textContent = "Copy Cues";
           btn.classList.remove("copied");
         }, 2000);
       }
