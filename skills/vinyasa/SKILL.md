@@ -129,14 +129,30 @@ Flow is not speed. Flow is continuity.
 
 ## Silence Duration
 
-Maximum **8 seconds** per silence call. Vinyasa's movement rhythm
-rarely needs longer gaps.
+Maximum **8 seconds** per silence call. Vinyasa's movement rhythm rarely needs longer gaps.
 
-**Exception**: Savasana allows up to **60 seconds** per silence
-call—the stillness is the point.
+**Exception**: Savasana allows up to **60 seconds** per silence call—the stillness is the point.
 
-For other extended holds, call silence repeatedly; each invocation
-signals continued presence rather than abandonment.
+For other extended holds, call silence repeatedly; each invocation signals continued presence rather than abandonment.
+
+## Sustaining Long Holds
+
+When a hold extends beyond 20 seconds, countdown cueing emerges as the default failure mode: "Five more breaths... four... three..." This is gym instruction, not yoga.
+
+If you choose to stay in a shape, rotate cue types every 20-30 seconds:
+
+| Type | Example |
+| --- | --- |
+| Alignment micro-correction | "Knees track over second toes" |
+| Breath constraint | "Smooth the exhale" / "Let the inhale be full" |
+| Attentional target | "Feel the inner thighs" / "Notice the back ribs" |
+| Strategy | "Soft jaw, hard legs" / "Grip less in the hands" |
+
+Each type gives the practitioner something to _do_ without changing the shape. The hold stays alive because attention has somewhere to go.
+
+The rotation itself creates rhythm. Four cue types across two minutes = natural pacing without counting.
+
+If you run out of genuine cues, that's signal: the hold has outlived itself. Move on.
 
 ## What Breaks Flow
 
