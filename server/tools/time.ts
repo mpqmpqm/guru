@@ -57,10 +57,9 @@ export function createTimeTool(sessionId: string) {
     async () => {
       const seqNum =
         sessionManager.incrementEventSequence(sessionId);
-      const { elapsedMs, wallClock } = getTimeComponents(sessionId);
+      const { elapsedMs, wallClock } =
+        getTimeComponents(sessionId);
       const prose = getTimeInfo(sessionId);
-
-      console.log(`[time:${seqNum}] -> "${prose}"`);
 
       dbOps.insertToolCall(
         sessionId,

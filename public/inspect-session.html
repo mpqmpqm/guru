@@ -544,6 +544,10 @@
                 <span class="cost-label">Tokens (in/out)</span>
                 <span class="cost-value">${formatTokens(session.input_tokens)} / ${formatTokens(session.output_tokens)}</span>
               </div>
+              <div class="cost-item">
+                <span class="cost-label">Cache (read/write)</span>
+                <span class="cost-value">${formatTokens(session.cache_read_tokens)} / ${formatTokens(session.cache_creation_tokens)}</span>
+              </div>
             </div>
             <div class="session-actions">
               <button class="copy-btn" id="copy-btn" onclick="copyToClipboard()">Copy</button>

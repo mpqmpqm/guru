@@ -54,7 +54,6 @@
 
       <main>
         <div id="cue-display" class="cue-display"></div>
-        <div id="pause-status" class="pause-status"></div>
       </main>
 
       <footer>
@@ -70,19 +69,26 @@
               >Living instruction 🌀</span
             >
           </label>
-          <label class="stack-control">
-            <span class="stack-label">Clairvoyance</span>
-            <input
-              type="number"
-              id="stack-size"
-              min="1"
-              max="9"
-              step="1"
-              value="1"
-              inputmode="numeric"
-              title="Max queued cues"
-            />
-          </label>
+          <div id="pause-status" class="pause-status"></div>
+          <div class="model-selector">
+            <label class="model-option">
+              <input type="radio" name="model" value="opus" />
+              <span>Opus</span>
+            </label>
+            <label class="model-option">
+              <input type="radio" name="model" value="sonnet" />
+              <span>Sonnet</span>
+            </label>
+            <label class="model-option">
+              <input
+                type="radio"
+                name="model"
+                value="haiku"
+                checked
+              />
+              <span>Haiku</span>
+            </label>
+          </div>
         </div>
         <div
           id="example-chiclets"

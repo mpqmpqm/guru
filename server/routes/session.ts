@@ -1,32 +1,30 @@
 import { Router } from "express";
-import {
-  DEFAULT_STACK_SIZE,
-  MAX_STACK_SIZE,
-  sessionManager,
-} from "../services/session-manager.js";
+import { sessionManager } from "../services/session-manager.js";
 
 export const sessionRouter = Router();
 
-function parseStackSize(value: unknown): number {
-  const parsed =
-    typeof value === "number"
-      ? Math.trunc(value)
-      : Number.parseInt(String(value), 10);
-  if (!Number.isFinite(parsed) || parsed < 1) {
-    return DEFAULT_STACK_SIZE;
-  }
-  return Math.min(parsed, MAX_STACK_SIZE);
-}
+export const DEFAULT_MODEL = "claude-opus-4-5";
+
+// Model config: shorthand → { stackSize, claudeModelId }
+export const MODEL_CONFIG: Record<
+  string,
+  { stackSize: number; claudeModelId: string }
+> = {
+  opus: { stackSize: 9, claudeModelId: DEFAULT_MODEL },
+  sonnet: {
+    stackSize: 6,
+    claudeModelId: "claude-sonnet-4-5",
+  },
+  haiku: {
+    stackSize: 3,
+    claudeModelId: "claude-haiku-4-5",
+  },
+};
 
 // Create a new session
-sessionRouter.post("/", (req, res) => {
-  const { timezone, stackSize } = req.body ?? {};
-  const normalizedStackSize = parseStackSize(stackSize);
-  const sessionId = sessionManager.createSession(
-    timezone,
-    normalizedStackSize
-  );
-  res.json({ sessionId, stackSize: normalizedStackSize });
+sessionRouter.post("/", (_req, res) => {
+  const sessionId = sessionManager.createSession();
+  res.json({ sessionId });
 });
 
 // Check session status
@@ -42,6 +40,7 @@ sessionRouter.get("/:sessionId", (req, res) => {
     sessionId: session.id,
     createdAt: session.createdAt,
     hasAgentSession: !!session.agentSessionId,
+    model: session.model,
     stackSize: session.stackSize,
   });
 });

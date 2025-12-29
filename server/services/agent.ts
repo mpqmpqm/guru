@@ -96,7 +96,7 @@ export async function* streamChat(
         disallowedTools: ["TodoWrite"],
         permissionMode: "bypassPermissions",
         allowDangerouslySkipPermissions: true,
-        model: "claude-opus-4-5",
+        model: sessionManager.getModel(sessionId),
         maxThinkingTokens: 8192,
         includePartialMessages: true,
       },

@@ -1,6 +1,8 @@
 import type { Response } from "express";
 import { v4 as uuidv4 } from "uuid";
+import { DEFAULT_MODEL } from "../routes/session.js";
 import {
+  logAdvanceAgentSyntheticClock,
   logAudioPlayEnd,
   logAudioPlayStart,
   logAudioTtsSkip,
@@ -46,6 +48,7 @@ interface Session {
   id: string;
   createdAt: Date;
   timezone?: string;
+  model: string;
   stackSize: number;
   audioQueue: QueueItem[];
   audioStreamActive: boolean;
@@ -93,16 +96,14 @@ interface Session {
 class SessionManager {
   private sessions = new Map<string, Session>();
 
-  createSession(
-    timezone?: string,
-    stackSize = DEFAULT_STACK_SIZE
-  ): string {
+  createSession(): string {
     const id = uuidv4();
     this.sessions.set(id, {
       id,
       createdAt: new Date(),
-      timezone,
-      stackSize,
+      timezone: undefined,
+      model: DEFAULT_MODEL,
+      stackSize: DEFAULT_STACK_SIZE,
       audioQueue: [],
       audioStreamActive: false,
       audioReady: null,
@@ -131,6 +132,31 @@ class SessionManager {
       this.sessions.get(sessionId)?.stackSize ??
       DEFAULT_STACK_SIZE
     );
+  }
+
+  getModel(sessionId: string): string {
+    return this.sessions.get(sessionId)?.model ?? DEFAULT_MODEL;
+  }
+
+  setModel(sessionId: string, model: string): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.model = model;
+    }
+  }
+
+  setStackSize(sessionId: string, stackSize: number): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.stackSize = stackSize;
+    }
+  }
+
+  setTimezone(sessionId: string, timezone: string): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.timezone = timezone;
+    }
   }
 
   setSSEResponse(sessionId: string, res: Response): void {
@@ -281,8 +307,11 @@ class SessionManager {
     if (session) {
       const before = session.agentSyntheticElapsedMs;
       session.agentSyntheticElapsedMs += ms;
-      console.log(
-        `[synthetic] advance +${ms}ms: ${before} -> ${session.agentSyntheticElapsedMs}`
+      logAdvanceAgentSyntheticClock(
+        `[session:${sessionId.slice(0, 8)}]`,
+        ms,
+        before,
+        session.agentSyntheticElapsedMs
       );
     }
   }
@@ -481,7 +510,9 @@ class SessionManager {
           // stackSize=1 → target=1, plays when we have this item
           // stackSize=3 → target=2, waits for 1 more in queue
           if (!session.prerollComplete) {
-            const targetBuffer = Math.ceil(session.stackSize / 2);
+            const targetBuffer = Math.ceil(
+              session.stackSize / 2
+            );
             while (session.audioItemCount + 1 < targetBuffer) {
               await new Promise<void>((resolve) => {
                 session.audioReady = resolve;

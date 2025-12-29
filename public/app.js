@@ -13,7 +13,6 @@ const exampleChicletsEl = document.getElementById(
 const livingInstructionToggle = document.getElementById(
   "living-instructions-toggle"
 );
-const stackSizeInput = document.getElementById("stack-size");
 const thinkingTraceEl =
   document.getElementById("thinking-trace");
 const thinkingContentEl = document.getElementById(
@@ -38,15 +37,11 @@ const FRAME_HEADER_SIZE = 5;
 const FRAME_TYPE_DATA = 1;
 const FRAME_TYPE_FLUSH = 2;
 
-const STACK_SIZE_MIN = 1;
-const STACK_SIZE_MAX = 9;
-
 // State
 let sessionId = null;
 let eventSource = null;
 let isProcessing = false;
 let wakeLock = null;
-let activeStackSize = STACK_SIZE_MIN;
 
 // Network resilience state
 let isOnline = navigator.onLine;
@@ -55,29 +50,11 @@ let audioReconnectAttempts = 0;
 const MAX_RECONNECT_ATTEMPTS = 10;
 const BASE_RECONNECT_DELAY = 1000;
 
-function normalizeStackSize(value) {
-  const parsed = Number.parseInt(String(value), 10);
-  if (!Number.isFinite(parsed) || parsed < STACK_SIZE_MIN) {
-    return STACK_SIZE_MIN;
-  }
-  return Math.min(parsed, STACK_SIZE_MAX);
-}
-
-function getStackSizeValue() {
-  return normalizeStackSize(stackSizeInput.value);
-}
-
-function applyStackSize(value) {
-  const normalized = normalizeStackSize(value);
-  stackSizeInput.value = normalized;
-  return normalized;
-}
-
-function maybeResetSessionForStackSizeChange() {
-  if (isProcessing) return;
-  const desired = getStackSizeValue();
-  if (desired === activeStackSize) return;
-  init();
+function getSelectedModel() {
+  const checked = document.querySelector(
+    'input[name="model"]:checked'
+  );
+  return checked ? checked.value : "opus";
 }
 
 // Calculate exponential backoff with jitter
@@ -432,23 +409,12 @@ async function init() {
     // Create new session
     const response = await fetch("/api/session", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        timezone:
-          Intl.DateTimeFormat().resolvedOptions().timeZone,
-        stackSize: getStackSizeValue(),
-      }),
     });
     if (!response.ok)
       throw new Error("Failed to create session");
 
     const data = await response.json();
     sessionId = data.sessionId;
-    if (data.stackSize !== undefined) {
-      activeStackSize = applyStackSize(data.stackSize);
-    } else {
-      activeStackSize = getStackSizeValue();
-    }
 
     // Connect SSE for chat events
     connectSSE();
@@ -689,7 +655,11 @@ async function sendMessage(message) {
     const response = await fetch(`/api/chat/${sessionId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({
+        message,
+        model: getSelectedModel(),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      }),
     });
 
     if (!response.ok) {
@@ -736,6 +706,8 @@ chatForm.addEventListener("submit", async (e) => {
   if (isProcessing) {
     stopSession();
   } else {
+    if (!messageInput.value.trim()) return;
+
     // Unlock AudioContext on user gesture (iOS requirement)
     // https://webkit.org/blog/6784/new-video-policies-for-ios/
     await unlockAudioContext();
@@ -824,10 +796,6 @@ function autoResizeTextarea() {
   messageInput.style.height = messageInput.scrollHeight + "px";
 }
 messageInput.addEventListener("input", autoResizeTextarea);
-stackSizeInput.addEventListener("change", () => {
-  applyStackSize(stackSizeInput.value);
-  maybeResetSessionForStackSizeChange();
-});
 
 // Submit on Cmd+Enter
 messageInput.addEventListener("keydown", (e) => {
@@ -852,8 +820,6 @@ async function renderExampleChiclets() {
         messageInput.value = example.content;
         livingInstructionToggle.checked =
           example.livingInstruction;
-        applyStackSize(example.stackSize ?? STACK_SIZE_MIN);
-        maybeResetSessionForStackSizeChange();
         autoResizeTextarea();
         messageInput.focus();
         messageInput.setSelectionRange(0, 0);

@@ -3,6 +3,7 @@ import path from "path";
 import fs from "fs";
 import { logDbError } from "../utils/log.js";
 import { calculateCost, calculateTTSCost, type Usage } from "./pricing.js";
+import { DEFAULT_MODEL } from "../routes/session.js";
 
 // Detect Fly.io environment vs local
 const DB_PATH = process.env.FLY_APP_NAME
@@ -102,6 +103,7 @@ function initSchema(database: Database.Database): void {
   ensureResultColumns(database);
   ensureExportColumns(database);
   ensureCostColumns(database);
+  ensureModelColumn(database);
 }
 
 function ensureCueWaitMsColumn(database: Database.Database): void {
@@ -246,6 +248,19 @@ function ensureCostColumns(database: Database.Database): void {
   }
 }
 
+function ensureModelColumn(database: Database.Database): void {
+  const columns = database
+    .prepare(`PRAGMA table_info(sessions)`)
+    .all() as Array<{ name: string }>;
+  const colNames = new Set(columns.map((c) => c.name));
+
+  if (!colNames.has("model")) {
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN model TEXT DEFAULT '${DEFAULT_MODEL}'`
+    );
+  }
+}
+
 // Safe database operation wrapper - logs errors but doesn't crash
 function safeDbOperation<T>(
   operation: () => T,
@@ -262,15 +277,20 @@ function safeDbOperation<T>(
 
 // Prepared statements
 export const dbOps = {
-  createSession(id: string, createdAt: string, initialPrompt: string): void {
+  createSession(
+    id: string,
+    createdAt: string,
+    initialPrompt: string,
+    model?: string
+  ): void {
     safeDbOperation(
       () => {
         const database = getDb();
         database
           .prepare(
-            `INSERT INTO sessions (id, created_at, initial_prompt) VALUES (?, ?, ?)`
+            `INSERT INTO sessions (id, created_at, initial_prompt, model) VALUES (?, ?, ?, ?)`
           )
-          .run(id, createdAt, initialPrompt);
+          .run(id, createdAt, initialPrompt, model ?? DEFAULT_MODEL);
       },
       "createSession",
       undefined
@@ -468,6 +488,7 @@ export const dbOps = {
     initial_prompt: string | null;
     completed_at: string | null;
     status: string;
+    model: string | null;
     export_status: string | null;
     export_url: string | null;
     export_started_at: string | null;

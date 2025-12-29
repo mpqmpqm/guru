@@ -3,6 +3,7 @@ import { streamChat } from "../services/agent.js";
 import { sessionManager } from "../services/session-manager.js";
 import { dbOps } from "../services/db.js";
 import { logChatError } from "../utils/log.js";
+import { MODEL_CONFIG } from "./session.js";
 
 export const chatRouter = Router();
 
@@ -48,7 +49,7 @@ chatRouter.get("/events/:sessionId", (req, res) => {
 // POST endpoint for sending messages
 chatRouter.post("/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
-  const { message } = req.body;
+  const { message, model, timezone } = req.body;
 
   // console.log(`[chat] POST /${sessionId} - message: "${message?.slice(0, 50)}..."`);
 
@@ -61,9 +62,22 @@ chatRouter.post("/:sessionId", async (req, res) => {
     return res.status(404).json({ error: "Session not found" });
   }
 
+  // Update session from request
+  const config = MODEL_CONFIG[model] ?? MODEL_CONFIG.opus;
+  sessionManager.setModel(sessionId, config.claudeModelId);
+  sessionManager.setStackSize(sessionId, config.stackSize);
+  if (timezone) {
+    sessionManager.setTimezone(sessionId, timezone);
+  }
+
   // Persist session to DB on first message
   if (!session.agentSessionId) {
-    dbOps.createSession(sessionId, session.createdAt.toISOString(), message);
+    dbOps.createSession(
+      sessionId,
+      session.createdAt.toISOString(),
+      message,
+      config.claudeModelId
+    );
   }
 
   // Send "processing" event via SSE

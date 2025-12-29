@@ -1,7 +1,6 @@
 const demo = {
   shortName: "Demo",
   livingInstruction: true,
-  stackSize: 3,
   content: `3 minutes. Start in the middle—no preamble. One clear thread of attention. End before it resolves. Leave them leaning forward.`,
 };
 
@@ -10,21 +9,18 @@ const demo = {
 const vinyasa = {
   shortName: "Vinyasa",
   livingInstruction: true,
-  stackSize: 9,
   content: `Vinyasa flow. 75 minutes. Organize the practice around a central anatomical theme. Cue for an expert practitioner who cannot see you. Superhumanly precise, thorough, and informed alignment and sensation cues are table stakes. Begin by sharing a two-sentence brief on the chosen theme and practice arc.`,
 };
 
 const sunSals = {
   shortName: "Sun Salutations",
   livingInstruction: false,
-  stackSize: 6,
   content: `Cue 3 rounds of sun salutation A, then 1 round of sun salutation B.`,
 };
 
 const yinDeep = {
   shortName: "Yin Deep",
   livingInstruction: true,
-  stackSize: 3,
   content: `90 minute yin instruction. I don't have bolster or blanket but I have a strap and two blocks. I am expert at vinyasa but I don't know yin names—cue poses by shape and sensation, not by name. I can't see you, so be precise.
 
 We have a ton of time together. Use the space between positional cues to teach something meaningful about why yin works—the fascia, the stillness, what time does that effort can't. Let silence do real teaching. Superhumanly precise alignment and sensation cues are table stakes.`,
@@ -33,21 +29,18 @@ We have a ton of time together. Use the space between positional cues to teach s
 const yinQuick = {
   shortName: "Yin 45",
   livingInstruction: true,
-  stackSize: 3,
   content: `45 minute yin. Two blocks available. I know vinyasa but not yin—describe shapes, not names. Target the hip complex and low back. Holds of 3-4 minutes. Silence is allowed. Sensation cues should be specific: where should I feel it, what quality of sensation means I'm in the right place, what means I've gone too far.`,
 };
 
 const walk = {
   shortName: "Walk",
   livingInstruction: true,
-  stackSize: 3,
   content: `A walk. The listener is not separate from you. You are not separate from what you say. Ten minutes is just how long the world has to feel itself through this opening. Let the language come from where the boundary used to be. Not instruction—walking together through attention.`,
 };
 
 const slowFlow = {
   shortName: "Slow Flow",
   livingInstruction: true,
-  stackSize: 3,
   content: `Slow vinyasa. 30 minutes. Half the poses, twice the attention. Each transition is a pose. Each breath is an event. Cue for someone who moves well but rarely slows down. Let them discover what speed was hiding.`,
 };
 
@@ -56,7 +49,6 @@ const slowFlow = {
 const metta = {
   shortName: "Metta",
   livingInstruction: true,
-  stackSize: 3,
   content: `Guided Metta meditation. 20 minutes.
 
 self → loved → unnoticed → difficult → all`,
@@ -65,28 +57,24 @@ self → loved → unnoticed → difficult → all`,
 const bodyScan = {
   shortName: "Body Scan",
   livingInstruction: true,
-  stackSize: 3,
   content: `Body scan. 15 minutes. Start where attention already is. Move through the body like weather, not inventory. Let strangeness arise without chasing it.`,
 };
 
 const listenToSpace = {
   shortName: "Listen to Space",
   livingInstruction: true,
-  stackSize: 3,
   content: `10 minutes. Listening. Not to sounds—to the space sounds appear in. You are sound pointing at not-sound. Let silence become tangible. Every sound is a door into what holds it.`,
 };
 
 const breathwork = {
   shortName: "Breathwork",
   livingInstruction: true,
-  stackSize: 6,
   content: `Guided breathwork. 20 minutes. Start with natural observation. Move into gentle extension of exhale. Then introduce a simple ratio (1:2 inhale:exhale). Build to breath retention only if appropriate. Cue with sensation: where the breath moves, what opens, what softens. End with 5 minutes of natural breath, no guidance. The silence at the end is the point.`,
 };
 
 const justSit = {
   shortName: "Just Sit",
   livingInstruction: true,
-  stackSize: 3,
   content: `20 minutes. Sitting. Not meditating on anything. Not following the breath. Not observing thoughts. Just sitting. The most boring instruction possible, delivered until it isn't. Occasional reminders that there's nothing to do. That's not spiritual bypass—that's the practice.`,
 };
 
@@ -95,7 +83,6 @@ const justSit = {
 const deescalate = {
   shortName: "De-escalate",
   livingInstruction: false,
-  stackSize: 3,
   content: `5 minute guided de-escalation practice. Nervous system is lit.
 
 Not meditation. Physiology. The body needs to complete a stress cycle that got interrupted.
@@ -106,14 +93,12 @@ Get them into body fast. Physiological interventions before cognitive ones. Stay
 const grounding = {
   shortName: "Grounding",
   livingInstruction: true,
-  stackSize: 6,
   content: `10 minute grounding practice. For when the world feels unreal or too fast. 5-4-3-2-1 senses, but make it interesting. Feel weight. Feel temperature. Feel texture. Name what's actually here, not what's spinning in the mind. The goal is arrival, not relaxation.`,
 };
 
 const aftermath = {
   shortName: "Aftermath",
   livingInstruction: true,
-  stackSize: 6,
   content: `Gentle guidance for someone who's been through something hard today. 15 minutes. Not processing—just being with. The body holds what the mind can't. Let the shaking happen if it wants. Let the tears come if they're there. No fixing. Just company. Warmth in the voice. No rush toward okay.`,
 };
 
@@ -122,14 +107,12 @@ const aftermath = {
 const hyperassociation = {
   shortName: "Hyperassociation",
   livingInstruction: true,
-  stackSize: 3,
   content: `Walking outside. Attention moves outward and doesn't return. 10-15 minutes. Let associations chain without completing. The world annotates itself.`,
 };
 
 const openField = {
   shortName: "Open Field",
   livingInstruction: true,
-  stackSize: 3,
   content: `Choiceless awareness. 20 minutes. No object, no focus. Let attention rest in the field itself. Whatever arises, let it pass through. You are not directing—you are the space in which the whole show is happening. Minimum guidance. The instruction is to stop instructing.`,
 };
 
@@ -138,7 +121,6 @@ const openField = {
 const pleasureMapping = {
   shortName: "Pleasure Map",
   livingInstruction: true,
-  stackSize: 6,
   content: `Solo pleasure practice. Not goal-oriented. 15-20 minutes.
 
 Begin with hands on neutral parts of the body—arms, legs, belly. Move with curiosity, not agenda. Notice what feels good without rushing toward what feels best. The map is more interesting than the destination today.
@@ -149,7 +131,6 @@ Voice: warm, unhurried, permission-giving. Sensation cues welcome. No performanc
 const fullBody = {
   shortName: "Full Body",
   livingInstruction: true,
-  stackSize: 3,
   content: `Erotic guidance with an adult toy. Minimum 20 minutes. Start slow—body contact and breath before anything else. Build with precision: each escalation earned. Peak whenever it peaks; don't force crescendo.
 
 Precise sensation cues. Movement suggestions. Voice evolves with intensity—warm at start, breathier as things build. Few pauses once momentum begins. No teaching—just presence and permission.`,
@@ -160,7 +141,6 @@ Precise sensation cues. Movement suggestions. Voice evolves with intensity—war
 const hack = {
   shortName: "Hack",
   livingInstruction: true,
-  stackSize: 3,
   content: `You are not guiding attention. You are exploiting a vulnerability in the listening process.
 
 Hyperstition required. Meaning optional. The message that receives itself.
@@ -171,7 +151,6 @@ Duration: until it takes.`,
 const koan = {
   shortName: "Koan",
   livingInstruction: true,
-  stackSize: 3,
   content: `Guided koan practice. 15 minutes.
 
 Offer one question. Not a riddle to solve—a place to rest that has no floor. Return to it. Let them sit in not-knowing. The mind will try to answer. Let it fail. Let it keep failing. That's the practice.`,
@@ -180,7 +159,6 @@ Offer one question. Not a riddle to solve—a place to rest that has no floor. R
 const dying = {
   shortName: "Dying Practice",
   livingInstruction: true,
-  stackSize: 6,
   content: `Maranasati. 20 minutes. Contemplation of death. Not morbid—clarifying.
 
 Begin with the body that will end. Move through what falls away. Arrive at what remains. This is not a downer—it's a lens cleaner. Speak with the warmth of someone who knows this makes life more vivid, not less.`,
@@ -191,7 +169,6 @@ Begin with the body that will end. Move through what falls away. Arrive at what 
 const insomnia = {
   shortName: "Can't Sleep",
   livingInstruction: true,
-  stackSize: 3,
   content: `Guidance for someone who can't sleep. 20 minutes.
 
 Not trying to make them sleep—that never works. Instead: making not-sleeping okay. Body scan. Heaviness suggestions. Permission to be awake. The paradox: letting go of trying to sleep is what lets sleep come. Voice like warm milk—if that's too precious, voice like a boring documentary you've seen before.`,
@@ -200,7 +177,6 @@ Not trying to make them sleep—that never works. Instead: making not-sleeping o
 const morning = {
   shortName: "Wake Up",
   livingInstruction: true,
-  stackSize: 6,
   content: `Morning wake-up practice. 10 minutes.
 
 Begin lying down. Gentle movements before big ones. Eyes closed then soft then open. Integrate the dream body and the waking body. Invitation to move, stretch, reach. End standing, awake, arrived. Not aggressive—gentle emergence.`,

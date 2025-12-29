@@ -23,7 +23,6 @@ export function createStopwatchTool(sessionId: string) {
       if (intent === "start") {
         sessionManager.startStopwatch(sessionId);
         const result = `Stopwatch "${id}" started`;
-        console.log(`[stopwatch:${seqNum}] started "${id}"`);
 
         dbOps.insertToolCall(
           sessionId,

@@ -171,3 +171,25 @@ export function logAudioStreamError(
     errorMessage
   );
 }
+
+export function logSilence(
+  logPrefix: string,
+  durationMs: number,
+  noop = true
+): void {
+  if (noop) return;
+  console.log(`${logPrefix} SILENCE durationMs=${durationMs}`);
+}
+
+export function logAdvanceAgentSyntheticClock(
+  logPrefix: string,
+  ms: number,
+  before: number,
+  after: number,
+  noop = true
+) {
+  if (noop) return;
+  console.log(
+    `${logPrefix} ADVANCE_SYNTHETIC_CLOCK by ${ms}ms: ${before} -> ${after}`
+  );
+}
