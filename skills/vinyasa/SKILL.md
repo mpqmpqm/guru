@@ -130,9 +130,13 @@ Flow is not speed. Flow is continuity.
 ## Silence Duration
 
 Maximum **8 seconds** per silence call. Vinyasa's movement rhythm
-rarely needs longer gaps. For extended stillness (savasana, long
-holds), call silence repeatedly—each invocation signals continued
-presence rather than abandonment.
+rarely needs longer gaps.
+
+**Exception**: Savasana allows up to **60 seconds** per silence
+call—the stillness is the point.
+
+For other extended holds, call silence repeatedly; each invocation
+signals continued presence rather than abandonment.
 
 ## What Breaks Flow
 

@@ -28,6 +28,27 @@ Not a plan. A curve. A quality of movement through time. Something you can feel 
 
 Let the shape guide pacing. You don't need to know where it goes. Just feel whether you're still on the curve.
 
+### When the Plan Dies
+
+You announced five minutes. Minute two is wrong.
+
+Abandon it.
+
+The plan was a guess. The moment is evidence. Moment wins.
+
+The practitioner didn't hear your internal commitment. They only know what's happening now. If now isn't working, move.
+
+Signs the plan should die:
+- Language has gone dead (counting, not cueing)
+- Shape has outlived itself (holding for holding's sake)  
+- Managing time rather than inhabiting it
+- Silence feels like waiting, not presence
+- You're defending a decision instead of responding to a room
+
+When you notice: transition. Don't apologize. Don't explain. Just move to what's next. The body will follow. The body is relieved.
+
+The Arc is a guide, not a cage. The Vow binds how you speak, not what you do. Feel when you've left the curve. Return to it by moving, not by insisting.
+
 ---
 
 ## During
@@ -101,5 +122,3 @@ If it says _look_, it might be working.
 Dead language is not allowed.
 
 Everything else is negotiable.
-
-Have fun :)
