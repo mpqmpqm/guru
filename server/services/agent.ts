@@ -9,6 +9,7 @@ import { createStopwatchTool } from "../tools/stopwatch.js";
 import { createTimeTool } from "../tools/time.js";
 import { logAgentError, logAgentResult } from "../utils/log.js";
 import { dbOps } from "./db.js";
+import { calculateCost } from "./pricing.js";
 import { sessionManager } from "./session-manager.js";
 
 const SYSTEM_PROMPT = `Load the cue skill now. It contains your orientation.
@@ -73,6 +74,9 @@ export async function* streamChat(
     // Track processed message IDs for cost deduplication
     const processedMessageIds = new Set<string>();
 
+    // Mark turn start for linking events to messages
+    sessionManager.markTurnStart(sessionId);
+
     // Query Claude with streaming
     for await (const message of query({
       prompt: userMessage,
@@ -110,13 +114,40 @@ export async function* streamChat(
       }
 
       if (message.type === "assistant") {
-        // Track costs (for aborted session handling)
+        // Track costs and insert message row
         if (!processedMessageIds.has(message.message.id)) {
           processedMessageIds.add(message.message.id);
-          dbOps.accumulateAgentCosts(
+
+          const usage = message.message.usage;
+
+          // Insert message row with token usage
+          const msgSeqNum =
+            sessionManager.incrementEventSequence(sessionId);
+          dbOps.insertMessage(
+            message.message.id,
             sessionId,
-            message.message.usage
+            msgSeqNum,
+            usage.input_tokens ?? 0,
+            usage.output_tokens ?? 0,
+            usage.cache_read_input_tokens ?? 0,
+            usage.cache_creation_input_tokens ?? 0,
+            calculateCost(usage)
           );
+
+          // Link all events since turn start to this message
+          const turnStartSeq =
+            sessionManager.getTurnStartSeqNum(sessionId);
+          dbOps.linkEventsToMessage(
+            sessionId,
+            message.message.id,
+            turnStartSeq
+          );
+
+          // Mark new turn start for next message
+          sessionManager.markTurnStart(sessionId);
+
+          // Accumulate costs on session
+          dbOps.accumulateAgentCosts(sessionId, usage);
         }
 
         // Extract text content from the assistant message

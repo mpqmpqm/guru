@@ -98,12 +98,27 @@ function initSchema(database: Database.Database): void {
     CREATE INDEX IF NOT EXISTS idx_errors_session ON errors(session_id, sequence_num);
     CREATE INDEX IF NOT EXISTS idx_silences_session ON silences(session_id, sequence_num);
     CREATE INDEX IF NOT EXISTS idx_tool_calls_session ON tool_calls(session_id, sequence_num);
+
+    CREATE TABLE IF NOT EXISTS messages (
+      id TEXT PRIMARY KEY,
+      session_id TEXT NOT NULL,
+      sequence_num INTEGER NOT NULL,
+      input_tokens INTEGER NOT NULL,
+      output_tokens INTEGER NOT NULL,
+      cache_read_tokens INTEGER DEFAULT 0,
+      cache_creation_tokens INTEGER DEFAULT 0,
+      cost_usd REAL,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (session_id) REFERENCES sessions(id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_messages_session ON messages(session_id, sequence_num);
   `);
   ensureCueWaitMsColumn(database);
   ensureResultColumns(database);
   ensureExportColumns(database);
   ensureCostColumns(database);
   ensureModelColumn(database);
+  ensureMessageIdColumns(database);
 }
 
 function ensureCueWaitMsColumn(database: Database.Database): void {
@@ -258,6 +273,26 @@ function ensureModelColumn(database: Database.Database): void {
     database.exec(
       `ALTER TABLE sessions ADD COLUMN model TEXT DEFAULT '${DEFAULT_MODEL}'`
     );
+  }
+}
+
+function ensureMessageIdColumns(database: Database.Database): void {
+  const tables = [
+    "thinking_traces",
+    "cues",
+    "silences",
+    "tool_calls",
+    "errors",
+  ];
+  for (const table of tables) {
+    const columns = database
+      .prepare(`PRAGMA table_info(${table})`)
+      .all() as Array<{ name: string }>;
+    if (!columns.some((c) => c.name === "message_id")) {
+      database.exec(
+        `ALTER TABLE ${table} ADD COLUMN message_id TEXT REFERENCES messages(id)`
+      );
+    }
   }
 }
 
@@ -667,6 +702,9 @@ export const dbOps = {
         database
           .prepare(`DELETE FROM tool_calls WHERE session_id = ?`)
           .run(sessionId);
+        database
+          .prepare(`DELETE FROM messages WHERE session_id = ?`)
+          .run(sessionId);
         const result = database
           .prepare(`DELETE FROM sessions WHERE id = ?`)
           .run(sessionId);
@@ -915,6 +953,95 @@ export const dbOps = {
       },
       "accumulateExportTTSCost",
       undefined
+    );
+  },
+
+  insertMessage(
+    id: string,
+    sessionId: string,
+    seqNum: number,
+    inputTokens: number,
+    outputTokens: number,
+    cacheReadTokens: number,
+    cacheCreationTokens: number,
+    costUsd: number
+  ): void {
+    safeDbOperation(
+      () => {
+        const database = getDb();
+        database
+          .prepare(
+            `INSERT INTO messages (id, session_id, sequence_num, input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens, cost_usd, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          )
+          .run(
+            id,
+            sessionId,
+            seqNum,
+            inputTokens,
+            outputTokens,
+            cacheReadTokens,
+            cacheCreationTokens,
+            costUsd,
+            new Date().toISOString()
+          );
+      },
+      "insertMessage",
+      undefined
+    );
+  },
+
+  linkEventsToMessage(
+    sessionId: string,
+    messageId: string,
+    fromSeqNum: number
+  ): void {
+    safeDbOperation(
+      () => {
+        const database = getDb();
+        const tables = [
+          "thinking_traces",
+          "cues",
+          "silences",
+          "tool_calls",
+          "errors",
+        ];
+        for (const table of tables) {
+          database
+            .prepare(
+              `UPDATE ${table} SET message_id = ? WHERE session_id = ? AND sequence_num > ? AND message_id IS NULL`
+            )
+            .run(messageId, sessionId, fromSeqNum);
+        }
+      },
+      "linkEventsToMessage",
+      undefined
+    );
+  },
+
+  getMessages(
+    sessionId: string
+  ): Array<{
+    id: string;
+    session_id: string;
+    sequence_num: number;
+    input_tokens: number;
+    output_tokens: number;
+    cache_read_tokens: number;
+    cache_creation_tokens: number;
+    cost_usd: number | null;
+    created_at: string;
+  }> {
+    return safeDbOperation(
+      () => {
+        const database = getDb();
+        return database
+          .prepare(
+            `SELECT * FROM messages WHERE session_id = ? ORDER BY sequence_num`
+          )
+          .all(sessionId) as ReturnType<typeof dbOps.getMessages>;
+      },
+      "getMessages",
+      []
     );
   },
 };

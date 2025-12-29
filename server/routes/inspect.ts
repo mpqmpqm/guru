@@ -21,8 +21,9 @@ inspectRouter.get("/sessions/:sessionId", (req, res) => {
   }
 
   const events = dbOps.getSessionEvents(sessionId);
+  const messages = dbOps.getMessages(sessionId);
 
-  res.json({ session, events });
+  res.json({ session, events, messages });
 });
 
 // Delete a session

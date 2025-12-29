@@ -50,8 +50,8 @@
 
       .session-top-row {
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        gap: 0.75rem;
         margin-bottom: 1rem;
         padding-bottom: 0.75rem;
         border-bottom: 1px solid var(--border-subtle);
@@ -64,7 +64,14 @@
         opacity: 0.7;
       }
 
+      .session-model {
+        font-family: monospace;
+        font-size: 0.6875rem;
+        color: var(--text-secondary);
+      }
+
       .session-status {
+        margin-left: auto;
         padding: 0.25rem 0.625rem;
         border-radius: 4px;
         font-size: 0.6875rem;
@@ -468,6 +475,44 @@
         opacity: 0.7;
         font-family: monospace;
       }
+
+      #token-chart {
+        width: 100%;
+        margin-top: 0.75rem;
+        display: flex;
+        gap: 1rem;
+      }
+      .chart-container {
+        flex: 1;
+        min-width: 0;
+      }
+      .chart-container svg {
+        width: 100%;
+        height: 120px;
+      }
+      @media (max-width: 600px) {
+        #token-chart {
+          flex-direction: column;
+        }
+      }
+      .chart-title {
+        font-size: 0.625rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+      }
+      .chart-line {
+        fill: none;
+        stroke-width: 1.5;
+      }
+      .line-cache-read {
+        stroke: #6b8f71;
+      }
+      .line-cache-write {
+        stroke: #d4a853;
+      }
+
     </style>
   </head>
   <body>
@@ -482,10 +527,74 @@
       <div id="timeline" class="timeline"></div>
     </div>
 
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <script>
       const sessionId = window.location.pathname
         .split("/")
         .pop();
+
+      function renderTokenChart(messages) {
+        if (!messages?.length) return;
+
+        const container = document.getElementById("token-chart");
+        const height = 120;
+        const margin = { top: 5, right: 10, bottom: 20, left: 45 };
+
+        // Compute cumulative sums with elapsed time
+        const startTime = new Date(messages[0].created_at).getTime();
+        let cumRead = 0, cumWrite = 0;
+        const data = messages.map((m) => ({
+          time: (new Date(m.created_at).getTime() - startTime) / 1000,
+          cacheRead: (cumRead += m.cache_read_tokens),
+          cacheWrite: (cumWrite += m.cache_creation_tokens),
+        }));
+
+        const maxTime = d3.max(data, (d) => d.time);
+
+        const series = [
+          { key: "cacheRead", title: "Cache Read", cls: "line-cache-read" },
+          { key: "cacheWrite", title: "Cache Write", cls: "line-cache-write" },
+        ];
+
+        // Calculate width before creating elements (account for gap)
+        const containerWidth = container.clientWidth;
+        const chartWidth = (containerWidth - 16) / 2; // 16px gap
+
+        series.forEach((s) => {
+          const wrapper = document.createElement("div");
+          wrapper.className = "chart-container";
+          wrapper.innerHTML = `<div class="chart-title">${s.title}</div>`;
+          container.appendChild(wrapper);
+
+          const width = chartWidth;
+
+          const x = d3.scaleLinear()
+            .domain([0, maxTime])
+            .range([margin.left, width - margin.right]);
+
+          const y = d3.scaleLinear()
+            .domain([0, d3.max(data, (d) => d[s.key])])
+            .range([height - margin.bottom, margin.top]);
+
+          const svg = d3.select(wrapper).append("svg")
+            .attr("viewBox", `0 0 ${width} ${height}`);
+
+          svg.append("g")
+            .attr("transform", `translate(0,${height - margin.bottom})`)
+            .call(d3.axisBottom(x).ticks(3).tickFormat((d) => `${Math.floor(d)}s`));
+
+          svg.append("g")
+            .attr("transform", `translate(${margin.left},0)`)
+            .call(d3.axisLeft(y).ticks(4).tickFormat(d3.format(".2s")));
+
+          const line = d3.line().x((d) => x(d.time)).y((d) => y(d[s.key]));
+
+          svg.append("path")
+            .datum(data)
+            .attr("class", `chart-line ${s.cls}`)
+            .attr("d", line);
+        });
+      }
 
       async function loadSession() {
         const infoContainer =
@@ -501,7 +610,8 @@
             throw new Error("Session not found");
           }
 
-          const { session, events } = await response.json();
+          const { session, events, messages } =
+            await response.json();
 
           // Render session info
           const date = new Date(session.created_at);
@@ -514,15 +624,21 @@
           });
 
           // Format costs
-          const formatCost = (val) => val != null ? `$${val.toFixed(4)}` : '—';
-          const formatTokens = (val) => val != null ? val.toLocaleString() : '—';
+          const formatCost = (val) =>
+            val != null ? `$${val.toFixed(4)}` : "—";
+          const formatTokens = (val) =>
+            val != null ? val.toLocaleString() : "—";
           // Cost is provisional (amber) unless session completed successfully
-          const agentCostClass = session.status === 'completed' ? '' : 'pending';
-          const totalCost = (session.agent_cost_usd || 0) + (session.tts_cost_usd || 0);
+          const agentCostClass =
+            session.status === "completed" ? "" : "pending";
+          const totalCost =
+            (session.agent_cost_usd || 0) +
+            (session.tts_cost_usd || 0);
 
           infoContainer.innerHTML = `
             <div class="session-top-row">
               <span class="session-id">${session.id}</span>
+              ${session.model ? `<span class="session-model">${escapeHtml(session.model)}</span>` : ""}
               <span class="session-status ${session.status}">${session.status}</span>
             </div>
             <div class="session-prompt">${escapeHtml(session.initial_prompt || "(no prompt)")}</div>
@@ -548,6 +664,7 @@
                 <span class="cost-label">Cache (read/write)</span>
                 <span class="cost-value">${formatTokens(session.cache_read_tokens)} / ${formatTokens(session.cache_creation_tokens)}</span>
               </div>
+              <div id="token-chart"></div>
             </div>
             <div class="session-actions">
               <button class="copy-btn" id="copy-btn" onclick="copyToClipboard()">Copy</button>
@@ -559,6 +676,9 @@
 
           // Update export UI based on current status
           updateExportUI(session);
+
+          // Render token chart
+          renderTokenChart(messages);
 
           // Store session and events for copy function
           window.sessionData = session;

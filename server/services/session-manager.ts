@@ -91,6 +91,8 @@ interface Session {
   prerollComplete: boolean;
   // Stopwatch: synthetic clock time when started
   stopwatchStartMs?: number;
+  // Sequence number at start of current turn (for linking events to messages)
+  turnStartSeqNum: number;
 }
 
 class SessionManager {
@@ -119,6 +121,7 @@ class SessionManager {
       drainResolver: null,
       audioItemCount: 0,
       prerollComplete: false,
+      turnStartSeqNum: 0,
     });
     return id;
   }
@@ -206,6 +209,17 @@ class SessionManager {
     if (!session) return 0;
     session.eventSequence += 1;
     return session.eventSequence;
+  }
+
+  markTurnStart(sessionId: string): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.turnStartSeqNum = session.eventSequence;
+    }
+  }
+
+  getTurnStartSeqNum(sessionId: string): number {
+    return this.sessions.get(sessionId)?.turnStartSeqNum ?? 0;
   }
 
   clearPendingThinking(sessionId: string): void {
