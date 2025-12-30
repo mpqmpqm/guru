@@ -51,10 +51,8 @@ const MAX_RECONNECT_ATTEMPTS = 10;
 const BASE_RECONNECT_DELAY = 1000;
 
 function getSelectedModel() {
-  const checked = document.querySelector(
-    'input[name="model"]:checked'
-  );
-  return checked ? checked.value : "opus";
+  const select = document.getElementById("model-selector");
+  return select ? select.value : "haiku";
 }
 
 // Calculate exponential backoff with jitter
@@ -503,6 +501,7 @@ function connectSSE() {
     sendBtn.disabled = false;
     messageInput.value = "";
     stopStreamTimer();
+    stopStatus();
     init(); // Start a new session
   });
 
@@ -519,6 +518,7 @@ function connectSSE() {
     sendBtn.textContent = "Begin";
     sendBtn.disabled = false;
     stopStreamTimer();
+    stopStatus();
   });
 
   eventSource.onerror = () => {

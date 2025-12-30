@@ -54,6 +54,7 @@
 
       <main>
         <div id="cue-display" class="cue-display"></div>
+        <div id="pause-status" class="pause-status"></div>
       </main>
 
       <footer>
@@ -69,26 +70,11 @@
               >Living instruction 🌀</span
             >
           </label>
-          <div id="pause-status" class="pause-status"></div>
-          <div class="model-selector">
-            <label class="model-option">
-              <input type="radio" name="model" value="opus" />
-              <span>Opus</span>
-            </label>
-            <label class="model-option">
-              <input type="radio" name="model" value="sonnet" />
-              <span>Sonnet</span>
-            </label>
-            <label class="model-option">
-              <input
-                type="radio"
-                name="model"
-                value="haiku"
-                checked
-              />
-              <span>Haiku</span>
-            </label>
-          </div>
+          <select id="model-selector" class="model-selector">
+            <option value="haiku" selected>Haiku</option>
+            <option value="sonnet">Sonnet</option>
+            <option value="opus">Opus</option>
+          </select>
         </div>
         <div
           id="example-chiclets"
