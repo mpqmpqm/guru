@@ -658,7 +658,8 @@ async function sendMessage(message) {
       body: JSON.stringify({
         message,
         model: getSelectedModel(),
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timezone:
+          Intl.DateTimeFormat().resolvedOptions().timeZone,
       }),
     });
 

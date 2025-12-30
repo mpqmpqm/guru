@@ -15,7 +15,12 @@ const BYTES_PER_SECOND = SAMPLE_RATE * 2; // 16-bit mono
 
 // Minimal audio event type for export processing
 type AudioEvent =
-  | { type: "speak"; text: string; voice: string; sequence_num: number }
+  | {
+      type: "speak";
+      text: string;
+      voice: string;
+      sequence_num: number;
+    }
   | {
       type: "silence";
       durationMs: number;
@@ -141,7 +146,9 @@ export async function processExport(
           });
         }
       }
-      audioEvents.sort((a, b) => a.sequence_num - b.sequence_num);
+      audioEvents.sort(
+        (a, b) => a.sequence_num - b.sequence_num
+      );
     }
 
     if (audioEvents.length === 0) {

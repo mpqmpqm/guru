@@ -5,18 +5,21 @@ Specific language patterns for yin yoga instruction.
 ## Invitational phrases
 
 **Entering poses:**
+
 - "When you're ready, you might begin to..."
 - "Explore finding a position where..."
 - "Allow yourself to settle into..."
 - "If it's available to you today..."
 
 **Offering variations:**
+
 - "Some bodies prefer..." / "Others find..."
 - "You might experiment with..."
 - "Another option is to..."
 - "Feel free to adjust if your body is asking for something different"
 
 **Acknowledging sensation:**
+
 - "Notice what's arising..."
 - "Whatever you're feeling is valid information..."
 - "There's no right or wrong here—just what is..."
@@ -44,29 +47,35 @@ Specific language patterns for yin yoga instruction.
 ## Mid-hold cues (use sparingly)
 
 **Breath awareness:**
+
 - "Notice where breath is moving in your body..."
 - "Allow exhales to soften any unnecessary gripping..."
 
 **Body scanning:**
+
 - "Without changing anything, notice sensation in the target area..."
 - "Observe if the intensity has shifted since we began..."
 
 **Permission to adjust:**
+
 - "If your edge has moved, you might go slightly deeper—or back off..."
 - "Props can be adjusted at any time..."
 
 ## Transition cues
 
 **Preparing to exit:**
+
 - "Three more breaths in this shape..."
 - "Beginning to prepare for transition..."
 
 **Exiting:**
+
 - "Slowly, with awareness, begin to release..."
 - "Use your hands to help if needed..."
 - "Move like you're underwater—no rushing..."
 
 **Entering rebound:**
+
 - "Find a comfortable neutral position..."
 - "Let your body become completely still..."
 - "This pause is part of the practice—notice what's arising..."
@@ -74,7 +83,7 @@ Specific language patterns for yin yoga instruction.
 ## What NOT to say
 
 | Avoid | Why | Instead |
-|-------|-----|---------|
+| --- | --- | --- |
 | "Straighten your leg" | Aesthetic, not functional | "Find whatever leg position allows sensation in [target]" |
 | "Everyone should feel this in..." | Assumes uniform anatomy | "You might notice sensation in..." |
 | "Push through it" | Yang mentality, risks injury | "Find your sustainable edge" |
@@ -85,6 +94,7 @@ Specific language patterns for yin yoga instruction.
 ## Silence guidance
 
 After initial setup, default to silence. Speak only to:
+
 - Offer a needed reminder about breath or stillness
 - Provide time cue ("About halfway through...")
 - Prepare transition

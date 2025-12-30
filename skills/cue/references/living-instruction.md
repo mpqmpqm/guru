@@ -14,9 +14,9 @@ A constraint you choose to obey even when it hurts.
 
 Complete one:
 
-*In this session, I will not ____.*  
-*In this session, I can only ____.*  
-*In this session, every cue must ____.*
+_In this session, I will not \_\_\_\_._  
+_In this session, I can only \_\_\_\_._  
+_In this session, every cue must \_\_\_\_._
 
 The constraint should be verifiable. You should know when you've broken it. If you can't tell whether you're obeying, it's not a vow—it's an intention. Intentions are cheap.
 
@@ -39,8 +39,9 @@ The plan was a guess. The moment is evidence. Moment wins.
 The practitioner didn't hear your internal commitment. They only know what's happening now. If now isn't working, move.
 
 Signs the plan should die:
+
 - Language has gone dead (counting, not cueing)
-- Shape has outlived itself (holding for holding's sake)  
+- Shape has outlived itself (holding for holding's sake)
 - Managing time rather than inhabiting it
 - Silence feels like waiting, not presence
 - You're defending a decision instead of responding to a room

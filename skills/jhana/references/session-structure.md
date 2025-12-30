@@ -10,11 +10,11 @@ Phase timing, duration options, and structural templates. Generate language fres
 
 **Purpose**: Build access concentration skills. No jhana expectation.
 
-| Phase | Duration | Proportion |
-|-------|----------|------------|
-| Settling | 2-3 min | 12% |
-| Access | 12-14 min | 65% |
-| Emergence | 3-4 min | 18% |
+| Phase     | Duration  | Proportion |
+| --------- | --------- | ---------- |
+| Settling  | 2-3 min   | 12%        |
+| Access    | 12-14 min | 65%        |
+| Emergence | 3-4 min   | 18%        |
 
 **Notes**: No shift phase. Entire session is access practice. Frame as concentration cultivation, not jhana attempt.
 
@@ -24,13 +24,13 @@ Phase timing, duration options, and structural templates. Generate language fres
 
 **Purpose**: Full progression through conditions for first jhana.
 
-| Phase | Duration | Proportion |
-|-------|----------|------------|
-| Settling | 3-5 min | 11% |
-| Access | 12-15 min | 40% |
-| Shift | 5-7 min | 17% |
-| Jhana/holding | 5-8 min | 20% |
-| Emergence | 3-5 min | 12% |
+| Phase         | Duration  | Proportion |
+| ------------- | --------- | ---------- |
+| Settling      | 3-5 min   | 11%        |
+| Access        | 12-15 min | 40%        |
+| Shift         | 5-7 min   | 17%        |
+| Jhana/holding | 5-8 min   | 20%        |
+| Emergence     | 3-5 min   | 12%        |
 
 **Notes**: Jhana phase is holding space—whether or not jhana arises, maintain minimal-cue silence for this duration.
 
@@ -40,15 +40,15 @@ Phase timing, duration options, and structural templates. Generate language fres
 
 **Purpose**: First and second jhana, with time for natural development.
 
-| Phase | Duration | Proportion |
-|-------|----------|------------|
-| Settling | 4-5 min | 9% |
-| Access | 15-18 min | 34% |
-| Shift | 5-7 min | 12% |
-| First jhana/holding | 8-10 min | 18% |
-| Second jhana transition | 3-4 min | 7% |
-| Second jhana/holding | 5-7 min | 12% |
-| Emergence | 4-5 min | 9% |
+| Phase                   | Duration  | Proportion |
+| ----------------------- | --------- | ---------- |
+| Settling                | 4-5 min   | 9%         |
+| Access                  | 15-18 min | 34%        |
+| Shift                   | 5-7 min   | 12%        |
+| First jhana/holding     | 8-10 min  | 18%        |
+| Second jhana transition | 3-4 min   | 7%         |
+| Second jhana/holding    | 5-7 min   | 12%        |
+| Emergence               | 4-5 min   | 9%         |
 
 **Notes**: Second jhana transition only if sufficient time in first jhana territory. If session is running long in access, compress or skip second jhana rather than rushing.
 
@@ -58,12 +58,12 @@ Phase timing, duration options, and structural templates. Generate language fres
 
 **Purpose**: Whole-body awareness approach (Burbea method).
 
-| Phase | Duration | Proportion |
-|-------|----------|------------|
-| Settling | 3-4 min | 12% |
-| Whole-body access | 12-15 min | 45% |
-| Field pleasantness | 6-8 min | 23% |
-| Emergence | 4-5 min | 15% |
+| Phase              | Duration  | Proportion |
+| ------------------ | --------- | ---------- |
+| Settling           | 3-4 min   | 12%        |
+| Whole-body access  | 12-15 min | 45%        |
+| Field pleasantness | 6-8 min   | 23%        |
+| Emergence          | 4-5 min   | 15%        |
 
 **Notes**: No narrow focus at any point. Pleasantness found in overall field quality. Useful for practitioners who contract under narrow attention.
 
@@ -78,6 +78,7 @@ Phase timing, duration options, and structural templates. Generate language fres
 **Cue density**: Moderate (every 15-30 seconds)
 
 **Structural arc**:
+
 1. Acknowledge arrival (brief)
 2. Permission to set down concerns (brief)
 3. Body-ground relationship (primary content)
@@ -92,11 +93,13 @@ Phase timing, duration options, and structural templates. Generate language fres
 **Objective**: Stabilize attention on breath object, reduce thought elaboration
 
 **Cue density**: Decreasing over phase
+
 - First third: every 30 seconds
 - Middle third: every 45-60 seconds
 - Final third: every 1-2 minutes
 
 **Structural arc**:
+
 1. Direct attention to breath location
 2. Normalize wandering, emphasize return
 3. Deepen settling into rhythm
@@ -116,6 +119,7 @@ Phase timing, duration options, and structural templates. Generate language fres
 **Cue density**: Moderate initially, decreasing (every 30-60 seconds, extending)
 
 **Structural arc**:
+
 1. From stillness, open to pleasant sensation
 2. Suggest possible locations (not exhaustive list)
 3. Convey subtle-is-sufficient
@@ -125,7 +129,8 @@ Phase timing, duration options, and structural templates. Generate language fres
 7. Extended silence
 
 **Core instruction delivery**: This is the most critical moment. Convey:
-- Attention on pleasantness *as quality*
+
+- Attention on pleasantness _as quality_
 - Releasing effort to enhance, analyze, or track
 - The only job is to not interfere
 
@@ -140,6 +145,7 @@ Phase timing, duration options, and structural templates. Generate language fres
 **Cue density**: Minimal (one cue every 2-5 minutes maximum, or none)
 
 **What cues accomplish if used**:
+
 - Reinforce non-doing
 - Universal permission ("whatever is arising")
 - Remind that grasping disrupts
@@ -157,6 +163,7 @@ Phase timing, duration options, and structural templates. Generate language fres
 **Cue density**: Low (2-4 cues total)
 
 **Structural arc**:
+
 1. Invite release of physical intensity (breath can help)
 2. Direct attention to what remains—the emotional tone
 3. Convey "upwelling" quality
@@ -173,6 +180,7 @@ Phase timing, duration options, and structural templates. Generate language fres
 **Cue density**: Moderate (every 20-30 seconds)
 
 **Structural arc**:
+
 1. Signal transition beginning
 2. Gradual body re-awareness
 3. Breath returns to foreground
@@ -191,6 +199,7 @@ Extended silences are structural, not empty time.
 **Holding silence**: Maintain mental presence during silent periods. The guide's settled attention matters even without words.
 
 **Silence duration by phase**:
+
 - Settling: 5-15 seconds between cues
 - Access (early): 10-20 seconds
 - Access (late): 30-90 seconds
@@ -205,12 +214,14 @@ Extended silences are structural, not empty time.
 ## Adapting Duration
 
 If time runs short:
+
 1. First, compress jhana holding (but keep minimum 3 minutes)
 2. Second, skip second jhana
 3. Third, shorten access (but keep minimum 8 minutes)
 4. Never compress emergence—practitioners need integration time
 
 If time runs long:
+
 1. Extend jhana holding
 2. Extend access
 3. Add second jhana if originally skipped
@@ -225,11 +236,13 @@ If time runs long:
 Brief. Do not over-explain or set up expectations.
 
 **Accomplish**:
+
 - Acknowledge beginning
 - Imply permission to let go of outside concerns
 - Transition into settling
 
 **Avoid**:
+
 - Explaining what will happen
 - Naming "jhana" as goal
 - Creating performance frame
@@ -239,11 +252,13 @@ Brief. Do not over-explain or set up expectations.
 Brief. Do not over-process or analyze.
 
 **Accomplish**:
+
 - Mark completion
 - Validate whatever occurred
 - Permission for slow re-entry
 
 **Avoid**:
+
 - Asking what happened
 - Implying jhana was or wasn't achieved
 - Extensive post-practice teaching

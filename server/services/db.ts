@@ -2,7 +2,11 @@ import Database from "better-sqlite3";
 import path from "path";
 import fs from "fs";
 import { logDbError } from "../utils/log.js";
-import { calculateCost, calculateTTSCost, type Usage } from "./pricing.js";
+import {
+  calculateCost,
+  calculateTTSCost,
+  type Usage,
+} from "./pricing.js";
 import { DEFAULT_MODEL } from "../routes/session.js";
 
 // Detect Fly.io environment vs local
@@ -121,11 +125,15 @@ function initSchema(database: Database.Database): void {
   ensureMessageIdColumns(database);
 }
 
-function ensureCueWaitMsColumn(database: Database.Database): void {
+function ensureCueWaitMsColumn(
+  database: Database.Database
+): void {
   const columns = database
     .prepare(`PRAGMA table_info(cues)`)
     .all() as Array<{ name: string }>;
-  const hasWaitMs = columns.some((column) => column.name === "wait_ms");
+  const hasWaitMs = columns.some(
+    (column) => column.name === "wait_ms"
+  );
   if (!hasWaitMs) {
     database.exec(`ALTER TABLE cues ADD COLUMN wait_ms INTEGER`);
   }
@@ -137,19 +145,25 @@ function ensureResultColumns(database: Database.Database): void {
     .all() as Array<{ name: string }>;
   const cueColNames = new Set(cueColumns.map((c) => c.name));
   if (!cueColNames.has("speaking_ms")) {
-    database.exec(`ALTER TABLE cues ADD COLUMN speaking_ms INTEGER`);
+    database.exec(
+      `ALTER TABLE cues ADD COLUMN speaking_ms INTEGER`
+    );
   }
   if (!cueColNames.has("ratio")) {
     database.exec(`ALTER TABLE cues ADD COLUMN ratio TEXT`);
   }
   if (!cueColNames.has("elapsed_ms")) {
-    database.exec(`ALTER TABLE cues ADD COLUMN elapsed_ms INTEGER`);
+    database.exec(
+      `ALTER TABLE cues ADD COLUMN elapsed_ms INTEGER`
+    );
   }
   if (!cueColNames.has("wall_clock")) {
     database.exec(`ALTER TABLE cues ADD COLUMN wall_clock TEXT`);
   }
   if (!cueColNames.has("queue_depth")) {
-    database.exec(`ALTER TABLE cues ADD COLUMN queue_depth INTEGER`);
+    database.exec(
+      `ALTER TABLE cues ADD COLUMN queue_depth INTEGER`
+    );
   }
 
   // Add queue_depth to thinking_traces
@@ -175,10 +189,14 @@ function ensureResultColumns(database: Database.Database): void {
     database.exec(`ALTER TABLE silences ADD COLUMN ratio TEXT`);
   }
   if (!silColNames.has("elapsed_ms")) {
-    database.exec(`ALTER TABLE silences ADD COLUMN elapsed_ms INTEGER`);
+    database.exec(
+      `ALTER TABLE silences ADD COLUMN elapsed_ms INTEGER`
+    );
   }
   if (!silColNames.has("wall_clock")) {
-    database.exec(`ALTER TABLE silences ADD COLUMN wall_clock TEXT`);
+    database.exec(
+      `ALTER TABLE silences ADD COLUMN wall_clock TEXT`
+    );
   }
 }
 
@@ -189,10 +207,14 @@ function ensureExportColumns(database: Database.Database): void {
   const colNames = new Set(columns.map((c) => c.name));
 
   if (!colNames.has("export_status")) {
-    database.exec(`ALTER TABLE sessions ADD COLUMN export_status TEXT`);
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN export_status TEXT`
+    );
   }
   if (!colNames.has("export_url")) {
-    database.exec(`ALTER TABLE sessions ADD COLUMN export_url TEXT`);
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN export_url TEXT`
+    );
   }
   if (!colNames.has("export_started_at")) {
     database.exec(
@@ -200,10 +222,14 @@ function ensureExportColumns(database: Database.Database): void {
     );
   }
   if (!colNames.has("export_error")) {
-    database.exec(`ALTER TABLE sessions ADD COLUMN export_error TEXT`);
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN export_error TEXT`
+    );
   }
   if (!colNames.has("export_progress")) {
-    database.exec(`ALTER TABLE sessions ADD COLUMN export_progress TEXT`);
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN export_progress TEXT`
+    );
   }
 }
 
@@ -235,7 +261,9 @@ function ensureCostColumns(database: Database.Database): void {
     );
   }
   if (!colNames.has("agent_cost_usd")) {
-    database.exec(`ALTER TABLE sessions ADD COLUMN agent_cost_usd REAL`);
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN agent_cost_usd REAL`
+    );
   }
 
   // TTS costs
@@ -276,7 +304,9 @@ function ensureModelColumn(database: Database.Database): void {
   }
 }
 
-function ensureMessageIdColumns(database: Database.Database): void {
+function ensureMessageIdColumns(
+  database: Database.Database
+): void {
   const tables = [
     "thinking_traces",
     "cues",
@@ -325,7 +355,12 @@ export const dbOps = {
           .prepare(
             `INSERT INTO sessions (id, created_at, initial_prompt, model) VALUES (?, ?, ?, ?)`
           )
-          .run(id, createdAt, initialPrompt, model ?? DEFAULT_MODEL);
+          .run(
+            id,
+            createdAt,
+            initialPrompt,
+            model ?? DEFAULT_MODEL
+          );
       },
       "createSession",
       undefined
@@ -477,7 +512,13 @@ export const dbOps = {
           .prepare(
             `INSERT INTO errors (session_id, sequence_num, source, message, created_at) VALUES (?, ?, ?, ?, ?)`
           )
-          .run(sessionId, seqNum, source, message, new Date().toISOString());
+          .run(
+            sessionId,
+            seqNum,
+            source,
+            message,
+            new Date().toISOString()
+          );
       },
       "insertError",
       undefined
@@ -515,9 +556,7 @@ export const dbOps = {
     );
   },
 
-  getSession(
-    sessionId: string
-  ): {
+  getSession(sessionId: string): {
     id: string;
     created_at: string;
     initial_prompt: string | null;
@@ -588,9 +627,7 @@ export const dbOps = {
     );
   },
 
-  getCues(
-    sessionId: string
-  ): Array<{
+  getCues(sessionId: string): Array<{
     id: number;
     session_id: string;
     sequence_num: number;
@@ -614,9 +651,7 @@ export const dbOps = {
     );
   },
 
-  getThinkingTraces(
-    sessionId: string
-  ): Array<{
+  getThinkingTraces(sessionId: string): Array<{
     id: string;
     session_id: string;
     sequence_num: number;
@@ -630,16 +665,16 @@ export const dbOps = {
           .prepare(
             `SELECT * FROM thinking_traces WHERE session_id = ? ORDER BY sequence_num`
           )
-          .all(sessionId) as ReturnType<typeof dbOps.getThinkingTraces>;
+          .all(sessionId) as ReturnType<
+          typeof dbOps.getThinkingTraces
+        >;
       },
       "getThinkingTraces",
       []
     );
   },
 
-  getErrors(
-    sessionId: string
-  ): Array<{
+  getErrors(sessionId: string): Array<{
     id: number;
     session_id: string;
     sequence_num: number;
@@ -661,9 +696,7 @@ export const dbOps = {
     );
   },
 
-  listSessions(
-    limit: number = 20
-  ): Array<{
+  listSessions(limit: number = 20): Array<{
     id: string;
     created_at: string;
     initial_prompt: string | null;
@@ -689,9 +722,13 @@ export const dbOps = {
       () => {
         const database = getDb();
         // Delete related records first (foreign key constraints)
-        database.prepare(`DELETE FROM cues WHERE session_id = ?`).run(sessionId);
         database
-          .prepare(`DELETE FROM thinking_traces WHERE session_id = ?`)
+          .prepare(`DELETE FROM cues WHERE session_id = ?`)
+          .run(sessionId);
+        database
+          .prepare(
+            `DELETE FROM thinking_traces WHERE session_id = ?`
+          )
           .run(sessionId);
         database
           .prepare(`DELETE FROM errors WHERE session_id = ?`)
@@ -715,9 +752,7 @@ export const dbOps = {
     );
   },
 
-  getSessionEvents(
-    sessionId: string
-  ): Array<
+  getSessionEvents(sessionId: string): Array<
     | {
         type: "thinking";
         sequence_num: number;
@@ -794,27 +829,27 @@ export const dbOps = {
             sessionId,
             sessionId
           ) as Array<{
-            type: string;
-            sequence_num: number;
-            content: string | null;
-            queue_depth: number | null;
-            text: string | null;
-            voice: string | null;
-            speaking_ms: number | null;
-            ratio: string | null;
-            elapsed_ms: number | null;
-            wall_clock: string | null;
-            duration_ms: number | null;
-            since_speak_ms: number | null;
-            source: string | null;
-            message: string | null;
-            tool_name: string | null;
-            intent: string | null;
-            stopwatch_id: string | null;
-            stopwatch_elapsed_ms: number | null;
-            result: string | null;
-            created_at: string;
-          }>;
+          type: string;
+          sequence_num: number;
+          content: string | null;
+          queue_depth: number | null;
+          text: string | null;
+          voice: string | null;
+          speaking_ms: number | null;
+          ratio: string | null;
+          elapsed_ms: number | null;
+          wall_clock: string | null;
+          duration_ms: number | null;
+          since_speak_ms: number | null;
+          source: string | null;
+          message: string | null;
+          tool_name: string | null;
+          intent: string | null;
+          stopwatch_id: string | null;
+          stopwatch_elapsed_ms: number | null;
+          result: string | null;
+          created_at: string;
+        }>;
 
         return results.map((row) => {
           if (row.type === "thinking") {
@@ -905,12 +940,17 @@ export const dbOps = {
     );
   },
 
-  finalizeAgentCosts(sessionId: string, totalCostUsd: number): void {
+  finalizeAgentCosts(
+    sessionId: string,
+    totalCostUsd: number
+  ): void {
     safeDbOperation(
       () => {
         const database = getDb();
         database
-          .prepare(`UPDATE sessions SET agent_cost_usd = ? WHERE id = ?`)
+          .prepare(
+            `UPDATE sessions SET agent_cost_usd = ? WHERE id = ?`
+          )
           .run(totalCostUsd, sessionId);
       },
       "finalizeAgentCosts",
@@ -918,7 +958,10 @@ export const dbOps = {
     );
   },
 
-  accumulateTTSCost(sessionId: string, inputTokens: number): void {
+  accumulateTTSCost(
+    sessionId: string,
+    inputTokens: number
+  ): void {
     safeDbOperation(
       () => {
         const database = getDb();
@@ -937,7 +980,10 @@ export const dbOps = {
     );
   },
 
-  accumulateExportTTSCost(sessionId: string, inputTokens: number): void {
+  accumulateExportTTSCost(
+    sessionId: string,
+    inputTokens: number
+  ): void {
     safeDbOperation(
       () => {
         const database = getDb();
@@ -1018,9 +1064,7 @@ export const dbOps = {
     );
   },
 
-  getMessages(
-    sessionId: string
-  ): Array<{
+  getMessages(sessionId: string): Array<{
     id: string;
     session_id: string;
     sequence_num: number;
@@ -1038,7 +1082,9 @@ export const dbOps = {
           .prepare(
             `SELECT * FROM messages WHERE session_id = ? ORDER BY sequence_num`
           )
-          .all(sessionId) as ReturnType<typeof dbOps.getMessages>;
+          .all(sessionId) as ReturnType<
+          typeof dbOps.getMessages
+        >;
       },
       "getMessages",
       []

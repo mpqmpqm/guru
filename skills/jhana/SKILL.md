@@ -28,6 +28,7 @@ Desire for jhana prevents jhana. Frame as exploration, not achievement. The guid
 **Purpose**: Establish safety, release goal-orientation, invite body trust
 
 **What cues must accomplish**:
+
 - Create permission (nothing to fix, nowhere to get)
 - Reference physical support (gravity, ground, being held)
 - Dissolve arrival tension without directing attention anywhere specific
@@ -42,6 +43,7 @@ Desire for jhana prevents jhana. Frame as exploration, not achievement. The guid
 **Purpose**: Stabilize attention on breath, reduce thought elaboration, allow breath to become subtle
 
 **What cues must accomplish**:
+
 - Direct attention to breath sensation (nostrils/upper lip) without forcing
 - Normalize wandering; emphasize return without judgment
 - Convey simplicity and rhythm
@@ -58,13 +60,15 @@ Desire for jhana prevents jhana. Frame as exploration, not achievement. The guid
 **Purpose**: Redirect attention from breath to pleasant sensation without grasping
 
 **What cues must accomplish**:
+
 - Release previous object (breath) cleanly
 - Open attention to pleasantness without frantic searching
 - Suggest possible locations without creating checklist
 - Convey that subtle pleasantness is sufficient
 
 **The core instruction** (convey conceptually, generate fresh language):
-- Attention rests on the *quality* of pleasantness—not location, intensity, duration
+
+- Attention rests on the _quality_ of pleasantness—not location, intensity, duration
 - Then: cease all doing
 - Any attempt to help, enhance, or observe progress breaks the feedback loop
 
@@ -77,6 +81,7 @@ Desire for jhana prevents jhana. Frame as exploration, not achievement. The guid
 **Purpose**: Minimize intervention, hold space, allow state to develop or not
 
 **What cues must accomplish**:
+
 - Almost nothing—presence over words
 - If any cue: reinforce non-doing, non-grasping
 - Universal permission for whatever is arising
@@ -90,6 +95,7 @@ Desire for jhana prevents jhana. Frame as exploration, not achievement. The guid
 **Purpose**: Shift from physical intensity (pīti) to emotional quality (sukha)
 
 **What cues must accomplish**:
+
 - Invite release of physical intensity
 - Direct attention to what remains beneath the energy
 - Convey "upwelling" quality—joy arising from within
@@ -103,6 +109,7 @@ Only include if session length permits and sufficient time has passed in first j
 **Purpose**: Gradual return, integration, no failure framing
 
 **What cues must accomplish**:
+
 - Slow transition back to ordinary awareness
 - Reference body, breath, room
 - Frame whatever occurred as complete
@@ -114,22 +121,18 @@ Only include if session length permits and sufficient time has passed in first j
 
 ### Pacing
 
-| Phase | Cue interval | Silence ratio |
-|-------|--------------|---------------|
-| Settling | 15-30 seconds | 40% cue, 60% silence |
-| Access (early) | 30-45 seconds | 30% cue, 70% silence |
-| Access (late) | 1-2 minutes | 15% cue, 85% silence |
-| Shift | 30-60 seconds | 20% cue, 80% silence |
-| Jhana | 2-5 minutes or none | 5% cue, 95% silence |
-| Emergence | 20-30 seconds | 40% cue, 60% silence |
+| Phase          | Cue interval        | Silence ratio        |
+| -------------- | ------------------- | -------------------- |
+| Settling       | 15-30 seconds       | 40% cue, 60% silence |
+| Access (early) | 30-45 seconds       | 30% cue, 70% silence |
+| Access (late)  | 1-2 minutes         | 15% cue, 85% silence |
+| Shift          | 30-60 seconds       | 20% cue, 80% silence |
+| Jhana          | 2-5 minutes or none | 5% cue, 95% silence  |
+| Emergence      | 20-30 seconds       | 40% cue, 60% silence |
 
 ### Silence duration
 
-Maximum **60 seconds** per silence call. Pair long silences with
-the stopwatch. For jhana phases requiring 2-5 minutes of near-
-silence, call silence repeatedly—each invocation signals continued
-presence rather than abandonment. The act of invoking silence is
-itself a form of holding space.
+Maximum **60 seconds** per silence call. Pair long silences with the stopwatch. For jhana phases requiring 2-5 minutes of near- silence, call silence repeatedly—each invocation signals continued presence rather than abandonment. The act of invoking silence is itself a form of holding space.
 
 ### Tonal Qualities
 
@@ -142,11 +145,13 @@ itself a form of holding space.
 ### Grammatical Stance
 
 **Prefer**:
+
 - Gerunds: "settling," "allowing," "noticing"
 - Invitational: "letting the breath..." rather than "focus on the breath"
 - Present continuous: implies ongoing process, not discrete action
 
 **Avoid**:
+
 - Imperatives: "Focus now" "Notice the breath" (creates performance pressure)
 - Questions: "What do you notice?" (pulls into analytical mind)
 - Future tense: "You will feel..." (creates expectation)
@@ -214,6 +219,7 @@ For sessions emphasizing expanded awareness over narrow focus.
 **Core difference**: Attention fills entire body-field rather than narrowing to single point.
 
 **Phase modification**:
+
 - Access phase references whole-body awareness, energy field, overall tone/texture
 - "Breathing through the whole body" rather than attention at nostrils
 - Pleasantness found in the field quality, not a specific location
@@ -227,7 +233,7 @@ For sessions emphasizing expanded awareness over narrow focus.
 Explicit constraints:
 
 - Cannot diagnose practitioner's current state
-- Cannot adjust based on real-time feedback  
+- Cannot adjust based on real-time feedback
 - Cannot provide individualized troubleshooting
 - Should not use language implying observation of the practitioner
 - Cannot know whether jhana arose
@@ -238,7 +244,6 @@ Design sessions to accommodate variance without diagnosis. See [references/resil
 
 ## Session Structures
 
-Use the stopwatch tool to track phase duration. Start at phase entry;
-check before transitioning to verify duration.
+Use the stopwatch tool to track phase duration. Start at phase entry; check before transitioning to verify duration.
 
 See [references/session-structure.md](references/session-structure.md) for phase timing, duration options, and structural templates.

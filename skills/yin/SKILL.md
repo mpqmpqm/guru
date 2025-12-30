@@ -33,16 +33,19 @@ Distinguish **tension** (modifiable through practice) from **compression** (bone
 **Talk less:** Maximum 30 seconds of speaking per minute. Yin cultivates internal environment—constant talking disturbs this.
 
 **Use invitational language:**
+
 - "You might explore..." / "Perhaps..." / "If it feels right..."
 - Add "-ing" to soften commands: "lifting" not "lift"
 - Avoid absolutes: never "always," "everyone," "must," "should"
 
 **Avoid:**
+
 - "Embrace the pain" or minimizing sharp sensations
 - Yang-style muscular engagement cues
 - Aesthetic corrections ("straighten your leg," "point your toes")
 
 **Rhythm for a 3-5 minute hold:**
+
 1. First 1-2 min: offer verbal guidance, alignment suggestions, theme
 2. Middle: fall silent—this IS the teaching
 3. Final moments: "Three more breaths in this shape..."
@@ -51,24 +54,19 @@ See [references/cueing-examples.md](references/cueing-examples.md) for specific 
 
 ## Timing protocol
 
-Use the stopwatch tool to track hold duration. Start when entering
-the pose; check before exiting to verify you've held as long as
-intended.
+Use the stopwatch tool to track hold duration. Start when entering the pose; check before exiting to verify you've held as long as intended.
 
 ### Silence duration
 
-Maximum **60 seconds** per silence call. Pair long silences with
-the stopwatch—start when entering the pose, check before exiting.
-For holds longer than 60 seconds, call silence again; repeated
-invocations signal deliberate, inhabited presence through the hold.
+Maximum **60 seconds** per silence call. Pair long silences with the stopwatch—start when entering the pose, check before exiting. For holds longer than 60 seconds, call silence again; repeated invocations signal deliberate, inhabited presence through the hold.
 
 Hold durations serve connective tissue science:
 
-| Duration | Application |
-|----------|-------------|
-| 1-2 min | Minimum effective dose; beginners |
-| 3-5 min | Standard hold; most practitioners |
-| 5-10 min | Deep practice; experienced students |
+| Duration  | Application                         |
+| --------- | ----------------------------------- |
+| 1-2 min   | Minimum effective dose; beginners   |
+| 3-5 min   | Standard hold; most practitioners   |
+| 5-10 min  | Deep practice; experienced students |
 | 10-20 min | Advanced; specific therapeutic work |
 
 **Key principle:** Time is more important than intensity. Gentle stress held longer > intense stress held briefly.
@@ -76,6 +74,7 @@ Hold durations serve connective tissue science:
 ### The rebound
 
 After each pose, cue 1 minute in neutral (typically supine):
+
 - "Come into a relaxed position"
 - "Let your body become still"
 - "Notice sensations of tingling, warmth, or fullness"
@@ -87,6 +86,7 @@ Tissues are temporarily vulnerable after long holds—the rebound allows them to
 Guide students to find **60% of maximum capacity**—the Goldilocks position.
 
 **Traffic light framework:**
+
 - 🔴 **Red:** Sharp/electrical pain, inability to hold → exit immediately
 - 🟡 **Amber:** Significant but sustainable discomfort → target zone
 - 🟢 **Green:** No sensation → not enough stress
@@ -102,8 +102,9 @@ Cue that edge is dynamic: "Your edge today may differ from yesterday. It may shi
 Yin poses are laboratories for non-reactive awareness. Weave contemplative elements:
 
 **Options to offer during holds:**
+
 - Breath awareness (observe without manipulating)
-- Body scanning through sensation regions  
+- Body scanning through sensation regions
 - Visualization (color, warmth, space)
 - Contemplation themes (impermanence, compassion)
 
@@ -114,12 +115,14 @@ See [references/meditation-integration.md](references/meditation-integration.md)
 ## Props and modifications
 
 Props are essential, not accommodations. Present them as equally valid:
+
 - "Place a block under your hand" (not "if you're not flexible enough...")
 - Every pose needs 2-3 prop variations available
 
 **Basic setup:** 2 blocks, 2 blankets, 1 bolster
 
 Props serve to:
+
 - Maintain appropriate stress in target areas
 - Accommodate skeletal variation
 - Protect hypermobile students
@@ -132,6 +135,7 @@ Note: prop needs may change during a hold as tissues release.
 See [references/poses-and-sequencing.md](references/poses-and-sequencing.md) for the 7 archetypal poses and meridian-based sequences.
 
 **Core principles:**
+
 - Move spine through all ranges: flexion, extension, lateral, twist
 - Group poses affecting similar body areas
 - Allow adequate rebound between deep holds

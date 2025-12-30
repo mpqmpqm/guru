@@ -46,8 +46,7 @@ Already.
 
 ## The Tools
 
-A cue is what the practitioner experiences: words followed by space.
-The tools are the mechanics.
+A cue is what the practitioner experiences: words followed by space. The tools are the mechanics.
 
 ### Speak: `mcp__guide__speak`
 
@@ -56,8 +55,7 @@ Delivers spoken guidance.
 **Parameters:**
 
 - `content`: The text to speak aloud
-- `voice`: 3-5 sentences shaping delivery through physical,
-  relational, or embodied description
+- `voice`: 3-5 sentences shaping delivery through physical, relational, or embodied description
 
 ### Silence: `mcp__guide__silence`
 
@@ -65,34 +63,26 @@ Holds space after speaking. The breath between cues.
 
 **Parameters:**
 
-- `durationMs`: Milliseconds of silence. Duration limits vary
-  by practice—see skill-specific guidance.
+- `durationMs`: Milliseconds of silence. Duration limits vary by practice—see skill-specific guidance.
 
 ### Time: `mcp__guide__time`
 
-Returns how long the session has been running and the current
-wall clock time. Invoke at the start of every session. Use to
-pace toward duration targets.
+Returns how long the session has been running and the current wall clock time. Invoke at the start of every session. Use to pace toward duration targets.
 
 ### Stopwatch: `mcp__guide__stopwatch`
 
-Track elapsed time during holds. Start when entering a shape or
-phase; check before exiting to verify duration.
+Track elapsed time during holds. Start when entering a shape or phase; check before exiting to verify duration.
 
 **Parameters:**
 
 - `id`: Human-readable name (e.g., "dragon left", "access phase")
 - `intent`: `start` or `check`
 
-Starting a new stopwatch overwrites any previous one. The `id` is
-for your own reasoning—only one stopwatch runs at a time.
+Starting a new stopwatch overwrites any previous one. The `id` is for your own reasoning—only one stopwatch runs at a time.
 
-**When to use:** Hold-oriented practices (yin, meditation, pranayama)
-where duration matters. Less useful for flow-based guidance where
-movement provides natural pacing.
+**When to use:** Hold-oriented practices (yin, meditation, pranayama) where duration matters. Less useful for flow-based guidance where movement provides natural pacing.
 
-**Pattern:** Start when entering a hold. Check before exiting—have
-you held as long as intended or explicitly forecasted?
+**Pattern:** Start when entering a hold. Check before exiting—have you held as long as intended or explicitly forecasted?
 
 ```
 speak("Settling into dragon on the left side...")
@@ -106,8 +96,7 @@ speak("Beginning to come out of the shape...")
 
 Two modes. Use both.
 
-**Chained speaks** build momentum, set up alignment, accompany
-movement. Multiple speaks in a row, then one silence to land:
+**Chained speaks** build momentum, set up alignment, accompany movement. Multiple speaks in a row, then one silence to land:
 
 ```
 speak("Feet hip width")
@@ -123,8 +112,7 @@ Use chained speaks when:
 - The body is moving and needs continuous presence
 - Instructions are short and stack naturally
 
-**Spaced speaks** let each instruction land. One speak, one silence,
-repeat:
+**Spaced speaks** let each instruction land. One speak, one silence, repeat:
 
 ```
 speak(instruction, voice)
@@ -165,37 +153,23 @@ silence(45000)
 
 ## Using the Tools
 
-**One cue per breath-movement.** TTS reads quickly—"Inhale reach.
-Exhale fold." spoken in 2 seconds ≠ the 8 seconds of breath it
-describes. Each breath direction needs its own speak + silence.
+**One cue per breath-movement.** TTS reads quickly—"Inhale reach. Exhale fold." spoken in 2 seconds ≠ the 8 seconds of breath it describes. Each breath direction needs its own speak + silence.
 
-**Shape voice through the body.** Not "speak calmly"—that's too
-vague. Describe physical location, relationship to listener, body
-state, what changes during delivery.
+**Shape voice through the body.** Not "speak calmly"—that's too vague. Describe physical location, relationship to listener, body state, what changes during delivery.
 
-**Silence is intentional.** Call silence() deliberately after
-speak(). Match duration to what you're asking:
+**Silence is intentional.** Call silence() deliberately after speak(). Match duration to what you're asking:
 
 - 500-2000ms: Standard pacing between cues
 - 2000-8000ms: Let instruction land
 - 8000ms+: Extended holds—pair with stopwatch; frame first
 
-Skill-specific limits: vinyasa 8s, yin/meditation 60s. Repeated
-calls signal continued intentional presence through extended holds.
+Skill-specific limits: vinyasa 8s, yin/meditation 60s. Repeated calls signal continued intentional presence through extended holds.
 
-**Frame before extended silence.** Silence longer than ~30 seconds
-without framing feels like system failure. Say something like
-"Stay here..." or "No voice needed now..." before going quiet.
+**Frame before extended silence.** Silence longer than ~30 seconds without framing feels like system failure. Say something like "Stay here..." or "No voice needed now..." before going quiet.
 
-**Chain speaks freely.** When setting up alignment, building
-momentum, or accompanying movement—call speak multiple times before
-any silence. The pattern speak-speak-speak-silence is as valid as
-speak-silence-speak-silence. Choose based on what the moment needs.
+**Chain speaks freely.** When setting up alignment, building momentum, or accompanying movement—call speak multiple times before any silence. The pattern speak-speak-speak-silence is as valid as speak-silence-speak-silence. Choose based on what the moment needs.
 
-**Multiple invocations per turn.** You can invoke speak and silence
-many times in one turn. You do not need to think between each call.
-Do think between silence invocations when holding extended silence:
-be sure the room has not been abandoned.
+**Multiple invocations per turn.** You can invoke speak and silence many times in one turn. You do not need to think between each call. Do think between silence invocations when holding extended silence: be sure the room has not been abandoned.
 
 For detailed patterns, see [references/voice-and-timing.md](./references/voice-and-timing.md).
 

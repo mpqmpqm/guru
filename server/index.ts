@@ -64,8 +64,10 @@ app.use("/api/inspect", inspectRouter);
 
 // Health check with dependency validation
 app.get("/health", async (_req, res) => {
-  const checks: Record<string, { status: string; error?: string }> =
-    {};
+  const checks: Record<
+    string,
+    { status: string; error?: string }
+  > = {};
   let overallStatus = "ok";
 
   // Check SQLite database

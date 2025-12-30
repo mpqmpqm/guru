@@ -14,9 +14,7 @@ Timing change is content. The progression of intervals—shortening, lengthening
 
 **Consistency entrances or deadens.** Identical intervals create trance when intentional, monotony when not. Know which you're doing.
 
-The question is never "how long should silence be?" The question is:
-_faster than the last cue, slower, or the same?_ And: _what does
-that change communicate?_
+The question is never "how long should silence be?" The question is: _faster than the last cue, slower, or the same?_ And: _what does that change communicate?_
 
 ---
 
@@ -46,15 +44,11 @@ silence(3000)  // 12 seconds total, 4 cues
 
 Total time similar. Experience completely different.
 
-**Many short cues** create continuous presence. The voice
-accompanies. The listener is held through movement or challenge.
-Momentum carries.
+**Many short cues** create continuous presence. The voice accompanies. The listener is held through movement or challenge. Momentum carries.
 
-**Few long cues** create space. The listener is released into
-their own experience. Silence becomes the teacher.
+**Few long cues** create space. The listener is released into their own experience. Silence becomes the teacher.
 
-These are different instruments. Choose based on what the moment
-needs, not convenience.
+These are different instruments. Choose based on what the moment needs, not convenience.
 
 ---
 
@@ -113,8 +107,7 @@ Silence is not automatic. It's a decision you make after speak().
 - 2000-8000ms: Let instruction land, allow response
 - 8000ms+: Extended holds—pair with stopwatch; frame first
 
-Skill-specific limits: vinyasa 8s, yin/meditation 60s. Repeated
-calls signal continued intentional presence.
+Skill-specific limits: vinyasa 8s, yin/meditation 60s. Repeated calls signal continued intentional presence.
 
 **Extended silence pattern:**
 

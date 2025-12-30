@@ -28,6 +28,7 @@ Deploy these frames early to reduce obstacle likelihood.
 **Structural placement**: Settling phase, before breath attention begins
 
 **What the frame accomplishes**:
+
 - Permission to not-do
 - Success redefined as presence, not attainment
 - Releasing before grasping can begin
@@ -43,6 +44,7 @@ Deploy these frames early to reduce obstacle likelihood.
 **Structural placement**: Phase timing (see session-structure.md)
 
 **What the structure accomplishes**:
+
 - Extra time compensates for unknown settling speed
 - No diagnosis needed—time itself creates stability
 - Slower practitioners aren't left behind
@@ -58,6 +60,7 @@ Deploy these frames early to reduce obstacle likelihood.
 **Structural placement**: Early access phase
 
 **What the frame accomplishes**:
+
 - Permission to stop tracking/noting
 - Normalizes non-discursive presence
 - Pre-empts "something's happening!" disruption
@@ -73,6 +76,7 @@ Deploy these frames early to reduce obstacle likelihood.
 **Structural placement**: Just before or during shift phase
 
 **What the frame accomplishes**:
+
 - "Whisper of pleasantness" is sufficient
 - Subtle warmth, softness, ease all qualify
 - Bar lowered before search begins
@@ -88,6 +92,7 @@ Deploy these frames early to reduce obstacle likelihood.
 **Structural placement**: Throughout, especially settling and emergence
 
 **What the frame accomplishes**:
+
 - Removes success/failure binary
 - Access concentration itself is valuable
 - No external standard to compare against
@@ -103,6 +108,7 @@ Deploy these frames early to reduce obstacle likelihood.
 **Structural placement**: Never name jhana as goal; emergence framing
 
 **What the frame accomplishes**:
+
 - No trophy to chase
 - Whatever arose is complete
 - Practice valued for itself
@@ -172,8 +178,7 @@ Unknown settling speed means some practitioners need more time. Build in buffer:
 - 20-minute session: 12-14 minutes access (not 8-10)
 - 35-minute session: 12-15 minutes access (not 10-12)
 
-Cost of too-long access for fast settlers: minimal (pleasant concentrated time)
-Cost of too-short access for slow settlers: high (unstable shift, failure feeling)
+Cost of too-long access for fast settlers: minimal (pleasant concentrated time) Cost of too-short access for slow settlers: high (unstable shift, failure feeling)
 
 ---
 

@@ -172,8 +172,10 @@ export function createSpeakTool(sessionId: string) {
       sessionManager.incrementCueCallCount(sessionId);
 
       // === RETURN WITH ACTUAL DURATION + TIME + RATIO ===
-      const ratio = sessionManager.getSpeakSilenceRatio(sessionId);
-      const { elapsedMs, wallClock } = getTimeComponents(sessionId);
+      const ratio =
+        sessionManager.getSpeakSilenceRatio(sessionId);
+      const { elapsedMs, wallClock } =
+        getTimeComponents(sessionId);
       const ret = `Spoke for ${Math.round(speakingMs)}ms. ${ratio}. ${getTimeInfo(sessionId)}`;
 
       // Persist speak to database (after we have all data)

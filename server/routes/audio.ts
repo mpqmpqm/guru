@@ -59,7 +59,9 @@ audioRouter.get("/:sessionId", async (req, res) => {
 
   // Stream audio from queue - write directly without buffering
   try {
-    for await (const msg of sessionManager.consumeAudioQueue(sessionId)) {
+    for await (const msg of sessionManager.consumeAudioQueue(
+      sessionId
+    )) {
       if (res.writableEnded) break;
 
       if (msg.type === "data") {
@@ -72,7 +74,8 @@ audioRouter.get("/:sessionId", async (req, res) => {
     const errorMessage =
       error instanceof Error ? error.message : String(error);
     logAudioStreamError(sessionId, errorMessage);
-    const seqNum = sessionManager.incrementEventSequence(sessionId);
+    const seqNum =
+      sessionManager.incrementEventSequence(sessionId);
     dbOps.insertError(sessionId, seqNum, "audio", errorMessage);
   }
 

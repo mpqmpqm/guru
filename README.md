@@ -1,8 +1,6 @@
 # Guru
 
-Voice-guided yoga and meditation instruction powered by
-Claude (Agent SDK) with OpenAI TTS streaming audio to a
-vanilla JS client.
+Voice-guided yoga and meditation instruction powered by Claude (Agent SDK) with OpenAI TTS streaming audio to a vanilla JS client.
 
 ## Features
 
@@ -38,6 +36,4 @@ npm run start     # Run production build
 
 ## Deployment
 
-The repo includes `fly.toml` for Fly.io deploys and a
-GitHub Actions workflow that expects `FLY_API_TOKEN`
-to be configured as a repository secret.
+The repo includes `fly.toml` for Fly.io deploys and a GitHub Actions workflow that expects `FLY_API_TOKEN` to be configured as a repository secret.

@@ -25,7 +25,9 @@ chatRouter.get("/events/:sessionId", (req, res) => {
   });
 
   // Send initial connection event
-  res.write(`event: connected\ndata: ${JSON.stringify({ sessionId })}\n\n`);
+  res.write(
+    `event: connected\ndata: ${JSON.stringify({ sessionId })}\n\n`
+  );
 
   // Store SSE response for this session
   sessionManager.setSSEResponse(sessionId, res);
@@ -54,7 +56,9 @@ chatRouter.post("/:sessionId", async (req, res) => {
   // console.log(`[chat] POST /${sessionId} - message: "${message?.slice(0, 50)}..."`);
 
   if (!message || typeof message !== "string") {
-    return res.status(400).json({ error: "Message is required" });
+    return res
+      .status(400)
+      .json({ error: "Message is required" });
   }
 
   const session = sessionManager.getSession(sessionId);
@@ -93,9 +97,12 @@ chatRouter.post("/:sessionId", async (req, res) => {
     const errorMessage =
       error instanceof Error ? error.message : String(error);
     logChatError(errorMessage);
-    const seqNum = sessionManager.incrementEventSequence(sessionId);
+    const seqNum =
+      sessionManager.incrementEventSequence(sessionId);
     dbOps.insertError(sessionId, seqNum, "chat", errorMessage);
-    sessionManager.sendSSE(sessionId, "error", { content: errorMessage });
+    sessionManager.sendSSE(sessionId, "error", {
+      content: errorMessage,
+    });
     res.status(500).json({ error: errorMessage });
   }
 });

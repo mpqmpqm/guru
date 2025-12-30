@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
     <title>sessions | guru</title>
     <link
       rel="icon"
@@ -189,7 +192,8 @@
       let allSessions = [];
 
       async function loadSessions() {
-        const container = document.getElementById("session-list");
+        const container =
+          document.getElementById("session-list");
 
         try {
           const response = await fetch("/api/inspect/sessions");
@@ -201,7 +205,8 @@
       }
 
       function renderSessions(sessions) {
-        const container = document.getElementById("session-list");
+        const container =
+          document.getElementById("session-list");
 
         if (sessions.length === 0) {
           container.innerHTML =
@@ -219,7 +224,8 @@
               minute: "2-digit",
             });
 
-            const prompt = session.initial_prompt || "(no prompt)";
+            const prompt =
+              session.initial_prompt || "(no prompt)";
 
             return `
             <div class="session-item session-row">
@@ -256,9 +262,12 @@
         if (!confirm("Delete this session?")) return;
 
         try {
-          const response = await fetch(`/api/inspect/sessions/${sessionId}`, {
-            method: "DELETE",
-          });
+          const response = await fetch(
+            `/api/inspect/sessions/${sessionId}`,
+            {
+              method: "DELETE",
+            }
+          );
           if (response.ok) {
             loadSessions();
           } else {
@@ -269,9 +278,11 @@
         }
       }
 
-      document.getElementById("search").addEventListener("input", (e) => {
-        filterSessions(e.target.value);
-      });
+      document
+        .getElementById("search")
+        .addEventListener("input", (e) => {
+          filterSessions(e.target.value);
+        });
 
       loadSessions();
     </script>

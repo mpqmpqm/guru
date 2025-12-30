@@ -63,7 +63,8 @@ export function calculateCost(
     ((usage.output_tokens ?? 0) / 1_000_000) * pricing.output;
 
   const cacheReadCost =
-    ((usage.cache_read_input_tokens ?? 0) / 1_000_000) * pricing.cacheRead;
+    ((usage.cache_read_input_tokens ?? 0) / 1_000_000) *
+    pricing.cacheRead;
 
   const cacheWriteCost =
     ((usage.cache_creation_input_tokens ?? 0) / 1_000_000) *

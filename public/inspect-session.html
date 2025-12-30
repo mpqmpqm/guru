@@ -576,7 +576,9 @@
         // Calculate width - check if stacked (column) or side-by-side
         const containerWidth = container.clientWidth;
         const isStacked = window.innerWidth <= 600;
-        const chartWidth = isStacked ? containerWidth : (containerWidth - 16) / 2;
+        const chartWidth = isStacked
+          ? containerWidth
+          : (containerWidth - 16) / 2;
 
         series.forEach((s) => {
           const wrapper = document.createElement("div");

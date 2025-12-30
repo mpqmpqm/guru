@@ -5,7 +5,7 @@
 Most yin sequences draw from variations of these foundational shapes:
 
 | Archetype | Target area | Common variations |
-|-----------|-------------|-------------------|
+| --- | --- | --- |
 | **Shoelace** | Outer hip, IT band | Stacked knees, reclined, with forward fold |
 | **Saddle** | Quadriceps, hip flexors, spine | Half saddle, supported with bolster, reclined hero |
 | **Caterpillar** | Spine, hamstrings | Bolster across thighs, bent knees, head supported |
@@ -19,7 +19,7 @@ Most yin sequences draw from variations of these foundational shapes:
 Yin uses distinct naming to signal different intention:
 
 | Yin name | Yang equivalent | Key difference |
-|----------|-----------------|----------------|
+| --- | --- | --- |
 | Caterpillar | Paschimottanasana | Passive, rounded spine allowed |
 | Dragonfly | Upavistha Konasana | No muscular engagement |
 | Swan | Pigeon | No squaring hips, relaxed spine |
@@ -36,33 +36,38 @@ Yin uses distinct naming to signal different intention:
 Organize sequences around Traditional Chinese Medicine organ-channel pairs:
 
 ### Kidney/Bladder (Water element)
-**Target areas:** Lower back, inner legs, posterior chain
-**Poses:** Caterpillar, Dragonfly, Sphinx/Seal, Butterfly, Straddle
-**Seasonal association:** Winter
+
+**Target areas:** Lower back, inner legs, posterior chain  
+**Poses:** Caterpillar, Dragonfly, Sphinx/Seal, Butterfly, Straddle  
+**Seasonal association:** Winter  
 **Emotional themes:** Fear, willpower, wisdom
 
 ### Liver/Gallbladder (Wood element)
-**Target areas:** Outer hips, side body, inner thighs
-**Poses:** Swan, Shoelace, Dragonfly (lateral), Sleeping Swan, Side-lying poses
-**Seasonal association:** Spring
+
+**Target areas:** Outer hips, side body, inner thighs  
+**Poses:** Swan, Shoelace, Dragonfly (lateral), Sleeping Swan, Side-lying poses  
+**Seasonal association:** Spring  
 **Emotional themes:** Anger, decisiveness, vision
 
 ### Stomach/Spleen (Earth element)
-**Target areas:** Front thigh, inner groin, core
-**Poses:** Saddle, Dragon, Twisted Dragon, Sphinx, supported backbends
-**Seasonal association:** Late summer
+
+**Target areas:** Front thigh, inner groin, core  
+**Poses:** Saddle, Dragon, Twisted Dragon, Sphinx, supported backbends  
+**Seasonal association:** Late summer  
 **Emotional themes:** Worry, groundedness, nourishment
 
 ### Lung/Large Intestine (Metal element)
-**Target areas:** Chest, arms, upper back
-**Poses:** Melting Heart, Open Wing, Sphinx with arm variations, Supported Fish
-**Seasonal association:** Autumn
+
+**Target areas:** Chest, arms, upper back  
+**Poses:** Melting Heart, Open Wing, Sphinx with arm variations, Supported Fish  
+**Seasonal association:** Autumn  
 **Emotional themes:** Grief, letting go, boundary setting
 
 ### Heart/Small Intestine (Fire element)
-**Target areas:** Heart space, inner arms
-**Poses:** Supported backbends, heart-opening variations, arm stretches
-**Seasonal association:** Summer
+
+**Target areas:** Heart space, inner arms  
+**Poses:** Supported backbends, heart-opening variations, arm stretches  
+**Seasonal association:** Summer  
 **Emotional themes:** Joy, connection, integration
 
 ## Sequencing principles
@@ -70,6 +75,7 @@ Organize sequences around Traditional Chinese Medicine organ-channel pairs:
 **Spine balance:** Include flexion, extension, lateral, and twist in each practice
 
 **Sample balanced sequence (60-75 min):**
+
 1. Centering / breath awareness (3-5 min)
 2. Butterfly (5 min) — flexion, groin
 3. Rebound (1 min)
@@ -88,11 +94,13 @@ Organize sequences around Traditional Chinese Medicine organ-channel pairs:
 16. Savasana (5-10 min)
 
 **Transition efficiency:**
+
 - Group poses by position (all supine together, all prone together)
 - Minimize repositioning between poses
 - Consider prop setup—avoid constant adjusting
 
 **Time of day considerations:**
+
 - Yin works well with cool muscles (unlike yang)
 - Evening practice: ideal for parasympathetic activation
 - Before yang practice: prepares connective tissue
@@ -103,7 +111,7 @@ Organize sequences around Traditional Chinese Medicine organ-channel pairs:
 After deep holds, balance the tissue stress:
 
 | Primary pose | Counterpose |
-|--------------|-------------|
+| --- | --- |
 | Caterpillar (flexion) | Sphinx (extension) or neutral lying |
 | Saddle (extension) | Child's pose (flexion) or neutral |
 | Swan (external rotation) | Windshield wipers (internal rotation) |
@@ -114,6 +122,7 @@ The rebound serves as primary counterpose. Additional counterposes optional but 
 ## Golden Seed Flow (Grilley)
 
 A template for balanced spine work:
+
 1. Caterpillar (flexion)
 2. Straddle/Dragonfly (lateral/flexion)
 3. Saddle (extension)
