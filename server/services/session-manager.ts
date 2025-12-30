@@ -626,18 +626,6 @@ class SessionManager {
           const speakingMs =
             (totalBytes / BYTES_PER_SECOND) * 1000;
 
-          // Wait for client buffer to drain before starting pause.
-          // The burst sends audio ahead of real-time; we must wait for
-          // the client to finish playing before the pause countdown.
-          const expectedPlaybackEnd = playbackStart + speakingMs;
-          const remainingPlayback =
-            expectedPlaybackEnd - Date.now();
-          if (remainingPlayback > 0) {
-            await new Promise((resolve) =>
-              setTimeout(resolve, remainingPlayback)
-            );
-          }
-
           const totalPlaybackMs = Date.now() - dequeueAt;
           logAudioPlayEnd(
             logPrefix,
@@ -651,8 +639,18 @@ class SessionManager {
             item.pauseMs ?? 0
           );
 
+          console.log(
+            `${logPrefix} PAUSE_START pauseMs=${item.pauseMs} effectiveDelay=${effectiveDelay}`
+          );
+          const pauseStart = Date.now();
+
           await new Promise((resolve) =>
             setTimeout(resolve, effectiveDelay)
+          );
+
+          const actualPause = Date.now() - pauseStart;
+          console.log(
+            `${logPrefix} PAUSE_END expected=${effectiveDelay} actual=${actualPause}`
           );
 
           // Signal queue room after playback + delay completes
