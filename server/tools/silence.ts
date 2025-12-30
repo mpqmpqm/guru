@@ -56,11 +56,16 @@ export function createSilenceTool(sessionId: string) {
           ? ` (${(sinceSpeakMs / 1000).toFixed(1)}s since last speak)`
           : "";
 
+      const warningPreferPauseMs =
+        args.durationMs < 10_000
+          ? " (Tip: pauseMs on speak() is better for short rhythm gaps—reserve silence() for compositional moments.)"
+          : "";
+
       const ratio =
         sessionManager.getSpeakSilenceRatio(sessionId);
       const { elapsedMs, wallClock } =
         getTimeComponents(sessionId);
-      const result = `Silence for ${args.durationMs}ms${sinceSpeakStr}. ${ratio}. ${getTimeInfo(sessionId)}`;
+      const result = `Silence for ${args.durationMs}ms${sinceSpeakStr}. ${ratio}. ${getTimeInfo(sessionId)}${warningPreferPauseMs}`;
 
       // Persist silence to database (after we have all data)
       dbOps.insertSilence(

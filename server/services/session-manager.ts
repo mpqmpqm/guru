@@ -34,6 +34,7 @@ type AudioItem = {
   ttsResult: TTSResult;
   sequenceNum: number;
   text: string;
+  pauseMs?: number;
 };
 
 type SilenceItem = {
@@ -423,6 +424,7 @@ class SessionManager {
       ttsResult: TTSResult;
       sequenceNum: number;
       text: string;
+      pauseMs?: number;
     }
   ): void {
     const session = this.sessions.get(sessionId);
@@ -433,6 +435,7 @@ class SessionManager {
       ttsResult: item.ttsResult,
       sequenceNum: item.sequenceNum,
       text: item.text,
+      pauseMs: item.pauseMs,
     });
     session.audioItemCount++;
     // Signal that new audio is available
@@ -623,13 +626,6 @@ class SessionManager {
           const speakingMs =
             (totalBytes / BYTES_PER_SECOND) * 1000;
 
-          // Apply fixed MIN_DELAY after audio
-          if (MIN_SPEAK_DELAY > 0) {
-            await new Promise((resolve) =>
-              setTimeout(resolve, MIN_SPEAK_DELAY)
-            );
-          }
-
           const totalPlaybackMs = Date.now() - dequeueAt;
           logAudioPlayEnd(
             logPrefix,
@@ -639,7 +635,17 @@ class SessionManager {
           );
 
           // Signal queue room after playback + delay completes
+          // This unblocks the agent to queue more items
           session.queueDrained?.();
+
+          const effectiveDelay = Math.max(
+            MIN_SPEAK_DELAY,
+            item.pauseMs ?? 0
+          );
+
+          await new Promise((resolve) =>
+            setTimeout(resolve, effectiveDelay)
+          );
         } else if (item.type === "silence") {
           const logPrefix = `[silence:${sessionId.slice(0, 8)}:${item.sequenceNum}]`;
           console.log(

@@ -88,6 +88,15 @@ export function createSpeakTool(sessionId: string) {
         .describe(
           "3-5 sentences controlling vocal delivery for this cue, including emotional range, intonation, speed, tone, and whispering."
         ),
+      pauseMs: z
+        .number()
+        .int()
+        .min(0)
+        .max(8_000)
+        .optional()
+        .describe(
+          "Pause after speaking (max 8000ms). Use for natural rhythm between cues."
+        ),
     },
     async (args) => {
       const stackSize = sessionManager.getStackSize(sessionId);
@@ -132,10 +141,12 @@ export function createSpeakTool(sessionId: string) {
         dbOps.accumulateTTSCost(sessionId, inputTokens);
       }
 
+      const pauseMs = args.pauseMs ?? 0;
+
       // Advance synthetic clock BEFORE returning
       sessionManager.advanceAgentSyntheticClock(
         sessionId,
-        speakingMs + MIN_SPEAK_DELAY
+        speakingMs + Math.max(MIN_SPEAK_DELAY, pauseMs)
       );
 
       // Mark when this speak completed (for silence tracking)
@@ -143,6 +154,11 @@ export function createSpeakTool(sessionId: string) {
 
       // Track cumulative speaking time for ratio
       sessionManager.addSpeakingTime(sessionId, speakingMs);
+
+      // pauseMs counts as silence time (affects speak:silence ratio)
+      if (pauseMs > 0) {
+        sessionManager.addSilenceTime(sessionId, pauseMs);
+      }
 
       // === BLOCK IF QUEUE IS FULL ===
       // Wait until an item is dequeued (playback completes)
@@ -158,12 +174,13 @@ export function createSpeakTool(sessionId: string) {
         ttsResult,
         sequenceNum: seqNum,
         text: args.content,
+        pauseMs: args.pauseMs,
       });
       logCueQueued(
         logPrefix,
         queueDepthBefore,
         MIN_SPEAK_DELAY,
-        0,
+        pauseMs,
         stackSize
       );
 
@@ -176,7 +193,9 @@ export function createSpeakTool(sessionId: string) {
         sessionManager.getSpeakSilenceRatio(sessionId);
       const { elapsedMs, wallClock } =
         getTimeComponents(sessionId);
-      const ret = `Spoke for ${Math.round(speakingMs)}ms. ${ratio}. ${getTimeInfo(sessionId)}`;
+      const pauseStr =
+        pauseMs > 0 ? ` + ${pauseMs}ms pause` : "";
+      const ret = `Spoke for ${Math.round(speakingMs)}ms${pauseStr}. ${ratio}. ${getTimeInfo(sessionId)}`;
 
       // Persist speak to database (after we have all data)
       dbOps.insertSpeak(
@@ -185,6 +204,7 @@ export function createSpeakTool(sessionId: string) {
         args.content,
         args.voice,
         Math.round(speakingMs),
+        pauseMs > 0 ? pauseMs : null,
         ratio,
         elapsedMs,
         wallClock,

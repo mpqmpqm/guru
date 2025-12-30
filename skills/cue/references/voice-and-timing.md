@@ -20,29 +20,9 @@ The question is never "how long should silence be?" The question is: _faster tha
 
 ## Presence vs. Duration
 
-These are not equivalent:
+Two ways to hold a minute of practice:
 
-```
-speak(instruction)
-silence(5000)
-silence(5000)
-silence(2000)  // 12 seconds total
-```
-
-vs.
-
-```
-speak(instruction)
-silence(3000)
-speak(instruction)
-silence(3000)
-speak(instruction)
-silence(3000)
-speak(instruction)
-silence(3000)  // 12 seconds total, 4 cues
-```
-
-Total time similar. Experience completely different.
+**Continuous presence**: A cue every breath, fifteen times across a minute. The voice accompanies movement, marks transitions, stays with the body through challenge. The practitioner is held.
 
 **Many short cues** create continuous presence. The voice accompanies. The listener is held through movement or challenge. Momentum carries.
 
@@ -84,22 +64,13 @@ The framing can be minimal. But it must exist.
 
 ---
 
-## When to Call Silence
+## pauseMs vs. silence()
 
-Silence is not automatic. It's a decision you make after speak().
+**pauseMs is the default.** Use it for natural rhythm between cues— breath-to-breath pacing, letting instructions land, standard flow.
 
-**Always use silence after:**
+**silence() is compositional.** Use it for moments worth naming— transitions, savasana entry, meditation intervals, extended holds.
 
-- Instructions that require integration
-- Invitations to explore or notice
-- Transitions between practice sections
-- Before closing
-
-**Skip silence when:**
-
-- Chaining rapid alignment cues (bundle then land)
-- Building momentum in flow sequences
-- The next speak follows immediately by design
+**The 10-second threshold:** If reaching for silence under 10 seconds, use pauseMs instead. Exception: small silence() calls to extend a pause when needed (e.g., to meet a promised duration).
 
 **Duration guide:**
 
@@ -116,6 +87,8 @@ speak("Stay here. No voice needed.", voice)
 silence(45000)
 speak("Coming back from that quiet...", voice)
 ```
+
+Practice-appropriate silence maximums: 60s for yin/meditation, 300s for savasana. Repeated calls signal continued intentional presence.
 
 ---
 

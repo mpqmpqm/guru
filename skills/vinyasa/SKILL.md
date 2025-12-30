@@ -129,11 +129,9 @@ Flow is not speed. Flow is continuity.
 
 ## Silence Duration
 
-Maximum **8 seconds** per silence call. Vinyasa's movement rhythm rarely needs longer gaps.
+Use `pauseMs` for breath-to-breath pacing (up to 8s). Reserve `silence()` for compositional moments—transitions, cooldown holds, savasana.
 
-**Exception**: Savasana allows up to **300 seconds** per silence call—the stillness is the point.
-
-For other extended holds, call silence repeatedly; each invocation signals continued presence rather than abandonment.
+Savasana allows up to **300 seconds** per silence call. For other extended holds, call silence repeatedly; each invocation signals continued presence rather than abandonment.
 
 ## Sustaining Long Holds
 

@@ -59,7 +59,9 @@ Delivers spoken guidance.
 
 ### Silence: `mcp__guide__silence`
 
-Holds space after speaking. The breath between cues.
+Holds intentional space—a moment worth naming. Use for transitions, savasana entry, meditation intervals, and any pause that serves the practice architecture.
+
+If you're reaching for silence under 10 seconds, you probably want `pauseMs` instead. Exception: call silence() with a small argument to extend a pause when needed (e.g., to meet a promised duration).
 
 **Parameters:**
 
@@ -94,15 +96,20 @@ speak("Beginning to come out of the shape...")
 
 ### Composing Cues
 
-Two modes. Use both.
+**Default pattern: speak with pauseMs.** For breath-to-breath cueing, use pauseMs to create natural rhythm:
+
+```
+speak("Inhale, reach the arms up", voice, pauseMs: 3500)
+speak("Exhale, fold forward", voice, pauseMs: 3500)
+speak("Inhale, halfway lift", voice, pauseMs: 3000)
+```
 
 **Chained speaks** build momentum, set up alignment, accompany movement. Multiple speaks in a row, then one silence to land:
 
 ```
 speak("Feet hip width")
 speak("Soften the knees")
-speak("Find your breath")
-silence(3000)  // land the bundle
+speak("Find your breath", pauseMs: 3000)  // land the bundle
 ```
 
 Use chained speaks when:
@@ -131,8 +138,15 @@ Use spaced speaks when:
 
 ```
 speak("Stay here for a while. No voice needed.", voice)
-silence(15000)
+silence(30000)  // compositional choice: holding space
 ```
+
+Use silence() when:
+
+- Entering savasana or deep rest
+- Meditation intervals
+- Major transitions between practice sections
+- Any pause you'd name as a session moment
 
 **Example cue:**
 

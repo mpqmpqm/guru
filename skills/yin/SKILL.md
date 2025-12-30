@@ -58,6 +58,8 @@ Use the stopwatch tool to track hold duration. Start when entering the pose; che
 
 ### Silence duration
 
+Use `pauseMs` for pacing between cues (up to 8s). Use `silence()` for the long holds that define yin practice.
+
 Maximum **60 seconds** per silence call. Pair long silences with the stopwatch—start when entering the pose, check before exiting. For holds longer than 60 seconds, call silence again; repeated invocations signal deliberate, inhabited presence through the hold.
 
 Hold durations serve connective tissue science:

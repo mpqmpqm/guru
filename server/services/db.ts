@@ -401,6 +401,7 @@ export const dbOps = {
     content: string,
     voice: string,
     speakingMs: number,
+    waitMs: number | null,
     ratio: string,
     elapsedMs: number,
     wallClock: string,
@@ -411,7 +412,7 @@ export const dbOps = {
         const database = getDb();
         database
           .prepare(
-            `INSERT INTO cues (session_id, sequence_num, text, voice, speaking_ms, ratio, elapsed_ms, wall_clock, queue_depth, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+            `INSERT INTO cues (session_id, sequence_num, text, voice, speaking_ms, wait_ms, ratio, elapsed_ms, wall_clock, queue_depth, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
           )
           .run(
             sessionId,
@@ -419,6 +420,7 @@ export const dbOps = {
             content,
             voice,
             speakingMs,
+            waitMs,
             ratio,
             elapsedMs,
             wallClock,
@@ -766,6 +768,7 @@ export const dbOps = {
         text: string;
         voice: string;
         speakingMs: number | null;
+        waitMs: number | null;
         ratio: string | null;
         elapsedMs: number | null;
         wallClock: string | null;
@@ -806,19 +809,19 @@ export const dbOps = {
         // Query all tables and union them, ordered by sequence_num
         const results = database
           .prepare(
-            `SELECT 'thinking' as type, sequence_num, content, queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, NULL as ratio, NULL as elapsed_ms, NULL as wall_clock, NULL as duration_ms, NULL as since_speak_ms, NULL as source, NULL as message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, created_at
+            `SELECT 'thinking' as type, sequence_num, content, queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, NULL as wait_ms, NULL as ratio, NULL as elapsed_ms, NULL as wall_clock, NULL as duration_ms, NULL as since_speak_ms, NULL as source, NULL as message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, created_at
              FROM thinking_traces WHERE session_id = ?
              UNION ALL
-             SELECT 'speak' as type, sequence_num, NULL as content, queue_depth, text, voice, speaking_ms, ratio, elapsed_ms, wall_clock, NULL as duration_ms, NULL as since_speak_ms, NULL as source, NULL as message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, created_at
+             SELECT 'speak' as type, sequence_num, NULL as content, queue_depth, text, voice, speaking_ms, wait_ms, ratio, elapsed_ms, wall_clock, NULL as duration_ms, NULL as since_speak_ms, NULL as source, NULL as message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, created_at
              FROM cues WHERE session_id = ?
              UNION ALL
-             SELECT 'silence' as type, sequence_num, NULL as content, NULL as queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, ratio, elapsed_ms, wall_clock, duration_ms, since_speak_ms, NULL as source, NULL as message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, created_at
+             SELECT 'silence' as type, sequence_num, NULL as content, NULL as queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, NULL as wait_ms, ratio, elapsed_ms, wall_clock, duration_ms, since_speak_ms, NULL as source, NULL as message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, created_at
              FROM silences WHERE session_id = ?
              UNION ALL
-             SELECT 'error' as type, sequence_num, NULL as content, NULL as queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, NULL as ratio, NULL as elapsed_ms, NULL as wall_clock, NULL as duration_ms, NULL as since_speak_ms, source, message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, created_at
+             SELECT 'error' as type, sequence_num, NULL as content, NULL as queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, NULL as wait_ms, NULL as ratio, NULL as elapsed_ms, NULL as wall_clock, NULL as duration_ms, NULL as since_speak_ms, source, message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, created_at
              FROM errors WHERE session_id = ?
              UNION ALL
-             SELECT 'tool_call' as type, sequence_num, NULL as content, NULL as queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, NULL as ratio, NULL as elapsed_ms, NULL as wall_clock, NULL as duration_ms, NULL as since_speak_ms, NULL as source, NULL as message, tool_name, intent, stopwatch_id, stopwatch_elapsed_ms, result, created_at
+             SELECT 'tool_call' as type, sequence_num, NULL as content, NULL as queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, NULL as wait_ms, NULL as ratio, NULL as elapsed_ms, NULL as wall_clock, NULL as duration_ms, NULL as since_speak_ms, NULL as source, NULL as message, tool_name, intent, stopwatch_id, stopwatch_elapsed_ms, result, created_at
              FROM tool_calls WHERE session_id = ?
              ORDER BY sequence_num`
           )
@@ -836,6 +839,7 @@ export const dbOps = {
           text: string | null;
           voice: string | null;
           speaking_ms: number | null;
+          wait_ms: number | null;
           ratio: string | null;
           elapsed_ms: number | null;
           wall_clock: string | null;
@@ -897,6 +901,7 @@ export const dbOps = {
               text: row.text!,
               voice: row.voice!,
               speakingMs: row.speaking_ms,
+              waitMs: row.wait_ms,
               ratio: row.ratio,
               elapsedMs: row.elapsed_ms,
               wallClock: row.wall_clock,
