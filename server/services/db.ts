@@ -916,11 +916,15 @@ export const dbOps = {
     );
   },
 
-  accumulateAgentCosts(sessionId: string, usage: Usage): void {
+  accumulateAgentCosts(
+    sessionId: string,
+    usage: Usage,
+    model: string
+  ): void {
     safeDbOperation(
       () => {
         const database = getDb();
-        const cost = calculateCost(usage);
+        const cost = calculateCost(usage, model);
         database
           .prepare(
             `UPDATE sessions SET

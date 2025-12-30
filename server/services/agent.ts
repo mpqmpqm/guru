@@ -123,6 +123,7 @@ export async function* streamChat(
           // Insert message row with token usage
           const msgSeqNum =
             sessionManager.incrementEventSequence(sessionId);
+          const model = sessionManager.getModel(sessionId);
           dbOps.insertMessage(
             message.message.id,
             sessionId,
@@ -131,7 +132,7 @@ export async function* streamChat(
             usage.output_tokens ?? 0,
             usage.cache_read_input_tokens ?? 0,
             usage.cache_creation_input_tokens ?? 0,
-            calculateCost(usage)
+            calculateCost(usage, model)
           );
 
           // Link all events since turn start to this message
@@ -147,7 +148,7 @@ export async function* streamChat(
           sessionManager.markTurnStart(sessionId);
 
           // Accumulate costs on session
-          dbOps.accumulateAgentCosts(sessionId, usage);
+          dbOps.accumulateAgentCosts(sessionId, usage, model);
         }
 
         // Extract text content from the assistant message
