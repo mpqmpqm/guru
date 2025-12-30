@@ -15,6 +15,7 @@ function formatWallClock(date: Date, timezone?: string): string {
   const options: Intl.DateTimeFormatOptions = {
     hour: "numeric",
     minute: "2-digit",
+    second: "2-digit",
     hour12: true,
   };
   if (timezone) options.timeZone = timezone;
