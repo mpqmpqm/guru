@@ -583,8 +583,8 @@ class SessionManager {
             text: item.text,
           });
 
-          // Record Unix timestamp when speaking starts
-          const speakingStartedAt = Math.floor(Date.now() / 1000);
+          // Record Unix timestamp (ms) when speaking starts
+          const speakingStartedAt = Date.now();
 
           // Start timing AFTER TTS buffering so we measure only playback
           let playbackStart = Date.now();
@@ -626,8 +626,8 @@ class SessionManager {
 
           yield { type: "flush" as const };
 
-          // Record Unix timestamp when speaking ends
-          const speakingEndedAt = Math.floor(Date.now() / 1000);
+          // Record Unix timestamp (ms) when speaking ends
+          const speakingEndedAt = Date.now();
 
           // Update cue record with actual playback timestamps
           dbOps.updateSpeakTimestamps(

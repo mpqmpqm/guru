@@ -63,13 +63,13 @@ function computeGapAnalysis(
           (prevSpeak.waitMs ?? 0) + silenceSinceLastSpeak;
 
         // Actual: time between previous speak end and this speak start
+        // Timestamps are in ms, so no conversion needed
         if (
           prevSpeak.speakingEndedAt != null &&
           speak.speakingStartedAt != null
         ) {
           actualGapMs =
-            (speak.speakingStartedAt - prevSpeak.speakingEndedAt) *
-            1000;
+            speak.speakingStartedAt - prevSpeak.speakingEndedAt;
           gapDriftMs = actualGapMs - promisedGapMs;
         }
       }
