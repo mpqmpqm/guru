@@ -801,6 +801,12 @@
                   footerParts.push(duration);
                 }
                 if (event.ratio) footerParts.push(event.ratio);
+                if (event.gapDriftMs != null) {
+                  const sign = event.gapDriftMs >= 0 ? "+" : "";
+                  footerParts.push(
+                    `drift ${sign}${(event.gapDriftMs / 1000).toFixed(1)}s`
+                  );
+                }
                 if (event.wallClock)
                   footerParts.push(`@ ${event.wallClock}`);
                 const footerStr = footerParts.join(" · ");
