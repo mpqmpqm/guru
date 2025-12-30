@@ -23,8 +23,72 @@ inspectRouter.get("/sessions/:sessionId", (req, res) => {
   const events = dbOps.getSessionEvents(sessionId);
   const messages = dbOps.getMessages(sessionId);
 
-  res.json({ session, events, messages });
+  // Compute gap analysis for speak events
+  const eventsWithGaps = computeGapAnalysis(events);
+
+  res.json({ session, events: eventsWithGaps, messages });
 });
+
+type SessionEvent = ReturnType<typeof dbOps.getSessionEvents>[number];
+type SpeakEvent = Extract<SessionEvent, { type: "speak" }>;
+type SilenceEvent = Extract<SessionEvent, { type: "silence" }>;
+
+interface SpeakEventWithGap extends SpeakEvent {
+  promisedGapMs: number | null;
+  actualGapMs: number | null;
+  gapDriftMs: number | null;
+}
+
+function computeGapAnalysis(
+  events: SessionEvent[]
+): Array<SessionEvent | SpeakEventWithGap> {
+  let prevSpeak: SpeakEvent | null = null;
+  let silenceSinceLastSpeak = 0;
+
+  return events.map((event) => {
+    if (event.type === "silence") {
+      silenceSinceLastSpeak += (event as SilenceEvent).durationMs;
+      return event;
+    }
+
+    if (event.type === "speak") {
+      const speak = event as SpeakEvent;
+      let promisedGapMs: number | null = null;
+      let actualGapMs: number | null = null;
+      let gapDriftMs: number | null = null;
+
+      if (prevSpeak) {
+        // Promised: previous speak's pauseMs + silence calls between
+        promisedGapMs =
+          (prevSpeak.waitMs ?? 0) + silenceSinceLastSpeak;
+
+        // Actual: time between previous speak end and this speak start
+        if (
+          prevSpeak.speakingEndedAt != null &&
+          speak.speakingStartedAt != null
+        ) {
+          actualGapMs =
+            (speak.speakingStartedAt - prevSpeak.speakingEndedAt) *
+            1000;
+          gapDriftMs = actualGapMs - promisedGapMs;
+        }
+      }
+
+      // Reset for next iteration
+      prevSpeak = speak;
+      silenceSinceLastSpeak = 0;
+
+      return {
+        ...speak,
+        promisedGapMs,
+        actualGapMs,
+        gapDriftMs,
+      } as SpeakEventWithGap;
+    }
+
+    return event;
+  });
+}
 
 // Delete a session
 inspectRouter.delete("/sessions/:sessionId", (req, res) => {
