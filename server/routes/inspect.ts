@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { dbOps } from "../services/db.js";
-import { isS3Configured } from "../services/s3.js";
 import { processExport } from "../services/export.js";
+import { isS3Configured } from "../services/s3.js";
 
 export const inspectRouter = Router();
 
@@ -29,7 +29,9 @@ inspectRouter.get("/sessions/:sessionId", (req, res) => {
   res.json({ session, events: eventsWithGaps, messages });
 });
 
-type SessionEvent = ReturnType<typeof dbOps.getSessionEvents>[number];
+type SessionEvent = ReturnType<
+  typeof dbOps.getSessionEvents
+>[number];
 type SpeakEvent = Extract<SessionEvent, { type: "speak" }>;
 type SilenceEvent = Extract<SessionEvent, { type: "silence" }>;
 
@@ -47,7 +49,8 @@ function computeGapAnalysis(
 
   return events.map((event) => {
     if (event.type === "silence") {
-      silenceSinceLastSpeak += (event as SilenceEvent).durationMs;
+      silenceSinceLastSpeak += (event as SilenceEvent)
+        .durationMs;
       return event;
     }
 
@@ -68,8 +71,7 @@ function computeGapAnalysis(
           speak.speakingStartedAt != null
         ) {
           actualGapMs =
-            (speak.speakingStartedAt - prevSpeak.speakingEndedAt) *
-            1000;
+            speak.speakingStartedAt - prevSpeak.speakingEndedAt;
           gapDriftMs = actualGapMs - promisedGapMs;
         }
       }

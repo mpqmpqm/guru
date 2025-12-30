@@ -1,13 +1,13 @@
 import type { Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { DEFAULT_MODEL } from "../routes/session.js";
-import { dbOps } from "./db.js";
 import {
   logAdvanceAgentSyntheticClock,
   logAudioPlayEnd,
   logAudioPlayStart,
   logAudioTtsSkip,
 } from "../utils/log.js";
+import { dbOps } from "./db.js";
 
 // PCM audio constants - 24kHz, 16-bit mono
 const SAMPLE_RATE = 24000;
@@ -584,10 +584,10 @@ class SessionManager {
           });
 
           // Record Unix timestamp when speaking starts
-          const speakingStartedAt = Math.floor(Date.now() / 1000);
 
           // Start timing AFTER TTS buffering so we measure only playback
           let playbackStart = Date.now();
+          const speakingStartedAt = playbackStart;
 
           // Stream buffered chunks at playback rate, with initial burst
           let totalBytes = 0;
@@ -627,7 +627,7 @@ class SessionManager {
           yield { type: "flush" as const };
 
           // Record Unix timestamp when speaking ends
-          const speakingEndedAt = Math.floor(Date.now() / 1000);
+          const speakingEndedAt = Date.now();
 
           // Update cue record with actual playback timestamps
           dbOps.updateSpeakTimestamps(
