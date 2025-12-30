@@ -13,6 +13,15 @@ const VOICE = "alloy";
 const SAMPLE_RATE = 24000;
 const BYTES_PER_SECOND = SAMPLE_RATE * 2; // 16-bit mono
 
+// Minimal audio event type for export processing
+type AudioEvent =
+  | { type: "speak"; text: string; voice: string; sequence_num: number }
+  | {
+      type: "silence";
+      durationMs: number;
+      sequence_num: number;
+    };
+
 async function generateTTS(
   text: string,
   voiceInstructions: string
@@ -90,9 +99,50 @@ export async function processExport(
     dbOps.updateExportStatus(sessionId, "processing");
 
     const events = dbOps.getSessionEvents(sessionId);
-    const audioEvents = events.filter(
-      (e) => e.type === "speak" || e.type === "silence"
+    let audioEvents: AudioEvent[] = events
+      .filter((e) => e.type === "speak" || e.type === "silence")
+      .map((e) => {
+        if (e.type === "speak") {
+          return {
+            type: "speak" as const,
+            text: e.text,
+            voice: e.voice,
+            sequence_num: e.sequence_num,
+          };
+        } else {
+          return {
+            type: "silence" as const,
+            durationMs: e.durationMs,
+            sequence_num: e.sequence_num,
+          };
+        }
+      });
+
+    // Prior schema support: if no silences, build events from
+    // cues with wait_ms
+    const hasSilences = audioEvents.some(
+      (e) => e.type === "silence"
     );
+    if (!hasSilences) {
+      const cues = dbOps.getCues(sessionId);
+      audioEvents = [];
+      for (const cue of cues) {
+        audioEvents.push({
+          type: "speak",
+          text: cue.text,
+          voice: cue.voice,
+          sequence_num: cue.sequence_num,
+        });
+        if (cue.wait_ms && cue.wait_ms > 0) {
+          audioEvents.push({
+            type: "silence",
+            durationMs: cue.wait_ms,
+            sequence_num: cue.sequence_num + 0.5,
+          });
+        }
+      }
+      audioEvents.sort((a, b) => a.sequence_num - b.sequence_num);
+    }
 
     if (audioEvents.length === 0) {
       throw new Error("No audio events found in session");
