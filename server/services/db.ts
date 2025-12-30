@@ -123,6 +123,7 @@ function initSchema(database: Database.Database): void {
   ensureCostColumns(database);
   ensureModelColumn(database);
   ensureMessageIdColumns(database);
+  ensureSpeakingTimestampColumns(database);
 }
 
 function ensureCueWaitMsColumn(
@@ -326,6 +327,26 @@ function ensureMessageIdColumns(
   }
 }
 
+function ensureSpeakingTimestampColumns(
+  database: Database.Database
+): void {
+  const columns = database
+    .prepare(`PRAGMA table_info(cues)`)
+    .all() as Array<{ name: string }>;
+  const colNames = new Set(columns.map((c) => c.name));
+
+  if (!colNames.has("speaking_started_at")) {
+    database.exec(
+      `ALTER TABLE cues ADD COLUMN speaking_started_at INTEGER`
+    );
+  }
+  if (!colNames.has("speaking_ended_at")) {
+    database.exec(
+      `ALTER TABLE cues ADD COLUMN speaking_ended_at INTEGER`
+    );
+  }
+}
+
 // Safe database operation wrapper - logs errors but doesn't crash
 function safeDbOperation<T>(
   operation: () => T,
@@ -429,6 +450,26 @@ export const dbOps = {
           );
       },
       "insertSpeak",
+      undefined
+    );
+  },
+
+  updateSpeakTimestamps(
+    sessionId: string,
+    seqNum: number,
+    startedAt: number,
+    endedAt: number
+  ): void {
+    safeDbOperation(
+      () => {
+        const database = getDb();
+        database
+          .prepare(
+            `UPDATE cues SET speaking_started_at = ?, speaking_ended_at = ? WHERE session_id = ? AND sequence_num = ?`
+          )
+          .run(startedAt, endedAt, sessionId, seqNum);
+      },
+      "updateSpeakTimestamps",
       undefined
     );
   },
@@ -773,6 +814,8 @@ export const dbOps = {
         elapsedMs: number | null;
         wallClock: string | null;
         queueDepth: number | null;
+        speakingStartedAt: number | null;
+        speakingEndedAt: number | null;
         created_at: string;
       }
     | {
@@ -809,19 +852,19 @@ export const dbOps = {
         // Query all tables and union them, ordered by sequence_num
         const results = database
           .prepare(
-            `SELECT 'thinking' as type, sequence_num, content, queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, NULL as wait_ms, NULL as ratio, NULL as elapsed_ms, NULL as wall_clock, NULL as duration_ms, NULL as since_speak_ms, NULL as source, NULL as message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, created_at
+            `SELECT 'thinking' as type, sequence_num, content, queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, NULL as wait_ms, NULL as ratio, NULL as elapsed_ms, NULL as wall_clock, NULL as duration_ms, NULL as since_speak_ms, NULL as source, NULL as message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, NULL as speaking_started_at, NULL as speaking_ended_at, created_at
              FROM thinking_traces WHERE session_id = ?
              UNION ALL
-             SELECT 'speak' as type, sequence_num, NULL as content, queue_depth, text, voice, speaking_ms, wait_ms, ratio, elapsed_ms, wall_clock, NULL as duration_ms, NULL as since_speak_ms, NULL as source, NULL as message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, created_at
+             SELECT 'speak' as type, sequence_num, NULL as content, queue_depth, text, voice, speaking_ms, wait_ms, ratio, elapsed_ms, wall_clock, NULL as duration_ms, NULL as since_speak_ms, NULL as source, NULL as message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, speaking_started_at, speaking_ended_at, created_at
              FROM cues WHERE session_id = ?
              UNION ALL
-             SELECT 'silence' as type, sequence_num, NULL as content, NULL as queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, NULL as wait_ms, ratio, elapsed_ms, wall_clock, duration_ms, since_speak_ms, NULL as source, NULL as message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, created_at
+             SELECT 'silence' as type, sequence_num, NULL as content, NULL as queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, NULL as wait_ms, ratio, elapsed_ms, wall_clock, duration_ms, since_speak_ms, NULL as source, NULL as message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, NULL as speaking_started_at, NULL as speaking_ended_at, created_at
              FROM silences WHERE session_id = ?
              UNION ALL
-             SELECT 'error' as type, sequence_num, NULL as content, NULL as queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, NULL as wait_ms, NULL as ratio, NULL as elapsed_ms, NULL as wall_clock, NULL as duration_ms, NULL as since_speak_ms, source, message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, created_at
+             SELECT 'error' as type, sequence_num, NULL as content, NULL as queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, NULL as wait_ms, NULL as ratio, NULL as elapsed_ms, NULL as wall_clock, NULL as duration_ms, NULL as since_speak_ms, source, message, NULL as tool_name, NULL as intent, NULL as stopwatch_id, NULL as stopwatch_elapsed_ms, NULL as result, NULL as speaking_started_at, NULL as speaking_ended_at, created_at
              FROM errors WHERE session_id = ?
              UNION ALL
-             SELECT 'tool_call' as type, sequence_num, NULL as content, NULL as queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, NULL as wait_ms, NULL as ratio, NULL as elapsed_ms, NULL as wall_clock, NULL as duration_ms, NULL as since_speak_ms, NULL as source, NULL as message, tool_name, intent, stopwatch_id, stopwatch_elapsed_ms, result, created_at
+             SELECT 'tool_call' as type, sequence_num, NULL as content, NULL as queue_depth, NULL as text, NULL as voice, NULL as speaking_ms, NULL as wait_ms, NULL as ratio, NULL as elapsed_ms, NULL as wall_clock, NULL as duration_ms, NULL as since_speak_ms, NULL as source, NULL as message, tool_name, intent, stopwatch_id, stopwatch_elapsed_ms, result, NULL as speaking_started_at, NULL as speaking_ended_at, created_at
              FROM tool_calls WHERE session_id = ?
              ORDER BY sequence_num`
           )
@@ -852,6 +895,8 @@ export const dbOps = {
           stopwatch_id: string | null;
           stopwatch_elapsed_ms: number | null;
           result: string | null;
+          speaking_started_at: number | null;
+          speaking_ended_at: number | null;
           created_at: string;
         }>;
 
@@ -906,6 +951,8 @@ export const dbOps = {
               elapsedMs: row.elapsed_ms,
               wallClock: row.wall_clock,
               queueDepth: row.queue_depth,
+              speakingStartedAt: row.speaking_started_at,
+              speakingEndedAt: row.speaking_ended_at,
               created_at: row.created_at,
             };
           }
