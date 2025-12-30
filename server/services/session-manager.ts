@@ -634,10 +634,6 @@ class SessionManager {
             totalPlaybackMs
           );
 
-          // Signal queue room after playback + delay completes
-          // This unblocks the agent to queue more items
-          session.queueDrained?.();
-
           const effectiveDelay = Math.max(
             MIN_SPEAK_DELAY,
             item.pauseMs ?? 0
@@ -646,6 +642,10 @@ class SessionManager {
           await new Promise((resolve) =>
             setTimeout(resolve, effectiveDelay)
           );
+
+          // Signal queue room after playback + delay completes
+          // This unblocks the agent to queue more items
+          session.queueDrained?.();
         } else if (item.type === "silence") {
           const logPrefix = `[silence:${sessionId.slice(0, 8)}:${item.sequenceNum}]`;
           console.log(
