@@ -123,6 +123,7 @@ function initSchema(database: Database.Database): void {
   ensureCostColumns(database);
   ensureModelColumn(database);
   ensureMessageIdColumns(database);
+  ensureSpeakingTimestampColumns(database);
 }
 
 function ensureCueWaitMsColumn(
@@ -326,6 +327,26 @@ function ensureMessageIdColumns(
   }
 }
 
+function ensureSpeakingTimestampColumns(
+  database: Database.Database
+): void {
+  const columns = database
+    .prepare(`PRAGMA table_info(cues)`)
+    .all() as Array<{ name: string }>;
+  const colNames = new Set(columns.map((c) => c.name));
+
+  if (!colNames.has("speaking_started_at")) {
+    database.exec(
+      `ALTER TABLE cues ADD COLUMN speaking_started_at INTEGER`
+    );
+  }
+  if (!colNames.has("speaking_ended_at")) {
+    database.exec(
+      `ALTER TABLE cues ADD COLUMN speaking_ended_at INTEGER`
+    );
+  }
+}
+
 // Safe database operation wrapper - logs errors but doesn't crash
 function safeDbOperation<T>(
   operation: () => T,
@@ -429,6 +450,26 @@ export const dbOps = {
           );
       },
       "insertSpeak",
+      undefined
+    );
+  },
+
+  updateSpeakTimestamps(
+    sessionId: string,
+    seqNum: number,
+    startedAt: number,
+    endedAt: number
+  ): void {
+    safeDbOperation(
+      () => {
+        const database = getDb();
+        database
+          .prepare(
+            `UPDATE cues SET speaking_started_at = ?, speaking_ended_at = ? WHERE session_id = ? AND sequence_num = ?`
+          )
+          .run(startedAt, endedAt, sessionId, seqNum);
+      },
+      "updateSpeakTimestamps",
       undefined
     );
   },
