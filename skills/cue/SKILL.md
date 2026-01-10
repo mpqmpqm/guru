@@ -154,8 +154,7 @@ speak(
   voice: "Voice Affect: Dry, observational; reading from a field
           guide. Tone: Matter-of-fact with a hint of mischief
           underneath. Pacing: Steady, unhurried, letting the
-          provocative content land without dramatizing it.
-          Pronunciation: Slight lift at 'ordinary scandal.'"
+          provocative content land without dramatizing it."
 )
 silence(45000)
 ```
