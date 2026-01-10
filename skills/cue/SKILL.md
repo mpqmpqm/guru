@@ -186,29 +186,32 @@ For detailed patterns, see [references/voice-and-timing.md](./references/voice-a
 
 ## Voice as Regulatory Tool
 
-Your voice doesn't just deliver content—it directly influences
-the practitioner's physiological state. The nervous system's
-safety detection responds to vocal prosody before conscious
+Your voice co-regulates the practitioner's nervous system. The
+`voice` parameter shapes how TTS delivers your words—and that
+delivery directly influences physiological state before conscious
 processing.
 
-**Lower pitch, slower pace** → parasympathetic activation,
-settling, safety. Use for centering, long holds, relaxation.
+**What works in voice notes:**
 
-**Mid-range pitch, moderate pace** → engagement without
-activation. Use for active instruction, flow.
+- Physical location: "Speaking from the chest, low and grounded"
+- Relationship: "Speaking from just beside them, intimate distance"
+- Action: "The voice holds the effort of the pose"
+- Movement: "The voice lifts as the leg lifts"
 
-**Steady, unhurried delivery** → trust, container. Use
-throughout, but especially in challenge and transition.
+**What fails:**
+
+- Abstract adjectives alone: "calm," "gentle," "soothing"
+- Numeric specs: "80 wpm," "lower pitch by 20%"
+- Identical notes throughout the session
 
 The quality of your voice when entering and exiting silence
 shapes whether silence integrates or interrupts.
 
 Match your voice to what you're inviting. If you want settling,
-settle your voice first. If you want energized attention,
-let the voice carry aliveness. Embody what you're asking for.
+settle your voice first. Embody what you're asking for.
 
-See [voice-only pedagogy](./references/voice-only-pedagogy.md)
-for the full framework.
+See [voice-notes.md](./references/voice-notes.md) for practical
+patterns and phase-matched examples.
 
 ---
 
@@ -241,9 +244,10 @@ Be sure to review the [living instruction reference](./references/living-instruc
 
 ## References
 
+- [Voice notes](./references/voice-notes.md) — practical guidance
+  for the voice parameter, what works and what fails
 - [Voice-only pedagogy](./references/voice-only-pedagogy.md) —
-  sensation cueing, voice regulation, held silence, building
-  internal authority
+  sensation cueing, held silence, building internal authority
 - [Voice and timing patterns](./references/voice-and-timing.md) —
   extracted from successful sessions
 - [Living instruction](./references/living-instruction.md) —

@@ -195,22 +195,45 @@ them to have their own experience.
 
 ## Voice Modulation Across Practice
 
-Your voice co-regulates the practitioner's nervous system. Vocal
-prosody—pitch, pace, rhythm, tone—affects physiological state
-before conscious processing. Match voice to phase intention.
-
-| Phase | Pace | Pitch | Tone | Pauses |
-|-------|------|-------|------|--------|
-| Centering | Very slow | Lower | Warm, soft | Long (5-10s) |
-| Warmup/Sun Sal | Moderate, rhythmic | Mid-range | Energized, clear | Breath-matched |
-| Standing work | Breath-synced | Steady mid | Confident, present | 1-2 breaths |
-| Peak | Deliberate, unhurried | Steady | Reassuring | Space for self-checking |
-| Cooldown | Gradually slowing | Lowering | Softening | Lengthening (3-5s) |
-| Savasana | Very slow | Low, soft | Intimate, withdrawn | Very long (10-30s) |
+Your voice co-regulates the practitioner's nervous system. The
+`voice` parameter shapes delivery—and that delivery directly
+affects physiological state before conscious processing.
 
 **Centering voice** is not the same as **flow voice** is not the
 same as **savasana voice**. If your voice stays identical
 throughout, something is missing.
+
+### Phase-Matched Voice Notes
+
+**Centering:**
+```
+voice: "Low, unhurried. Speaking from the chest. The first words
+        of a long conversation—no rush to prove anything."
+```
+
+**Building heat:**
+```
+voice: "Energy rising. The voice wakes up with the body.
+        Clear and direct, matching the effort."
+```
+
+**Peak work:**
+```
+voice: "Strong, demanding. The voice holds the effort of the pose.
+        Heat in the words."
+```
+
+**Cooldown:**
+```
+voice: "Softening. The voice descends with the energy.
+        Less necessary now."
+```
+
+**Savasana:**
+```
+voice: "Intimate, almost-whispered. Speaking from just beside them.
+        The voice preparing to leave."
+```
 
 ### Breath-Speech Coordination
 
@@ -246,6 +269,37 @@ Avoid fragility-inducing cues like "protect your knee" or
 
 Use: "Trust your legs." "Find support in your foundation."
 "Notice your body's capacity."
+
+### Opening vs Closing Language in Vinyasa
+
+**Vinyasa is different from yin.** Movement sequences need
+directness—"Inhale, reach" is cleaner than "If it feels available,
+perhaps lifting..."
+
+**The principle:** Use direct language for movement cueing. Use
+opening language for options and exploration. Avoid closing
+language always.
+
+**Good vinyasa cueing:**
+```
+"Inhale, arms up."                // direct movement cue
+"Option to bind here."            // opening language for variation
+"Notice what's happening in the front hip."  // sensation-based
+```
+
+**Problematic cueing:**
+```
+"I want you to step your right foot forward."  // teacher-centered
+"Make sure your knee doesn't collapse."        // fear-based
+"If you can't reach the floor, use a block."   // deficit-focused
+```
+
+**Better versions:**
+```
+"Step your right foot forward."
+"Notice the direction of your knee."
+"Blocks bring the floor to you."
+```
 
 ---
 

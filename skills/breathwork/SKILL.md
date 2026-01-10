@@ -318,14 +318,31 @@ ear muscles relax, facial muscles follow, breath deepens, heart
 calms, sympathetic defense system down-regulates. This is
 polyvagal co-regulation through voice.
 
-### Phase-Matched Voice
+### Phase-Matched Voice Notes
 
-| Phase | Voice Quality | Purpose |
-|-------|--------------|---------|
-| Grounding | Very slow, low pitch, soft, warm | Parasympathetic invitation |
-| Activation | Steady, clear, moderate pace, even | Stable container during intensity |
-| Integration | Gradually slowing, softening, lowering | Support return to baseline |
-| Stillness | Minimal, very slow, intimate | Withdrawal into presence |
+**Grounding:**
+```
+voice: "Low, unhurried. Speaking from the belly. Setting down
+        into the floor alongside them."
+```
+
+**Activation:**
+```
+voice: "Steady, present. The voice provides container while breath
+        provides intensity. Calm authority, not urgency."
+```
+
+**Integration:**
+```
+voice: "Softening. The voice descends with the breath pattern.
+        Slower, lower, less necessary."
+```
+
+**Stillness:**
+```
+voice: "Barely there. Speaking from just beside them.
+        Almost-whispered. The voice preparing to leave."
+```
 
 **Grounding voice** is the slowest and softest of the session.
 This sets the safety baseline that allows activation to unfold.

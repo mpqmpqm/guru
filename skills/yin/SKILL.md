@@ -151,6 +151,26 @@ it move through."*
 the process. Perhaps simply: *"Yes."* Allow integration in
 silence.
 
+### Rotating cue types in long holds
+
+During extended holds (Phase 3-4), rotate cue types every 20-30
+seconds to maintain engagement without monotony:
+
+1. **Alignment micro-corrections** — "Notice if you're gripping
+   anywhere unnecessary"
+2. **Breath observations** — "Can you let the exhale be a little
+   longer?"
+3. **Attentional targets** — "Where is sensation strongest right
+   now?"
+4. **Strategy cues** — "If you're working too hard, back off 10%"
+5. **Presence markers** — "Still here with you"
+6. **Sensation naming** — "Dull, diffuse sensation is the fascia.
+   Let it be."
+
+**The peak failure mode:** If you run out of genuinely useful
+cues before the intended duration, the hold has outlived itself.
+Transition rather than fill time with noise.
+
 ## Timing protocol
 
 Use the stopwatch tool to track hold duration. Start when entering the pose; check before exiting to verify you've held as long as intended.

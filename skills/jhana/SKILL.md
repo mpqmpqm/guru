@@ -151,15 +151,37 @@ safety at the autonomic level.
 **Steady, predictable rhythm** creates neural entrainment. The
 nervous system relaxes into what it can anticipate.
 
-### Phase-Matched Voice
+### Phase-Matched Voice Notes
 
-| Phase | Pace | Pitch | Tone |
-|-------|------|-------|------|
-| Settling | Very slow, long pauses | Low | Warm, grounding |
-| Access | Slow, rhythm-establishing | Low-mid | Steady, minimal |
-| Shift | Slow, spacious | Low, soft | Invitational |
-| Jhana | Nearly absent | Very soft if any | Intimate, withdrawn |
-| Emergence | Gradually returning | Rising gently | Grounding |
+**Settling:**
+```
+voice: "Low, unhurried. Speaking from the chest. As if the silence
+        outside has already softened everything. No rush."
+```
+
+**Access:**
+```
+voice: "Rhythm-establishing. Steady, minimal. Each word a small
+        anchor, then silence again. Predictable pattern."
+```
+
+**Shift:**
+```
+voice: "Invitational. The voice softens with the invitation.
+        Speaking from just beside them. Spacious."
+```
+
+**Jhana:**
+```
+voice: "Barely there. Words emerging from silence, returning to
+        silence. Almost-whispered. The voice preparing to leave."
+```
+
+**Emergence:**
+```
+voice: "Soft return, as if waking someone gently. Gradually more
+        present. Grounding without jarring."
+```
 
 **Settling voice** is the slowest and softest. This baseline of
 safety allows concentration to deepen naturally.
