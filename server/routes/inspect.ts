@@ -61,9 +61,8 @@ function computeGapAnalysis(
       let gapDriftMs: number | null = null;
 
       if (prevSpeak) {
-        // Promised: previous speak's pauseMs + silence calls between
-        promisedGapMs =
-          (prevSpeak.waitMs ?? 0) + silenceSinceLastSpeak;
+        // Promised: silence calls between speaks
+        promisedGapMs = silenceSinceLastSpeak;
 
         // Actual: time between previous speak end and this speak start
         if (

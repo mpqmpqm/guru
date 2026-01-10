@@ -5,10 +5,9 @@ import { sessionManager } from "../services/session-manager.js";
 function formatDuration(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
-  if (mins === 0) return `${secs} seconds`;
-  if (secs === 0)
-    return `${mins} minute${mins !== 1 ? "s" : ""}`;
-  return `${mins} minute${mins !== 1 ? "s" : ""} and ${secs} seconds`;
+  if (mins === 0) return `${secs}s`;
+  if (secs === 0) return `${mins}m`;
+  return `${mins}m${secs}s`;
 }
 
 function formatWallClock(date: Date, timezone?: string): string {
@@ -47,7 +46,7 @@ export function getTimeComponents(sessionId: string): {
 export function getTimeInfo(sessionId: string): string {
   const { elapsedMs, wallClock } = getTimeComponents(sessionId);
   const elapsed = formatDuration(elapsedMs / 1000);
-  return `${elapsed} into the session. The time is ${wallClock}.`;
+  return `elapsed ${elapsed} | clock ${wallClock}`;
 }
 
 export function createTimeTool(sessionId: string) {

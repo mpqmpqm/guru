@@ -129,9 +129,15 @@ Flow is not speed. Flow is continuity.
 
 ## Silence Duration
 
-Use `pauseMs` for breath-to-breath pacing (up to 8s). Reserve `silence()` for compositional moments—transitions, cooldown holds, savasana.
+Use silence() for breath-to-breath pacing and compositional moments.
 
-Savasana allows up to **300 seconds** per silence call. For other extended holds, call silence repeatedly; each invocation signals continued presence rather than abandonment.
+**Standard pacing:** Silence holds space for breath. One breath between cues is typical; longer silences need framing.
+
+**Chained speaks for flow:** In sun salutations and continuous sequences, chain speaks without silence between—one silence lands the whole sequence. See [Sun Salutations](./references/sun-salutations.md).
+
+**Savasana:** Up to **300 seconds** per call. Frame first.
+
+**Extended silence is rare in vinyasa.** Outside savasana, silence beyond 8 seconds needs pedagogical purpose and explicit framing. Vinyasa is momentum—the voice accompanies movement.
 
 ## Sustaining Long Holds
 
@@ -213,3 +219,9 @@ Ask: Can students maintain ujjayi? If not, slow down.
 ### Class Arc
 
 Ask: Where is the peak? Is there time after it for integration?
+
+---
+
+## References
+
+- [Sun Salutations](./references/sun-salutations.md) — cueing patterns for continuous flow

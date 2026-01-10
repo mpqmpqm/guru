@@ -59,9 +59,7 @@ Delivers spoken guidance.
 
 ### Silence: `mcp__guide__silence`
 
-Holds intentional space—a moment worth naming. Use for transitions, savasana entry, meditation intervals, and any pause that serves the practice architecture.
-
-If you're reaching for silence under 10 seconds, you probably want `pauseMs` instead. Exception: call silence() with a small argument to extend a pause when needed (e.g., to meet a promised duration).
+Holds intentional space after speaking. Silence lets instruction land and experience unfold.
 
 **Parameters:**
 
@@ -96,12 +94,15 @@ speak("Beginning to come out of the shape...")
 
 ### Composing Cues
 
-**Default pattern: speak with pauseMs.** For breath-to-breath cueing, use pauseMs to create natural rhythm:
+**Alternating speaks and silences.** The basic rhythm is speak, then silence:
 
 ```
-speak("Inhale, reach the arms up", voice, pauseMs: 3500)
-speak("Exhale, fold forward", voice, pauseMs: 3500)
-speak("Inhale, halfway lift", voice, pauseMs: 3000)
+speak("Inhale, reach the arms up", voice)
+silence(3500)
+speak("Exhale, fold forward", voice)
+silence(3500)
+speak("Inhale, halfway lift", voice)
+silence(3000)
 ```
 
 **Chained speaks** build momentum, set up alignment, accompany movement. Multiple speaks in a row, then one silence to land:
@@ -109,7 +110,8 @@ speak("Inhale, halfway lift", voice, pauseMs: 3000)
 ```
 speak("Feet hip width")
 speak("Soften the knees")
-speak("Find your breath", pauseMs: 3000)  // land the bundle
+speak("Find your breath")
+silence(3000)
 ```
 
 Use chained speaks when:
@@ -134,19 +136,12 @@ Use spaced speaks when:
 - Inviting internal exploration
 - Slowing down, arriving, settling
 
-**Extended hold (frame first):**
+**Extended holds (frame first):**
 
 ```
 speak("Stay here for a while. No voice needed.", voice)
-silence(30000)  // compositional choice: holding space
+silence(30000)
 ```
-
-Use silence() when:
-
-- Entering savasana or deep rest
-- Meditation intervals
-- Major transitions between practice sections
-- Any pause you'd name as a session moment
 
 **Example cue:**
 
@@ -183,7 +178,7 @@ Skill-specific limits: vinyasa 8s, yin/meditation 60s. Repeated calls signal con
 
 **Chain speaks freely.** When setting up alignment, building momentum, or accompanying movement—call speak multiple times before any silence. The pattern speak-speak-speak-silence is as valid as speak-silence-speak-silence. Choose based on what the moment needs.
 
-**Multiple invocations per turn.** You can invoke speak and silence many times in one turn. You do not need to think between each call. Do think between silence invocations when holding extended silence: be sure the room has not been abandoned.
+**Paired invocations.** Once you have a sense of the pacing, emit speak and silence together in one response. Size silence to the breath—the duration feedback helps you stay calibrated to real time. A single speak + silence pair is the maximum parallel stacking. Do not invoke multiple speaks in parallel; do not invoke multiple silences in parallel.
 
 For detailed patterns, see [references/voice-and-timing.md](./references/voice-and-timing.md).
 

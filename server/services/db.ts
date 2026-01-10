@@ -422,7 +422,6 @@ export const dbOps = {
     content: string,
     voice: string,
     speakingMs: number,
-    waitMs: number | null,
     ratio: string,
     elapsedMs: number,
     wallClock: string,
@@ -433,7 +432,7 @@ export const dbOps = {
         const database = getDb();
         database
           .prepare(
-            `INSERT INTO cues (session_id, sequence_num, text, voice, speaking_ms, wait_ms, ratio, elapsed_ms, wall_clock, queue_depth, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+            `INSERT INTO cues (session_id, sequence_num, text, voice, speaking_ms, ratio, elapsed_ms, wall_clock, queue_depth, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
           )
           .run(
             sessionId,
@@ -441,7 +440,6 @@ export const dbOps = {
             content,
             voice,
             speakingMs,
-            waitMs,
             ratio,
             elapsedMs,
             wallClock,

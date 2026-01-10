@@ -139,15 +139,12 @@ export function logCueTtsReady(
 export function logCueQueued(
   logPrefix: string,
   queueDepthBefore: number,
-  waitMs: number,
-  pauseMs: number,
   stackSize: number,
   noop = true
 ): void {
   if (noop) return;
-  const pauseStr = pauseMs > 0 ? ` pauseMs=${pauseMs}` : "";
   console.log(
-    `${logPrefix} QUEUED queueDepth=${queueDepthBefore}->${queueDepthBefore + 1} waitMs=${waitMs}${pauseStr} stackSize=${stackSize}`
+    `${logPrefix} QUEUED queueDepth=${queueDepthBefore}->${queueDepthBefore + 1} stackSize=${stackSize}`
   );
 }
 

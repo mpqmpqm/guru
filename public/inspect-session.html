@@ -795,10 +795,9 @@
                 if (event.queueDepth != null)
                   footerParts.push(`q${event.queueDepth}`);
                 if (event.speakingMs != null) {
-                  let duration = `${(event.speakingMs / 1000).toFixed(1)}s`;
-                  if (event.waitMs != null)
-                    duration += ` + ${(event.waitMs / 1000).toFixed(1)}s pause`;
-                  footerParts.push(duration);
+                  footerParts.push(
+                    `${(event.speakingMs / 1000).toFixed(1)}s`
+                  );
                 }
                 if (event.ratio) footerParts.push(event.ratio);
                 if (event.gapDriftMs != null) {

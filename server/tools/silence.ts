@@ -8,7 +8,7 @@ import { getTimeComponents, getTimeInfo } from "./time.js";
 export function createSilenceTool(sessionId: string) {
   return tool(
     "silence",
-    "Hold intentional space after speaking. Silence lets instruction land and experience unfold. Frame before long silences (>30s) so they feel inhabited, not abandoned.",
+    "Hold intentional space after speaking. Silence holds space for breath. Frame before long silences (>30s) so they feel inhabited. Skill-specific limits apply.",
     {
       durationMs: z
         .number()
@@ -51,21 +51,16 @@ export function createSilenceTool(sessionId: string) {
 
       const sinceSpeakMs =
         sessionManager.getTimeSinceLastSpeak(sessionId);
-      const sinceSpeakStr =
+      const gapStr =
         sinceSpeakMs !== undefined
-          ? ` (${(sinceSpeakMs / 1000).toFixed(1)}s since last speak)`
-          : "";
-
-      const warningPreferPauseMs =
-        args.durationMs < 10_000
-          ? " (Tip: pauseMs on speak() is better for short rhythm gaps—reserve silence() for compositional moments.)"
+          ? ` | gap ${(sinceSpeakMs / 1000).toFixed(1)}s`
           : "";
 
       const ratio =
         sessionManager.getSpeakSilenceRatio(sessionId);
       const { elapsedMs, wallClock } =
         getTimeComponents(sessionId);
-      const result = `Silence for ${args.durationMs}ms${sinceSpeakStr}. ${ratio}. ${getTimeInfo(sessionId)}${warningPreferPauseMs}`;
+      const result = `silence ${(args.durationMs / 1000).toFixed(1)}s${gapStr} | ${ratio} | ${getTimeInfo(sessionId)}`;
 
       // Persist silence to database (after we have all data)
       dbOps.insertSilence(

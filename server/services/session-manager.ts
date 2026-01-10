@@ -35,7 +35,6 @@ type AudioItem = {
   ttsResult: TTSResult;
   sequenceNum: number;
   text: string;
-  pauseMs?: number;
 };
 
 type SilenceItem = {
@@ -367,18 +366,18 @@ class SessionManager {
 
   getSpeakSilenceRatio(sessionId: string): string {
     const session = this.sessions.get(sessionId);
-    if (!session) return "0:0 speak:silence";
+    if (!session) return "speaking:silence 0:0";
 
     const { totalSpeakingMs, totalSilenceMs } = session;
 
     if (totalSilenceMs === 0) {
       return totalSpeakingMs === 0
-        ? "0:0 speak:silence"
-        : "∞:1 speak:silence";
+        ? "speaking:silence 0:0"
+        : "speaking:silence ∞:1";
     }
 
     const ratio = totalSpeakingMs / totalSilenceMs;
-    return `${ratio.toFixed(1)}:1 speak:silence this session`;
+    return `speaking:silence ${ratio.toFixed(1)}:1`;
   }
 
   startStopwatch(sessionId: string): void {
@@ -425,7 +424,6 @@ class SessionManager {
       ttsResult: TTSResult;
       sequenceNum: number;
       text: string;
-      pauseMs?: number;
     }
   ): void {
     const session = this.sessions.get(sessionId);
@@ -436,7 +434,6 @@ class SessionManager {
       ttsResult: item.ttsResult,
       sequenceNum: item.sequenceNum,
       text: item.text,
-      pauseMs: item.pauseMs,
     });
     session.audioItemCount++;
     // Signal that new audio is available
@@ -649,13 +646,8 @@ class SessionManager {
             totalPlaybackMs
           );
 
-          const effectiveDelay = Math.max(
-            MIN_SPEAK_DELAY,
-            item.pauseMs ?? 0
-          );
-
           await new Promise((resolve) =>
-            setTimeout(resolve, effectiveDelay)
+            setTimeout(resolve, MIN_SPEAK_DELAY)
           );
 
           // Signal queue room after playback + delay completes

@@ -64,13 +64,9 @@ The framing can be minimal. But it must exist.
 
 ---
 
-## pauseMs vs. silence()
+## Silence Duration
 
-**pauseMs is the default.** Use it for natural rhythm between cues— breath-to-breath pacing, letting instructions land, standard flow.
-
-**silence() is compositional.** Use it for moments worth naming— transitions, savasana entry, meditation intervals, extended holds.
-
-**The 10-second threshold:** If reaching for silence under 10 seconds, use pauseMs instead. Exception: small silence() calls to extend a pause when needed (e.g., to meet a promised duration).
+Silence is intentional space. Call silence() deliberately after speak().
 
 **Duration guide:**
 
@@ -78,7 +74,7 @@ The framing can be minimal. But it must exist.
 - 2000-8000ms: Let instruction land, allow response
 - 8000ms+: Extended holds—pair with stopwatch; frame first
 
-Skill-specific limits: vinyasa 8s, yin/meditation 60s. Repeated calls signal continued intentional presence.
+**Skill-specific limits vary:** vinyasa 8s, yin/meditation 60s, savasana 300s. Repeated silence calls signal continued intentional presence through extended holds.
 
 **Extended silence pattern:**
 
@@ -88,7 +84,50 @@ silence(45000)
 speak("Coming back from that quiet...", voice)
 ```
 
-Practice-appropriate silence maximums: 60s for yin/meditation, 300s for savasana. Repeated calls signal continued intentional presence.
+---
+
+## Duration Feedback
+
+Each speak returns how long it took (e.g., `spoke 3.2s`). This helps you understand the actual pacing—not to calculate silence mechanically, but to stay calibrated to real time.
+
+The actual clock in guidance is the breath cycle. Silence holds space for breath, not for arithmetic.
+
+**Signs you've lost the breath:**
+
+- Silence so short the body can't respond → rushed
+- Silence so long it feels abandoned → unframed
+
+Use duration feedback to notice drift. If a 2-second cue is followed by 30 seconds of silence, something has come untethered—unless that silence was deliberately framed.
+
+---
+
+## Chained Speaks
+
+For sequences where movement is continuous, chain multiple speaks before any silence.
+
+**Flow patterns (sun salutations, vinyasa transitions):**
+
+```
+speak("Inhale, reach up")
+speak("Exhale, fold")
+speak("Inhale, halfway lift")
+speak("Exhale, step back, lower")
+silence(2000)  // one silence for the whole sequence
+```
+
+This is efficient: one silence for an entire sequence rather than silence after each breath. The continuous cueing matches continuous movement—gaps would feel like stop-and-start.
+
+**When to chain:**
+
+- Movement is continuous (each position flows into the next)
+- The body knows the pattern (rounds 2+)
+- Building momentum or energy
+
+**When to space:**
+
+- Each instruction needs landing time
+- Slowing down, arriving, settling
+- Inviting internal exploration
 
 ---
 
