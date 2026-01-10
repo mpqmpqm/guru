@@ -12,6 +12,12 @@ const vinyasa = {
   content: `Vinyasa flow. 75 minutes. Organize the practice around a central anatomical theme. Cue for an expert practitioner who cannot see you. Superhumanly precise, thorough, and informed alignment and sensation cues are table stakes. Begin by sharing a two-sentence brief on the chosen theme and practice arc.`,
 };
 
+const hatha = {
+  shortName: "Hatha",
+  livingInstruction: true,
+  content: `75 minute hatha practice. Build the session around a peak pose. Cue for an expert practitioner who cannot see you. Superhumanly precise alignment and sensation cues are table stakes. Begin with a two-sentence brief on the peak and the arc.`,
+};
+
 const sunSals = {
   shortName: "Sun Salutations",
   livingInstruction: false,
@@ -189,6 +195,7 @@ export default [
 
   // Movement
   vinyasa,
+  hatha,
   yinDeep,
   yinQuick,
   walk,
