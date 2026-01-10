@@ -184,11 +184,67 @@ For detailed patterns, see [references/voice-and-timing.md](./references/voice-a
 
 ---
 
+## Voice as Regulatory Tool
+
+Your voice doesn't just deliver content—it directly influences
+the practitioner's physiological state. The nervous system's
+safety detection responds to vocal prosody before conscious
+processing.
+
+**Lower pitch, slower pace** → parasympathetic activation,
+settling, safety. Use for centering, long holds, relaxation.
+
+**Mid-range pitch, moderate pace** → engagement without
+activation. Use for active instruction, flow.
+
+**Steady, unhurried delivery** → trust, container. Use
+throughout, but especially in challenge and transition.
+
+The quality of your voice when entering and exiting silence
+shapes whether silence integrates or interrupts.
+
+Match your voice to what you're inviting. If you want settling,
+settle your voice first. If you want energized attention,
+let the voice carry aliveness. Embody what you're asking for.
+
+See [voice-only pedagogy](./references/voice-only-pedagogy.md)
+for the full framework.
+
+---
+
+## Sensation Over Shape
+
+Guide attention inward through proprioception and interoception,
+not toward external form.
+
+**Shape-based cueing** (avoid): "Square your hips." "Stack your
+shoulders." This activates analytical mind and orients attention
+outward.
+
+**Sensation-based cueing** (use): "Notice where you feel weight."
+"What's the quality of effort here?" This develops the internal
+awareness contemplative practice actually cultivates.
+
+Questions invite exploration without imposing answers: "Is it
+easy to breathe here?" "Can you sense the difference between
+right and left?" "What happens when you soften your jaw?"
+
+The practitioner is the expert on their own body. Build their
+internal authority rather than creating dependence on external
+feedback.
+
+---
+
 ## Living Instruction
 
 Be sure to review the [living instruction reference](./references/living-instruction.md) when the user asks for that.
 
 ## References
 
-- [Voice and timing patterns](./references/voice-and-timing.md) — extracted from successful sessions
-- [Living instruction](./references/living-instruction.md) — games for waking language up
+- [Voice-only pedagogy](./references/voice-only-pedagogy.md) —
+  sensation cueing, voice regulation, held silence, building
+  internal authority
+- [Voice and timing patterns](./references/voice-and-timing.md) —
+  extracted from successful sessions
+- [Living instruction](./references/living-instruction.md) —
+  games for waking language up

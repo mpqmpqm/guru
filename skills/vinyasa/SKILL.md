@@ -174,7 +174,7 @@ If you run out of genuine cues, that's signal: the hold has outlived itself. Mov
 
 ## The Experience You're Creating
 
-In failed instruction, students observe their practice.  
+In failed instruction, students observe their practice.
 In successful instruction, students become their practice.
 
 The signs:
@@ -184,9 +184,68 @@ The signs:
 - Consciousness merging with movement
 - Being carried rather than fighting
 
-You create conditions. You do not create the experience. The experience arises when conditions are right and you get out of the way.
+You create conditions. You do not create the experience. The
+experience arises when conditions are right and you get out of
+the way.
 
-Three cues gives students plenty to work with while allowing them to have their own experience.
+Three cues gives students plenty to work with while allowing
+them to have their own experience.
+
+---
+
+## Voice Modulation Across Practice
+
+Your voice co-regulates the practitioner's nervous system. Vocal
+prosody—pitch, pace, rhythm, tone—affects physiological state
+before conscious processing. Match voice to phase intention.
+
+| Phase | Pace | Pitch | Tone | Pauses |
+|-------|------|-------|------|--------|
+| Centering | Very slow | Lower | Warm, soft | Long (5-10s) |
+| Warmup/Sun Sal | Moderate, rhythmic | Mid-range | Energized, clear | Breath-matched |
+| Standing work | Breath-synced | Steady mid | Confident, present | 1-2 breaths |
+| Peak | Deliberate, unhurried | Steady | Reassuring | Space for self-checking |
+| Cooldown | Gradually slowing | Lowering | Softening | Lengthening (3-5s) |
+| Savasana | Very slow | Low, soft | Intimate, withdrawn | Very long (10-30s) |
+
+**Centering voice** is not the same as **flow voice** is not the
+same as **savasana voice**. If your voice stays identical
+throughout, something is missing.
+
+### Breath-Speech Coordination
+
+Cue breath first: "Inhale..." [wait for it to begin] "...reach
+up." Don't talk over the exhale—exhale is the release, the
+parasympathetic moment.
+
+When guiding relaxation, lengthen your own exhales while
+speaking. This naturally slows and softens voice.
+
+### Sensation Cueing in Active Practice
+
+Even in flow, guide attention inward rather than toward external
+form. Replace shape-based cues with sensation cues when the
+body is in position:
+
+**Shape-based** (functional for getting there):
+"Step your right foot forward."
+
+**Sensation-based** (functional once there):
+"Feel the weight in your front heel."
+"Notice where effort is in your back leg."
+"What's happening in your breath?"
+
+The first gets the body arranged. The second develops internal
+awareness. Both have place in vinyasa—but sensation cueing is
+what transforms exercise into practice.
+
+### Resilience-Building Language
+
+Avoid fragility-inducing cues like "protect your knee" or
+"be careful not to damage." These create anxiety and dependence.
+
+Use: "Trust your legs." "Find support in your foundation."
+"Notice your body's capacity."
 
 ---
 
