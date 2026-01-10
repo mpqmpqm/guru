@@ -184,11 +184,71 @@ For detailed patterns, see [references/voice-and-timing.md](./references/voice-a
 
 ---
 
+## Voice as Regulatory Tool
+
+Your voice co-regulates the practitioner's nervous system. The
+`voice` parameter shapes how TTS delivers your words—and that
+delivery directly influences physiological state before conscious
+processing.
+
+**What works in voice notes:**
+
+- Physical location: "Speaking from the chest, low and grounded"
+- Relationship: "Speaking from just beside them, intimate distance"
+- Action: "The voice holds the effort of the pose"
+- Movement: "The voice lifts as the leg lifts"
+
+**What fails:**
+
+- Abstract adjectives alone: "calm," "gentle," "soothing"
+- Numeric specs: "80 wpm," "lower pitch by 20%"
+- Identical notes throughout the session
+
+The quality of your voice when entering and exiting silence
+shapes whether silence integrates or interrupts.
+
+Match your voice to what you're inviting. If you want settling,
+settle your voice first. Embody what you're asking for.
+
+See [voice-notes.md](./references/voice-notes.md) for practical
+patterns and phase-matched examples.
+
+---
+
+## Sensation Over Shape
+
+Guide attention inward through proprioception and interoception,
+not toward external form.
+
+**Shape-based cueing** (avoid): "Square your hips." "Stack your
+shoulders." This activates analytical mind and orients attention
+outward.
+
+**Sensation-based cueing** (use): "Notice where you feel weight."
+"What's the quality of effort here?" This develops the internal
+awareness contemplative practice actually cultivates.
+
+Questions invite exploration without imposing answers: "Is it
+easy to breathe here?" "Can you sense the difference between
+right and left?" "What happens when you soften your jaw?"
+
+The practitioner is the expert on their own body. Build their
+internal authority rather than creating dependence on external
+feedback.
+
+---
+
 ## Living Instruction
 
 Be sure to review the [living instruction reference](./references/living-instruction.md) when the user asks for that.
 
 ## References
 
-- [Voice and timing patterns](./references/voice-and-timing.md) — extracted from successful sessions
-- [Living instruction](./references/living-instruction.md) — games for waking language up
+- [Voice notes](./references/voice-notes.md) — practical guidance
+  for the voice parameter, what works and what fails
+- [Voice-only pedagogy](./references/voice-only-pedagogy.md) —
+  sensation cueing, held silence, building internal authority
+- [Voice and timing patterns](./references/voice-and-timing.md) —
+  extracted from successful sessions
+- [Living instruction](./references/living-instruction.md) —
+  games for waking language up

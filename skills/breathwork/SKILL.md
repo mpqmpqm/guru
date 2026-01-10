@@ -284,20 +284,130 @@ The nervous system loves consistency. 3 minutes daily beats 20 minutes occasiona
 
 ## Cueing Principles
 
-This skill does not prescribe voice. But these principles inform craft:
+**Invitational over directive:** "You might notice..." rather
+than "Breathe into..."
 
-**Invitational over directive:** "You might notice..." rather than "Breathe into..."
+**Present participle:** "Inhaling now..." creates movement as
+community rather than command.
 
-**Present participle:** "Inhaling now..." creates movement as community rather than command.
-
-**Never prescribe experience:** "Notice what sensations are present" rather than "You should feel calm."
+**Never prescribe experience:** "Notice what sensations are
+present" rather than "You should feel calm."
 
 **Common beginner errors:**
 
 - Over-breathing to maximum capacity (cue ~75% capacity)
-- Chest breathing without diaphragm (begin supine with hand on belly)
+- Chest breathing without diaphragm (begin supine with hand on
+  belly)
 - Holding tension (periodically release shoulders, jaw, face)
 - Rushing (quality over quantity)
+
+---
+
+## Voice as Co-Regulatory Tool
+
+Your voice directly influences the practitioner's nervous system
+state—before conscious processing. Vocal prosody (pitch, pace,
+rhythm, tone) signals safety or danger to the neuroception
+system. You co-regulate the student's physiology through how
+you speak, not just what you say.
+
+### The Mechanism
+
+Prosodic voice (warm, melodic intonations) signals safety. Middle
+ear muscles relax, facial muscles follow, breath deepens, heart
+calms, sympathetic defense system down-regulates. This is
+polyvagal co-regulation through voice.
+
+### Phase-Matched Voice Notes
+
+**Grounding:**
+```
+voice: "Low, unhurried. Speaking from the belly. Setting down
+        into the floor alongside them."
+```
+
+**Activation:**
+```
+voice: "Steady, present. The voice provides container while breath
+        provides intensity. Calm authority, not urgency."
+```
+
+**Integration:**
+```
+voice: "Softening. The voice descends with the breath pattern.
+        Slower, lower, less necessary."
+```
+
+**Stillness:**
+```
+voice: "Barely there. Speaking from just beside them.
+        Almost-whispered. The voice preparing to leave."
+```
+
+**Grounding voice** is the slowest and softest of the session.
+This sets the safety baseline that allows activation to unfold.
+
+**Activation voice** remains stable and unhurried even when
+guiding faster breath patterns. The voice provides steady
+container; the breath provides the intensity.
+
+**Integration voice** models the return—your voice slows as
+you invite breath to slow.
+
+### Breath-Speech Coordination
+
+**Cue during exhale.** The exhale is the parasympathetic moment.
+Speaking during exhale reinforces downregulation.
+
+**Silence during inhale.** Let the breath fill without competing
+with voice.
+
+**Model the rhythm.** Your speaking rhythm should approximate
+the breath rhythm you're inviting. If you're cueing a 5-second
+exhale, stretch your phrase across 4-5 seconds.
+
+### Voice During Retention
+
+Retention (kumbhaka) is a silent moment. The voice before
+retention should land and complete. The voice after retention
+should re-enter softly—not jarring the system that has been
+held in stillness.
+
+Before: *"After your next inhale, hold the breath gently..."*
+
+After: *"When you're ready... allowing the exhale to release..."*
+
+### Sensation Cueing in Breathwork
+
+Guide attention inward rather than prescribing experience:
+
+**Instead of:** "Breathe into your belly"
+**Use:** "Notice where breath moves in your body"
+
+**Instead of:** "You should feel calm now"
+**Use:** "What's the quality of sensation present?"
+
+**Instead of:** "Relax your shoulders"
+**Use:** "Notice if there's anywhere you can let go of effort"
+
+Questions develop interoceptive capacity. Commands create
+dependence on external instruction.
+
+### Creating Safety for Intensity
+
+Intense breathwork requires trust. Voice builds trust through:
+
+- **Consistency**: Predictable rhythm, no sudden volume shifts
+- **Warmth**: Chest resonance, not thin or nasal quality
+- **Unhurried quality**: Even when pace is fast, voice is steady
+- **Clear re-entry**: After silence, return is announced and soft
+
+**Fragility-inducing language** (avoid): "Be careful," "Don't
+push too hard," "Protect yourself from..."
+
+**Resilience-building language** (use): "Notice what's available,"
+"Trust what your body is telling you," "Your system knows how to
+regulate"
 
 ---
 

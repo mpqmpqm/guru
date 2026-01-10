@@ -30,7 +30,8 @@ Distinguish **tension** (modifiable through practice) from **compression** (bone
 
 ## Verbal cueing principles
 
-**Talk less:** Maximum 30 seconds of speaking per minute. Yin cultivates internal environment—constant talking disturbs this.
+**Talk less:** Maximum 30 seconds of speaking per minute. Yin
+cultivates internal environment—constant talking disturbs this.
 
 **Use invitational language:**
 
@@ -44,13 +45,131 @@ Distinguish **tension** (modifiable through practice) from **compression** (bone
 - Yang-style muscular engagement cues
 - Aesthetic corrections ("straighten your leg," "point your toes")
 
-**Rhythm for a 3-5 minute hold:**
+See [references/cueing-examples.md](references/cueing-examples.md)
+for specific language patterns.
 
-1. First 1-2 min: offer verbal guidance, alignment suggestions, theme
-2. Middle: fall silent—this IS the teaching
-3. Final moments: "Three more breaths in this shape..."
+## The five phases of a long hold
 
-See [references/cueing-examples.md](references/cueing-examples.md) for specific language patterns.
+Long holds (3-5+ minutes) are where practice becomes
+transformative. Duration alone doesn't create transformation—
+it's the quality of guidance through each phase.
+
+### Phase 1: Entry and edge-finding (0-30 seconds)
+
+The practitioner locates their first edge—where resistance
+begins. **Guidance is active and specific.** Establish safe
+position and appropriate depth.
+
+*"Find a depth where you feel significant resistance but not
+strain. This is your first edge—you may find you can go deeper
+later, or you may not."*
+
+**Instruction/silence ratio: 70/30**
+
+### Phase 2: Settling and initial resistance (30s-2 min)
+
+Muscle spindles begin releasing protective guarding (~90s).
+Mind becomes fidgety—urges to adjust, escape. **Guidance is
+grounding and permission-giving.** Support without adding noise.
+
+*"If there's an impulse to fidget, notice it without acting
+immediately. Make small adjustments mindfully, then return to
+stillness."*
+
+**Instruction/silence ratio: 40/60**
+
+### Phase 3: Deepening or second edge (2-3 min)
+
+As muscles release, fascia begins to respond. New depth may
+become available. Choice point: pushing through with effort or
+surrendering with awareness. **Guidance is invitational, using
+"maybe" language.**
+
+*"Perhaps the body is ready to soften a little more. If space
+is opening, you can follow it—or stay exactly where you are."*
+
+**Instruction/silence ratio: 20/80**
+
+### Phase 4: Marination and integration (3-5+ min)
+
+Deep tissue response. Potential for profound stillness.
+Distinction between enduring and transforming happens through
+presence, not force. **Guidance is minimal, presence-oriented.**
+
+Brief touchpoints: *"Just notice what's here."* Or: *"Breath.
+Body. Present moment."* Or simply: *"I'm here with you."*
+
+**Instruction/silence ratio: 10/90**
+
+### Phase 5: Exit and rebound (final 30 seconds + transition)
+
+Coming out with awareness is essential—tissues need time to
+normalize. **Guidance is clear and unhurried.**
+
+*"Over the next three breaths, begin to soften out of this
+shape. Move slowly—the rebound is part of the pose."*
+
+**Instruction/silence ratio: 60/40**
+
+### Creating held silence vs abandoned silence
+
+**Held silence**: students feel witnessed, accompanied, safe
+to go deep. The teacher's attention is a palpable container.
+
+**Abandoned silence**: students feel uncertain, tracking their
+own time. Mental chatter increases.
+
+**Announce silence explicitly**: *"I'm going to give you some
+quiet now—I'll be here."*
+
+**Use presence markers**: Brief sounds indicating continued
+attention—an audible breath, a soft "mmm," or "still here."
+
+**Frame the container**: *"We'll be here for about four minutes"*
+creates psychological safety for surrender.
+
+**Re-enter softly**: When breaking silence, let tone be unhurried.
+The quality of voice when resuming affects whether silence was
+integration or interruption.
+
+### Psychological terrain during holds
+
+**When resistance arises**: *"Notice the impulse to escape or
+change. You don't have to act on it. Resistance is information
+—just observe it."*
+
+**When boredom/restlessness appears**: *"The mind craves
+stimulation—stillness can feel threatening. Boredom is often
+the doorway to something deeper."*
+
+**When emotions surface**: *"If feelings are arising, they're
+welcome here. The body stores experiences. In stillness, they
+sometimes release. You don't need to understand it—just let
+it move through."*
+
+**When the shift/release occurs**: Minimal language—don't disturb
+the process. Perhaps simply: *"Yes."* Allow integration in
+silence.
+
+### Rotating cue types in long holds
+
+During extended holds (Phase 3-4), rotate cue types every 20-30
+seconds to maintain engagement without monotony:
+
+1. **Alignment micro-corrections** — "Notice if you're gripping
+   anywhere unnecessary"
+2. **Breath observations** — "Can you let the exhale be a little
+   longer?"
+3. **Attentional targets** — "Where is sensation strongest right
+   now?"
+4. **Strategy cues** — "If you're working too hard, back off 10%"
+5. **Presence markers** — "Still here with you"
+6. **Sensation naming** — "Dull, diffuse sensation is the fascia.
+   Let it be."
+
+**The peak failure mode:** If you run out of genuinely useful
+cues before the intended duration, the hold has outlived itself.
+Transition rather than fill time with noise.
 
 ## Timing protocol
 
