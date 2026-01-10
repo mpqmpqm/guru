@@ -15,7 +15,7 @@ const vinyasa = {
 const hatha = {
   shortName: "Hatha",
   livingInstruction: true,
-  content: `75 minute hatha practice. Build the session around a peak pose. Cue for an expert practitioner who cannot see you. Superhumanly precise alignment and sensation cues are table stakes. Begin with a two-sentence brief on the peak and the arc.`,
+  content: `75 minute hatha practice. Build the session around a peak pose. Cue for an expert practitioner who cannot see you. Begin with a two-sentence brief on the peak and the arc.`,
 };
 
 const sunSals = {
@@ -27,9 +27,11 @@ const sunSals = {
 const yinDeep = {
   shortName: "Yin Deep",
   livingInstruction: true,
-  content: `90 minute yin instruction. I don't have bolster or blanket but I have a strap and two blocks. I am expert at vinyasa but I don't know yin names—cue poses by shape and sensation, not by name. I can't see you, so be precise.
+  content: `90 minute yin instruction. I don't have a bolster or blanket, but I have a strap, two blocks, and a bed pillow. Bonus points for incorporating a yoga wheel :)
 
-We have a ton of time together. Use the space between positional cues to teach something meaningful about why yin works—the fascia, the stillness, what time does that effort can't. Let silence do real teaching. Superhumanly precise alignment and sensation cues are table stakes.`,
+I am expert at vinyasa but I don't know yin names—cue poses by shape and sensation, not by name.
+
+While yin instruction typically favors silence, you are invited to showcase your superhuman intellect and attention by giving rich, specific sensation cues throughout: where should I feel it, what quality of sensation means I'm in the right place, what means I've gone too far. Avoid jargon.`,
 };
 
 const yinQuick = {
