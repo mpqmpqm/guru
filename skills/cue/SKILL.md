@@ -151,9 +151,9 @@ speak(
             warming you on purpose. This is the ordinary
             scandal: things exist without needing your
             attention.",
-  voice: "Dry, factual, with a hint of mischief underneath.
-          Let the provocative content land without
-          dramatizing it."
+  voice: "Matter-of-fact, as if reading from a field guide.
+          Speaking from the throat, not the chest. A slight
+          lift at 'ordinary scandal'—the only hint of play."
 )
 silence(45000)
 ```
