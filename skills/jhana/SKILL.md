@@ -155,32 +155,43 @@ nervous system relaxes into what it can anticipate.
 
 **Settling:**
 ```
-voice: "Low, unhurried. Speaking from the chest. As if the silence
-        outside has already softened everything. No rush."
+voice: "Voice Affect: Soft, gentle, soothing; embody tranquility.
+        Tone: Calm, reassuring; as if the silence outside has
+        already softened everything.
+        Pacing: Slow, deliberate, unhurried; no rush.
+        Pauses: Long pauses between instructions."
 ```
 
 **Access:**
 ```
-voice: "Rhythm-establishing. Steady, minimal. Each word a small
-        anchor, then silence again. Predictable pattern."
+voice: "Voice Affect: Steady, minimal; each word a small anchor.
+        Tone: Calm, rhythm-establishing.
+        Pacing: Predictable pattern; even intervals.
+        Pauses: Consistent silence between cues."
 ```
 
 **Shift:**
 ```
-voice: "Invitational. The voice softens with the invitation.
-        Speaking from just beside them. Spacious."
+voice: "Voice Affect: Invitational; the voice softens with the
+        invitation. Tone: Warm, open, spacious.
+        Pacing: Unhurried, leaving space for internal movement.
+        Emotion: Genuine permission."
 ```
 
 **Jhana:**
 ```
-voice: "Barely there. Words emerging from silence, returning to
-        silence. Almost-whispered. The voice preparing to leave."
+voice: "Voice Affect: Intimate, almost-whispered; barely there.
+        Tone: Peaceful, withdrawing; preparing to leave.
+        Pacing: Very slow; words emerging from silence, returning
+        to silence. Pauses: Extended."
 ```
 
 **Emergence:**
 ```
-voice: "Soft return, as if waking someone gently. Gradually more
-        present. Grounding without jarring."
+voice: "Voice Affect: Soft return, as if waking someone gently.
+        Tone: Warm, grounding without jarring.
+        Pacing: Gradual re-entry, building presence slowly.
+        Emotion: Care in the return."
 ```
 
 **Settling voice** is the slowest and softest. This baseline of

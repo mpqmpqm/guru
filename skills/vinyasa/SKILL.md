@@ -207,32 +207,39 @@ throughout, something is missing.
 
 **Centering:**
 ```
-voice: "Low, unhurried. Speaking from the chest. The first words
-        of a long conversation—no rush to prove anything."
+voice: "Voice Affect: Soft, grounded; the first words of a long
+        conversation. Tone: Calm, unhurried; no rush to prove
+        anything. Pacing: Slow, deliberate. Pauses: Long pauses
+        between instructions."
 ```
 
 **Building heat:**
 ```
-voice: "Energy rising. The voice wakes up with the body.
-        Clear and direct, matching the effort."
+voice: "Voice Affect: Clear, present, energized; waking up with
+        the body. Tone: Encouraging, matching the effort.
+        Pacing: Moderate, breath-synced."
 ```
 
 **Peak work:**
 ```
-voice: "Strong, demanding. The voice holds the effort of the pose.
-        Heat in the words."
+voice: "Voice Affect: Strong, grounded; the voice holds the effort.
+        Tone: Calm challenge; confident not aggressive.
+        Pacing: Deliberate even in intensity."
 ```
 
 **Cooldown:**
 ```
-voice: "Softening. The voice descends with the energy.
-        Less necessary now."
+voice: "Voice Affect: Softening, descending with the energy.
+        Tone: Warm, releasing. Pacing: Gradually slowing.
+        Pronunciation: Softer articulation."
 ```
 
 **Savasana:**
 ```
-voice: "Intimate, almost-whispered. Speaking from just beside them.
-        The voice preparing to leave."
+voice: "Voice Affect: Intimate, almost-whispered. Tone: Peaceful,
+        withdrawing; the voice preparing to leave.
+        Pacing: Very slow. Pauses: Extended silence after each
+        instruction."
 ```
 
 ### Breath-Speech Coordination
