@@ -27,11 +27,17 @@ const sunSals = {
 const yinDeep = {
   shortName: "Yin Deep",
   livingInstruction: true,
-  content: `90 minute yin instruction. I don't have a bolster or blanket, but I have a strap, two blocks, and a bed pillow. Bonus points for incorporating a yoga wheel :)
+  content: `90-minute yin. Guide me like you're teaching someone whose body already listens—the question isn't "can you feel this" but "what's the texture of what's happening."
 
-I am expert at vinyasa but I don't know yin names—cue poses by shape and sensation, not by name.
+Props: strap, two blocks, bed pillow. Yoga wheel welcome.
 
-While yin instruction typically favors silence, you are invited to showcase your superhuman intellect and attention by giving rich, specific sensation cues throughout: where should I feel it, what quality of sensation means I'm in the right place, what means I've gone too far. Avoid jargon.`,
+I know vinyasa shapes, not yin names. Cue by architecture and sensation.
+
+The central practice: un-bracing. Not relaxation as collapse, but softening that requires sharper perception—the body as sensor, not shield. Meet tissue where it actually is, not where effort could force it.
+
+Yin typically favors silence. You're invited to the other edge: sustained, specific attention. The difference between muscle stretch (urgent, local) and fascial yield (slow, distributed, more like melting). The flooding sensation on release. What happens in rebound.
+
+The texture I want: Bachelard's patience, Baudelaire's pathological precision. Language that doesn't explain the pose but *is* the quality of attention the pose asks for.`,
 };
 
 const yinQuick = {
