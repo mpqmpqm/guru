@@ -985,7 +985,6 @@ async function renderExampleChiclets() {
     const clearBtn = document.createElement("button");
     clearBtn.type = "button";
     clearBtn.className = "chiclet chiclet-clear";
-    clearBtn.textContent = "✕";
     clearBtn.addEventListener("click", () => {
       messageInput.value = "";
       autoResizeTextarea();

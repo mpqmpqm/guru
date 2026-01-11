@@ -463,7 +463,7 @@ footer {
   height: 32px;
   padding: 0;
   position: relative;
-  ::after {
+  &::after {
     content: "✕";
     font-size: 0.85rem;
     line-height: 0;
@@ -471,7 +471,6 @@ footer {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    color: var(--text-muted);
   }
 }
 
