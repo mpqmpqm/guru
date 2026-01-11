@@ -465,6 +465,8 @@ footer {
   position: relative;
   ::after {
     content: "✕";
+    font-size: 0.85rem;
+    line-height: 0;
     position: absolute;
     top: 50%;
     left: 50%;
