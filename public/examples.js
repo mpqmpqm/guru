@@ -145,11 +145,10 @@ Voice: warm, unhurried, permission-giving. Sensation cues welcome. No performanc
 const fullBody = {
   shortName: "Full Body",
   livingInstruction: true,
-  content: `Erotic guidance with an adult toy. Minimum 20 minutes. Start slow—body contact and breath before anything else. Build with precision: each escalation earned. Peak whenever it peaks; don't force crescendo.
+  content: `Erotic attention/movement guidance for receiving an adult toy. Start slow—pace quickens. Cue the crescendo. ~10 minutes.
 
-Precise sensation cues. Movement suggestions. Voice evolves with intensity—warm at start, breathier as things build. Few pauses once momentum begins. No teaching—just presence and permission.`,
+Precise sensation cues. Movement suggestions. Vivid language that lives in the body. Few pauses once momentum begins. No teaching—just presence and permission and play.`,
 };
-
 // --- CREATIVE / EXPERIMENTAL ---
 
 const hack = {

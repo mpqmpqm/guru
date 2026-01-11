@@ -52,7 +52,7 @@ const BASE_RECONNECT_DELAY = 1000;
 
 function getSelectedModel() {
   const select = document.getElementById("model-selector");
-  return select ? select.value : "haiku";
+  return select ? select.value : "opus";
 }
 
 function getSelectedVoice() {
