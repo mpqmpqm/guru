@@ -1,4 +1,4 @@
-import { spawn, ChildProcess } from "child_process";
+import { ChildProcess, spawn } from "child_process";
 import OpenAI from "openai";
 import { encoding_for_model } from "tiktoken";
 import { dbOps } from "./db.js";
@@ -9,7 +9,7 @@ const openai = new OpenAI();
 // Reusable encoder for TTS token counting
 const ttsEncoder = encoding_for_model("gpt-4o-mini");
 
-const VOICE = "marin";
+const VOICE = "alloy";
 const SAMPLE_RATE = 24000;
 const BYTES_PER_SECOND = SAMPLE_RATE * 2; // 16-bit mono
 const TTS_CONCURRENCY = 10;
@@ -157,7 +157,11 @@ async function fetchAllTTS(
     await acquire();
     try {
       if (signal.aborted) throw new Error("Export cancelled");
-      const buffer = await fetchTTS(event.text, event.voice, signal);
+      const buffer = await fetchTTS(
+        event.text,
+        event.voice,
+        signal
+      );
       results.set(event.index, buffer);
       completed++;
       onProgress(completed);
@@ -244,8 +248,12 @@ export async function processExport(
     const speakEvents = audioEvents
       .map((e, index) => ({ event: e, index }))
       .filter(
-        (x): x is { event: Extract<AudioEvent, { type: "speak" }>; index: number } =>
-          x.event.type === "speak"
+        (
+          x
+        ): x is {
+          event: Extract<AudioEvent, { type: "speak" }>;
+          index: number;
+        } => x.event.type === "speak"
       )
       .map(({ event, index }) => ({
         index,
@@ -255,7 +263,9 @@ export async function processExport(
 
     // Track TTS cost
     for (const e of speakEvents) {
-      const inputTokens = ttsEncoder.encode(e.text + e.voice).length;
+      const inputTokens = ttsEncoder.encode(
+        e.text + e.voice
+      ).length;
       dbOps.accumulateExportTTSCost(sessionId, inputTokens);
     }
 
@@ -283,7 +293,10 @@ export async function processExport(
     // Spawn ffmpeg and start S3 upload
     ffmpeg = spawnFfmpeg();
     ffmpeg.stderr?.on("data", () => {});
-    runningExports.set(sessionId, { abort: abortController, ffmpeg });
+    runningExports.set(sessionId, {
+      abort: abortController,
+      ffmpeg,
+    });
 
     const uploadPromise = uploadExportStream(
       sessionId,
