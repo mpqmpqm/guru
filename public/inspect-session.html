@@ -410,6 +410,16 @@
         border-top: 1px solid var(--border-subtle);
       }
 
+      .cancel-link {
+        color: var(--text-secondary);
+        text-decoration: underline;
+        cursor: pointer;
+      }
+
+      .cancel-link:hover {
+        color: var(--text-primary);
+      }
+
       .export-link {
         color: var(--accent-success);
         text-decoration: none;
@@ -990,6 +1000,26 @@
         }, 2000);
       }
 
+      async function cancelExport() {
+        // Stop polling immediately
+        if (exportPollInterval) {
+          clearInterval(exportPollInterval);
+          exportPollInterval = null;
+        }
+
+        try {
+          const res = await fetch(
+            `/api/inspect/sessions/${sessionId}/export/cancel`,
+            { method: "POST" }
+          );
+          if (res.ok) {
+            updateExportUI({ export_status: null });
+          }
+        } catch (err) {
+          console.error("Cancel failed:", err);
+        }
+      }
+
       function updateExportUI(session) {
         const btn = document.getElementById("export-btn");
         const status = document.getElementById("export-status");
@@ -1003,7 +1033,8 @@
             btn.disabled = true;
             btn.classList.add("exporting");
             btn.textContent = "Starting...";
-            status.innerHTML = "";
+            status.innerHTML =
+              '<a href="#" onclick="cancelExport(); return false;" class="cancel-link">Cancel</a>';
             startExportPolling();
             break;
           case "processing":
@@ -1025,7 +1056,8 @@
               } catch (e) {}
             }
             btn.textContent = progressText;
-            status.innerHTML = "";
+            status.innerHTML =
+              '<a href="#" onclick="cancelExport(); return false;" class="cancel-link">Cancel</a>';
             startExportPolling();
             break;
           case "complete":

@@ -1,4 +1,6 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
+import type { Readable } from "stream";
 
 const s3Config = {
   region: process.env.AWS_REGION || "us-east-1",
@@ -37,6 +39,32 @@ export async function uploadExport(
       ContentType: "audio/mpeg",
     })
   );
+
+  return `https://${s3Config.bucket}.s3.${s3Config.region}.amazonaws.com/${key}`;
+}
+
+export async function uploadExportStream(
+  sessionId: string,
+  stream: Readable
+): Promise<string> {
+  if (!s3Config.bucket) {
+    throw new Error("S3_EXPORT_BUCKET not configured");
+  }
+
+  const client = getS3Client();
+  const key = `exports/${sessionId}.mp3`;
+
+  const upload = new Upload({
+    client,
+    params: {
+      Bucket: s3Config.bucket,
+      Key: key,
+      Body: stream,
+      ContentType: "audio/mpeg",
+    },
+  });
+
+  await upload.done();
 
   return `https://${s3Config.bucket}.s3.${s3Config.region}.amazonaws.com/${key}`;
 }

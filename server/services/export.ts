@@ -1,8 +1,8 @@
-import { spawn } from "child_process";
+import { spawn, ChildProcess } from "child_process";
 import OpenAI from "openai";
 import { encoding_for_model } from "tiktoken";
 import { dbOps } from "./db.js";
-import { uploadExport } from "./s3.js";
+import { uploadExportStream } from "./s3.js";
 
 const openai = new OpenAI();
 
@@ -12,6 +12,24 @@ const ttsEncoder = encoding_for_model("gpt-4o-mini");
 const VOICE = "alloy";
 const SAMPLE_RATE = 24000;
 const BYTES_PER_SECOND = SAMPLE_RATE * 2; // 16-bit mono
+
+// Track running exports for cancellation
+const runningExports = new Map<
+  string,
+  { abort: AbortController; ffmpeg: ChildProcess | null }
+>();
+
+export function cancelExport(sessionId: string): boolean {
+  const running = runningExports.get(sessionId);
+  if (!running) return false;
+
+  running.abort.abort();
+  if (running.ffmpeg && !running.ffmpeg.killed) {
+    running.ffmpeg.kill();
+  }
+  runningExports.delete(sessionId);
+  return true;
+}
 
 // Minimal audio event type for export processing
 type AudioEvent =
@@ -27,10 +45,15 @@ type AudioEvent =
       sequence_num: number;
     };
 
-async function generateTTS(
+// Stream TTS directly to a writable (ffmpeg stdin)
+async function streamTTSTo(
   text: string,
-  voiceInstructions: string
-): Promise<Buffer> {
+  voiceInstructions: string,
+  writable: NodeJS.WritableStream,
+  signal: AbortSignal
+): Promise<void> {
+  if (signal.aborted) throw new Error("Export cancelled");
+
   const response = await openai.audio.speech.create({
     model: "gpt-4o-mini-tts",
     voice: VOICE,
@@ -39,67 +62,77 @@ async function generateTTS(
     response_format: "pcm",
   });
 
-  const chunks: Uint8Array[] = [];
   const reader = response.body!.getReader();
   while (true) {
+    if (signal.aborted) {
+      await reader.cancel();
+      throw new Error("Export cancelled");
+    }
     const { done, value } = await reader.read();
     if (done) break;
-    chunks.push(value);
+    writable.write(Buffer.from(value));
   }
-
-  return Buffer.concat(chunks);
 }
 
-function generateSilence(durationMs: number): Buffer {
+// Write silence directly to a writable
+function writeSilenceTo(
+  durationMs: number,
+  writable: NodeJS.WritableStream
+): void {
   const bytes = Math.floor(
     (durationMs / 1000) * BYTES_PER_SECOND
   );
-  return Buffer.alloc(bytes, 0);
+  // Write in 64KB chunks to avoid large allocations
+  const chunkSize = 65536;
+  const zeroChunk = Buffer.alloc(
+    Math.min(chunkSize, bytes),
+    0
+  );
+  let remaining = bytes;
+  while (remaining > 0) {
+    const toWrite = Math.min(remaining, chunkSize);
+    if (toWrite === chunkSize) {
+      writable.write(zeroChunk);
+    } else {
+      writable.write(Buffer.alloc(toWrite, 0));
+    }
+    remaining -= toWrite;
+  }
 }
 
-async function pcmToMp3(pcm: Buffer): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const ffmpeg = spawn("ffmpeg", [
-      "-f",
-      "s16le",
-      "-ar",
-      String(SAMPLE_RATE),
-      "-ac",
-      "1",
-      "-i",
-      "pipe:0",
-      "-codec:a",
-      "libmp3lame",
-      "-b:a",
-      "192k",
-      "-f",
-      "mp3",
-      "pipe:1",
-    ]);
-
-    const chunks: Buffer[] = [];
-
-    ffmpeg.stdout.on("data", (chunk) => chunks.push(chunk));
-    ffmpeg.stderr.on("data", () => {});
-
-    ffmpeg.on("close", (code) => {
-      if (code === 0) {
-        resolve(Buffer.concat(chunks));
-      } else {
-        reject(new Error(`ffmpeg exited with code ${code}`));
-      }
-    });
-
-    ffmpeg.on("error", reject);
-
-    ffmpeg.stdin.write(pcm);
-    ffmpeg.stdin.end();
-  });
+function spawnFfmpeg(): ChildProcess {
+  return spawn("ffmpeg", [
+    "-f",
+    "s16le",
+    "-ar",
+    String(SAMPLE_RATE),
+    "-ac",
+    "1",
+    "-i",
+    "pipe:0",
+    "-codec:a",
+    "libmp3lame",
+    "-b:a",
+    "192k",
+    "-f",
+    "mp3",
+    "pipe:1",
+  ]);
 }
 
 export async function processExport(
   sessionId: string
 ): Promise<void> {
+  const abortController = new AbortController();
+  const signal = abortController.signal;
+  let ffmpeg: ChildProcess | null = null;
+
+  // Register this export for cancellation
+  runningExports.set(sessionId, {
+    abort: abortController,
+    ffmpeg: null,
+  });
+
   try {
     dbOps.updateExportStatus(sessionId, "processing");
 
@@ -155,22 +188,47 @@ export async function processExport(
       throw new Error("No audio events found in session");
     }
 
-    const pcmChunks: Buffer[] = [];
+    if (signal.aborted) throw new Error("Export cancelled");
+
+    // Spawn ffmpeg and start S3 upload in parallel
+    ffmpeg = spawnFfmpeg();
+    ffmpeg.stderr?.on("data", () => {});
+
+    // Update running exports with ffmpeg reference
+    runningExports.set(sessionId, { abort: abortController, ffmpeg });
+
+    // Start S3 upload with ffmpeg stdout as the source
+    const uploadPromise = uploadExportStream(
+      sessionId,
+      ffmpeg.stdout!
+    );
+
+    // Track ffmpeg errors
+    let ffmpegError: Error | null = null;
+    ffmpeg.on("error", (err) => {
+      ffmpegError = err;
+    });
+
+    // Process audio events, streaming directly to ffmpeg
     let processed = 0;
-
     for (const event of audioEvents) {
-      if (event.type === "speak") {
-        const pcm = await generateTTS(event.text, event.voice);
-        pcmChunks.push(pcm);
+      if (signal.aborted) throw new Error("Export cancelled");
 
-        // Track export TTS cost (text + voice instructions)
+      if (event.type === "speak") {
+        await streamTTSTo(
+          event.text,
+          event.voice,
+          ffmpeg.stdin!,
+          signal
+        );
+
+        // Track export TTS cost
         const inputTokens = ttsEncoder.encode(
           event.text + event.voice
         ).length;
         dbOps.accumulateExportTTSCost(sessionId, inputTokens);
       } else if (event.type === "silence") {
-        const silence = generateSilence(event.durationMs);
-        pcmChunks.push(silence);
+        writeSilenceTo(event.durationMs, ffmpeg.stdin!);
       }
 
       processed++;
@@ -187,20 +245,10 @@ export async function processExport(
       );
     }
 
-    // Concatenate all PCM
-    const fullPcm = Buffer.concat(pcmChunks);
+    // Signal end of input to ffmpeg
+    ffmpeg.stdin!.end();
 
-    // Convert to MP3
-    dbOps.updateExportStatus(
-      sessionId,
-      "processing",
-      null,
-      null,
-      JSON.stringify({ phase: "encoding" })
-    );
-    const mp3 = await pcmToMp3(fullPcm);
-
-    // Upload to S3
+    // Update status to uploading
     dbOps.updateExportStatus(
       sessionId,
       "processing",
@@ -208,12 +256,25 @@ export async function processExport(
       null,
       JSON.stringify({ phase: "uploading" })
     );
-    const url = await uploadExport(sessionId, mp3);
+
+    // Wait for S3 upload to complete
+    const url = await uploadPromise;
+
+    if (ffmpegError) {
+      throw ffmpegError;
+    }
 
     dbOps.updateExportStatus(sessionId, "complete", url);
   } catch (error) {
+    // Clean up ffmpeg if still running
+    if (ffmpeg && !ffmpeg.killed) {
+      ffmpeg.kill();
+    }
+
     const message =
       error instanceof Error ? error.message : String(error);
     dbOps.updateExportStatus(sessionId, "error", null, message);
+  } finally {
+    runningExports.delete(sessionId);
   }
 }

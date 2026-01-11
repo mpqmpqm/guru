@@ -1,6 +1,9 @@
 import { Router } from "express";
 import { dbOps } from "../services/db.js";
-import { processExport } from "../services/export.js";
+import {
+  processExport,
+  cancelExport,
+} from "../services/export.js";
 import { isS3Configured } from "../services/s3.js";
 
 export const inspectRouter = Router();
@@ -134,3 +137,29 @@ inspectRouter.post("/sessions/:sessionId/export", (req, res) => {
 
   res.json({ status: "pending" });
 });
+
+// Cancel/reset stuck export
+inspectRouter.post(
+  "/sessions/:sessionId/export/cancel",
+  (req, res) => {
+    const { sessionId } = req.params;
+
+    const session = dbOps.getSession(sessionId);
+    if (!session) {
+      return res
+        .status(404)
+        .json({ error: "Session not found" });
+    }
+
+    // Stop the running export process if active
+    cancelExport(sessionId);
+
+    dbOps.updateExportStatus(
+      sessionId,
+      "error",
+      null,
+      "Export cancelled"
+    );
+    res.json({ status: "cancelled" });
+  }
+);
