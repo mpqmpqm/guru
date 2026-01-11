@@ -2,7 +2,10 @@ import { tool } from "@anthropic-ai/claude-agent-sdk";
 import { z } from "zod";
 import { dbOps } from "../services/db.js";
 import { sessionManager } from "../services/session-manager.js";
-import { getTimeComponents } from "./time.js";
+import {
+  formatDuration,
+  getTimeComponents,
+} from "./time.js";
 
 export function createStopwatchTool(sessionId: string) {
   return tool(
@@ -64,10 +67,13 @@ export function createStopwatchTool(sessionId: string) {
             content: [{ type: "text" as const, text: result }],
           };
         }
-        const secs = (stopwatchElapsedMs / 1000).toFixed(1);
-        const result = `Stopwatch "${id}": ${secs}s elapsed`;
+        const stopwatchFormatted = formatDuration(
+          stopwatchElapsedMs / 1000
+        );
+        const sessionFormatted = formatDuration(elapsedMs / 1000);
+        const result = `Stopwatch "${id}": ${stopwatchFormatted} elapsed | session: ${sessionFormatted}`;
         console.log(
-          `[stopwatch:${seqNum}] check "${id}" -> ${secs}s`
+          `[stopwatch:${seqNum}] check "${id}" -> ${stopwatchFormatted}`
         );
 
         dbOps.insertToolCall(
