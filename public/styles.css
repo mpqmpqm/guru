@@ -448,10 +448,16 @@ footer {
   white-space: nowrap;
 }
 
-.chiclet:hover {
-  background: var(--bg-elevated);
-  border-color: rgba(212, 168, 83, 0.25);
-  color: var(--text-primary);
+@media (hover: hover) {
+  .chiclet:hover {
+    background: var(--bg-elevated);
+    border-color: rgba(212, 168, 83, 0.25);
+    color: var(--text-primary);
+  }
+  .chiclet-clear:hover {
+    color: var(--accent-error);
+    border-color: rgba(199, 95, 95, 0.25);
+  }
 }
 
 .chiclet:active {
@@ -471,13 +477,6 @@ footer {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-  }
-}
-
-@media (hover: hover) {
-  .chiclet-clear:hover {
-    color: var(--accent-error);
-    border-color: rgba(199, 95, 95, 0.25);
   }
 }
 
