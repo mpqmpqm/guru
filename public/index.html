@@ -70,16 +70,18 @@
               >Living instruction 🌀</span
             >
           </label>
-          <select id="voice-selector" class="model-selector">
-            <option value="marin" selected>Marin</option>
-            <option value="alloy">Alloy</option>
-            <option value="shimmer">Shimmer</option>
-          </select>
-          <select id="model-selector" class="model-selector">
-            <option value="haiku" selected>Haiku</option>
-            <option value="sonnet">Sonnet</option>
-            <option value="opus">Opus</option>
-          </select>
+          <div class="select-stack">
+            <select id="model-selector" class="model-selector">
+              <option value="opus" selected>Opus</option>
+              <option value="sonnet">Sonnet</option>
+              <option value="haiku">Haiku</option>
+            </select>
+            <select id="voice-selector" class="model-selector">
+              <option value="marin" selected>Marin</option>
+              <option value="alloy">Alloy</option>
+              <option value="shimmer">Shimmer</option>
+            </select>
+          </div>
         </div>
         <div
           id="example-chiclets"

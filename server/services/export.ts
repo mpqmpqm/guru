@@ -9,7 +9,7 @@ const openai = new OpenAI();
 // Reusable encoder for TTS token counting
 const ttsEncoder = encoding_for_model("gpt-4o-mini");
 
-const VOICE = "alloy";
+const VOICE = "marin";
 const SAMPLE_RATE = 24000;
 const BYTES_PER_SECOND = SAMPLE_RATE * 2; // 16-bit mono
 const TTS_CONCURRENCY = 10;
