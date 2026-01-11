@@ -421,6 +421,61 @@ async function init() {
 
     // Connect SSE for chat events
     connectSSE();
+
+    // Handle replay query param
+    const urlParams = new URLSearchParams(
+      window.location.search
+    );
+    const replaySessionId = urlParams.get("replay");
+    if (replaySessionId) {
+      try {
+        const res = await fetch(
+          `/api/inspect/sessions/${replaySessionId}`
+        );
+        if (res.ok) {
+          const { session } = await res.json();
+          let prompt = session.initial_prompt || "";
+
+          // Determine living instruction state
+          let hasLivingInstruction = false;
+          if (session.living_instruction != null) {
+            // Use stored value if available
+            hasLivingInstruction =
+              session.living_instruction === 1;
+          } else {
+            // Infer from prompt for historical sessions
+            hasLivingInstruction = prompt.endsWith(
+              "\n\nLiving instruction."
+            );
+          }
+
+          // Strip living instruction suffix from prompt
+          if (prompt.endsWith("\n\nLiving instruction.")) {
+            prompt = prompt.slice(0, -21);
+          }
+
+          // Pre-fill the form
+          messageInput.value = prompt;
+          livingInstructionToggle.checked = hasLivingInstruction;
+
+          // Set model selector
+          const modelSelector =
+            document.getElementById("model-selector");
+          if (modelSelector && session.model) {
+            const modelMap = {
+              "claude-opus-4-5": "opus",
+              "claude-sonnet-4-5": "sonnet",
+              "claude-haiku-4-5": "haiku",
+            };
+            const selectValue =
+              modelMap[session.model] || "opus";
+            modelSelector.value = selectValue;
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load replay session:", e);
+      }
+    }
   } catch (error) {
     console.error("Init error:", error);
     connectionIndicator.className = "connection-indicator error";
@@ -666,6 +721,7 @@ async function sendMessage(message) {
         voice: getSelectedVoice(),
         timezone:
           Intl.DateTimeFormat().resolvedOptions().timeZone,
+        livingInstruction: livingInstructionToggle.checked,
       }),
     });
 
@@ -732,6 +788,9 @@ chatForm.addEventListener("submit", async (e) => {
       message += "\n\nLiving instruction.";
     }
     sendMessage(message);
+    showCue(
+      "Please wait. guru is looking ahead to ensure the session goes smoothly."
+    );
   }
 });
 
@@ -815,6 +874,22 @@ messageInput.addEventListener("keydown", (e) => {
 // Render example chiclets
 async function renderExampleChiclets() {
   try {
+    // Add clear button
+    const clearBtn = document.createElement("button");
+    clearBtn.type = "button";
+    clearBtn.className = "chiclet chiclet-clear";
+    clearBtn.textContent = "✕";
+    clearBtn.addEventListener("click", () => {
+      messageInput.value = "";
+      autoResizeTextarea();
+      messageInput.focus();
+      // Clear replay param if present
+      if (window.location.search) {
+        window.history.replaceState({}, "", "/");
+      }
+    });
+    exampleChicletsEl.appendChild(clearBtn);
+
     const module = await import("./examples.js");
     const examples = module.default;
 
@@ -833,18 +908,6 @@ async function renderExampleChiclets() {
       });
       exampleChicletsEl.appendChild(chiclet);
     });
-
-    // Add clear button
-    const clearBtn = document.createElement("button");
-    clearBtn.type = "button";
-    clearBtn.className = "chiclet chiclet-clear";
-    clearBtn.textContent = "✕";
-    clearBtn.addEventListener("click", () => {
-      messageInput.value = "";
-      autoResizeTextarea();
-      messageInput.focus();
-    });
-    exampleChicletsEl.appendChild(clearBtn);
   } catch (error) {
     console.error("Failed to load examples:", error);
   }

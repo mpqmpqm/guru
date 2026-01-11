@@ -9,7 +9,6 @@ const openai = new OpenAI();
 // Reusable encoder for TTS token counting
 const ttsEncoder = encoding_for_model("gpt-4o-mini");
 
-const VOICE = "alloy";
 const SAMPLE_RATE = 24000;
 const BYTES_PER_SECOND = SAMPLE_RATE * 2; // 16-bit mono
 const TTS_CONCURRENCY = 10;
@@ -50,13 +49,14 @@ type AudioEvent =
 async function fetchTTS(
   text: string,
   voiceInstructions: string,
+  voice: string,
   signal: AbortSignal
 ): Promise<Buffer> {
   if (signal.aborted) throw new Error("Export cancelled");
 
   const response = await openai.audio.speech.create({
     model: "gpt-4o-mini-tts",
-    voice: VOICE,
+    voice: voice as "alloy" | "shimmer" | "marin",
     input: text,
     instructions: voiceInstructions,
     response_format: "pcm",
@@ -120,8 +120,9 @@ async function fetchAllTTS(
   speakEvents: Array<{
     index: number;
     text: string;
-    voice: string;
+    voiceInstructions: string;
   }>,
+  voice: string,
   signal: AbortSignal,
   onProgress: (completed: number) => void
 ): Promise<Map<number, Buffer>> {
@@ -152,14 +153,15 @@ async function fetchAllTTS(
   const fetchOne = async (event: {
     index: number;
     text: string;
-    voice: string;
+    voiceInstructions: string;
   }) => {
     await acquire();
     try {
       if (signal.aborted) throw new Error("Export cancelled");
       const buffer = await fetchTTS(
         event.text,
-        event.voice,
+        event.voiceInstructions,
+        voice,
         signal
       );
       results.set(event.index, buffer);
@@ -189,6 +191,10 @@ export async function processExport(
 
   try {
     dbOps.updateExportStatus(sessionId, "processing");
+
+    // Get session's voice setting
+    const session = dbOps.getSession(sessionId);
+    const voice = session?.voice ?? "alloy";
 
     const events = dbOps.getSessionEvents(sessionId);
     let audioEvents: AudioEvent[] = events
@@ -258,13 +264,13 @@ export async function processExport(
       .map(({ event, index }) => ({
         index,
         text: event.text,
-        voice: event.voice,
+        voiceInstructions: event.voice,
       }));
 
     // Track TTS cost
     for (const e of speakEvents) {
       const inputTokens = ttsEncoder.encode(
-        e.text + e.voice
+        e.text + e.voiceInstructions
       ).length;
       dbOps.accumulateExportTTSCost(sessionId, inputTokens);
     }
@@ -272,6 +278,7 @@ export async function processExport(
     // Fetch all TTS in parallel
     const ttsResults = await fetchAllTTS(
       speakEvents,
+      voice,
       signal,
       (completed) => {
         dbOps.updateExportStatus(

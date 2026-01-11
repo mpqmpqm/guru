@@ -379,6 +379,28 @@
         color: var(--accent-success);
       }
 
+      .replay-row {
+        margin: 1.25rem 0;
+      }
+
+      .replay-btn {
+        background: var(--accent-amber);
+        border: 1px solid var(--accent-amber);
+        color: var(--bg-deep);
+        padding: 0.625rem 1.5rem;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+      }
+
+      .replay-btn:hover {
+        background: transparent;
+        color: var(--accent-amber);
+      }
+
       .export-btn {
         background: transparent;
         border: 1px solid var(--text-secondary);
@@ -701,6 +723,9 @@
               <span class="session-status ${session.status}">${session.status}</span>
             </div>
             <div class="session-prompt">${escapeHtml(session.initial_prompt || "(no prompt)")}</div>
+            <div class="replay-row">
+              <button class="replay-btn" id="replay-btn" onclick="replaySession()">Replay</button>
+            </div>
             <div class="session-meta">${formatted}</div>
             <div class="session-costs">
               <div class="cost-item">
@@ -875,6 +900,10 @@
         } catch (error) {
           alert("Error deleting session: " + error.message);
         }
+      }
+
+      function replaySession() {
+        window.location.href = `/?replay=${sessionId}`;
       }
 
       async function copyToClipboard() {

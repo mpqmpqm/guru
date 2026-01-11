@@ -124,6 +124,8 @@ function initSchema(database: Database.Database): void {
   ensureModelColumn(database);
   ensureMessageIdColumns(database);
   ensureSpeakingTimestampColumns(database);
+  ensureLivingInstructionColumn(database);
+  ensureVoiceColumns(database);
 }
 
 function ensureCueWaitMsColumn(
@@ -347,6 +349,39 @@ function ensureSpeakingTimestampColumns(
   }
 }
 
+function ensureLivingInstructionColumn(
+  database: Database.Database
+): void {
+  const columns = database
+    .prepare(`PRAGMA table_info(sessions)`)
+    .all() as Array<{ name: string }>;
+  const colNames = new Set(columns.map((c) => c.name));
+
+  if (!colNames.has("living_instruction")) {
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN living_instruction INTEGER`
+    );
+  }
+}
+
+function ensureVoiceColumns(database: Database.Database): void {
+  const columns = database
+    .prepare(`PRAGMA table_info(sessions)`)
+    .all() as Array<{ name: string }>;
+  const colNames = new Set(columns.map((c) => c.name));
+
+  if (!colNames.has("voice")) {
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN voice TEXT DEFAULT 'marin'`
+    );
+  }
+  if (!colNames.has("tts_model")) {
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN tts_model TEXT DEFAULT 'gpt-4o-mini'`
+    );
+  }
+}
+
 // Safe database operation wrapper - logs errors but doesn't crash
 function safeDbOperation<T>(
   operation: () => T,
@@ -367,20 +402,26 @@ export const dbOps = {
     id: string,
     createdAt: string,
     initialPrompt: string,
-    model?: string
+    model?: string,
+    livingInstruction?: boolean,
+    voice?: string,
+    ttsModel?: string
   ): void {
     safeDbOperation(
       () => {
         const database = getDb();
         database
           .prepare(
-            `INSERT INTO sessions (id, created_at, initial_prompt, model) VALUES (?, ?, ?, ?)`
+            `INSERT INTO sessions (id, created_at, initial_prompt, model, living_instruction, voice, tts_model) VALUES (?, ?, ?, ?, ?, ?, ?)`
           )
           .run(
             id,
             createdAt,
             initialPrompt,
-            model ?? DEFAULT_MODEL
+            model ?? DEFAULT_MODEL,
+            livingInstruction ? 1 : 0,
+            voice ?? "marin",
+            ttsModel ?? "gpt-4o-mini"
           );
       },
       "createSession",
@@ -604,6 +645,8 @@ export const dbOps = {
     completed_at: string | null;
     status: string;
     model: string | null;
+    voice: string | null;
+    tts_model: string | null;
     export_status: string | null;
     export_url: string | null;
     export_started_at: string | null;
