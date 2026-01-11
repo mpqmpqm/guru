@@ -141,6 +141,112 @@ async function unlockAudioContext() {
   nextStartTime = audioContext.currentTime;
 }
 
+function playGong(audioContext) {
+  if (!audioContext) return;
+
+  const now = audioContext.currentTime;
+  const fundamental = 110;
+
+  // Inharmonic ratios from Bessel function modes (circular plate acoustics)
+  const partials = [
+    { ratio: 1.0, gain: 0.7, decay: 12.0 },
+    { ratio: 2.71, gain: 0.35, decay: 8.4 },
+    { ratio: 5.14, gain: 0.15, decay: 5.9 },
+    { ratio: 8.19, gain: 0.06, decay: 4.1 },
+    { ratio: 11.87, gain: 0.02, decay: 2.9 },
+  ];
+
+  const beatFreq = 0.5;
+  const beatDepth = 0.15;
+  const attackTime = 0.003;
+  const bloomAmount = 0.15;
+  const bloomPeak = 0.4;
+
+  // Master chain
+  const filter = audioContext.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.value = 800;
+  filter.Q.value = 1.5;
+
+  const master = audioContext.createGain();
+  master.gain.value = 0.4;
+  filter.connect(master);
+  master.connect(audioContext.destination);
+
+  // Strike transient
+  const noiseBuffer = audioContext.createBuffer(
+    1,
+    audioContext.sampleRate * 0.015,
+    audioContext.sampleRate
+  );
+  const noiseData = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < noiseData.length; i++) {
+    noiseData[i] =
+      (Math.random() * 2 - 1) *
+      Math.exp(-i / (noiseData.length * 0.3));
+  }
+  const noiseSource = audioContext.createBufferSource();
+  noiseSource.buffer = noiseBuffer;
+  const noiseGain = audioContext.createGain();
+  noiseGain.gain.value = 0.06;
+  const noiseFilter = audioContext.createBiquadFilter();
+  noiseFilter.type = "bandpass";
+  noiseFilter.frequency.value = fundamental * 3;
+  noiseFilter.Q.value = 2;
+  noiseSource.connect(noiseFilter);
+  noiseFilter.connect(noiseGain);
+  noiseGain.connect(filter);
+  noiseSource.start(now);
+
+  // Partials with beating
+  partials.forEach(({ ratio, gain, decay }) => {
+    const freq = fundamental * ratio;
+    const detunes = [0, beatFreq, -beatFreq];
+    const detuneGains = [
+      1 - beatDepth,
+      beatDepth / 2,
+      beatDepth / 2,
+    ];
+
+    detunes.forEach((detune, j) => {
+      const osc = audioContext.createOscillator();
+      const oscGain = audioContext.createGain();
+
+      osc.type = "sine";
+      osc.frequency.value = freq + detune;
+
+      const peakGain = gain * detuneGains[j];
+
+      oscGain.gain.setValueAtTime(0.0001, now);
+      oscGain.gain.exponentialRampToValueAtTime(
+        peakGain,
+        now + attackTime
+      );
+
+      // Bloom on main tone only
+      if (j === 0) {
+        oscGain.gain.exponentialRampToValueAtTime(
+          peakGain * (1 - bloomAmount),
+          now + attackTime + 0.1
+        );
+        oscGain.gain.exponentialRampToValueAtTime(
+          peakGain,
+          now + attackTime + bloomPeak
+        );
+      }
+      oscGain.gain.exponentialRampToValueAtTime(
+        0.0001,
+        now + decay
+      );
+
+      osc.connect(oscGain);
+      oscGain.connect(filter);
+      osc.start(now);
+      osc.stop(now + decay + 0.1);
+    });
+  });
+}
+
 // Format duration as mm:ss
 function formatDuration(ms) {
   const totalSeconds = Math.floor(ms / 1000);
@@ -503,6 +609,7 @@ function connectSSE() {
     sendBtn.disabled = false;
     startStreamTimer();
     startStatus("Scaffolding");
+    playGong(audioContext);
   });
 
   eventSource.addEventListener("thinking_start", () => {
