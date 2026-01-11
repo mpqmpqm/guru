@@ -2,7 +2,7 @@ import { tool } from "@anthropic-ai/claude-agent-sdk";
 import { dbOps } from "../services/db.js";
 import { sessionManager } from "../services/session-manager.js";
 
-function formatDuration(seconds: number): string {
+export function formatDuration(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   if (mins === 0) return `${secs}s`;
