@@ -474,9 +474,11 @@ footer {
   }
 }
 
-.chiclet-clear:hover {
-  color: var(--accent-error);
-  border-color: rgba(199, 95, 95, 0.25);
+@media (hover: hover) {
+  .chiclet-clear:hover {
+    color: var(--accent-error);
+    border-color: rgba(199, 95, 95, 0.25);
+  }
 }
 
 .chat-form {
