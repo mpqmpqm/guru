@@ -12,6 +12,7 @@ const ttsEncoder = encoding_for_model("gpt-4o-mini");
 const VOICE = "alloy";
 const SAMPLE_RATE = 24000;
 const BYTES_PER_SECOND = SAMPLE_RATE * 2; // 16-bit mono
+const TTS_CONCURRENCY = 10;
 
 // Track running exports for cancellation
 const runningExports = new Map<
@@ -45,13 +46,12 @@ type AudioEvent =
       sequence_num: number;
     };
 
-// Stream TTS directly to a writable (ffmpeg stdin)
-async function streamTTSTo(
+// Fetch TTS and return buffer
+async function fetchTTS(
   text: string,
   voiceInstructions: string,
-  writable: NodeJS.WritableStream,
   signal: AbortSignal
-): Promise<void> {
+): Promise<Buffer> {
   if (signal.aborted) throw new Error("Export cancelled");
 
   const response = await openai.audio.speech.create({
@@ -62,6 +62,7 @@ async function streamTTSTo(
     response_format: "pcm",
   });
 
+  const chunks: Buffer[] = [];
   const reader = response.body!.getReader();
   while (true) {
     if (signal.aborted) {
@@ -70,33 +71,27 @@ async function streamTTSTo(
     }
     const { done, value } = await reader.read();
     if (done) break;
-    writable.write(Buffer.from(value));
+    chunks.push(Buffer.from(value));
   }
+  return Buffer.concat(chunks);
 }
 
-// Write silence directly to a writable
-function writeSilenceTo(
-  durationMs: number,
-  writable: NodeJS.WritableStream
-): void {
+// Generate silence buffer
+function generateSilence(durationMs: number): Buffer {
   const bytes = Math.floor(
     (durationMs / 1000) * BYTES_PER_SECOND
   );
-  // Write in 64KB chunks to avoid large allocations
+  return Buffer.alloc(bytes, 0);
+}
+
+// Write buffer to writable in chunks to avoid backpressure issues
+function writeBufferTo(
+  buffer: Buffer,
+  writable: NodeJS.WritableStream
+): void {
   const chunkSize = 65536;
-  const zeroChunk = Buffer.alloc(
-    Math.min(chunkSize, bytes),
-    0
-  );
-  let remaining = bytes;
-  while (remaining > 0) {
-    const toWrite = Math.min(remaining, chunkSize);
-    if (toWrite === chunkSize) {
-      writable.write(zeroChunk);
-    } else {
-      writable.write(Buffer.alloc(toWrite, 0));
-    }
-    remaining -= toWrite;
+  for (let i = 0; i < buffer.length; i += chunkSize) {
+    writable.write(buffer.subarray(i, i + chunkSize));
   }
 }
 
@@ -118,6 +113,61 @@ function spawnFfmpeg(): ChildProcess {
     "mp3",
     "pipe:1",
   ]);
+}
+
+// Parallel TTS fetcher with concurrency limit
+async function fetchAllTTS(
+  speakEvents: Array<{
+    index: number;
+    text: string;
+    voice: string;
+  }>,
+  signal: AbortSignal,
+  onProgress: (completed: number) => void
+): Promise<Map<number, Buffer>> {
+  const results = new Map<number, Buffer>();
+  let completed = 0;
+
+  // Simple semaphore for concurrency control
+  let active = 0;
+  const pending: Array<() => void> = [];
+
+  const acquire = (): Promise<void> => {
+    if (active < TTS_CONCURRENCY) {
+      active++;
+      return Promise.resolve();
+    }
+    return new Promise((resolve) => pending.push(resolve));
+  };
+
+  const release = () => {
+    active--;
+    const next = pending.shift();
+    if (next) {
+      active++;
+      next();
+    }
+  };
+
+  const fetchOne = async (event: {
+    index: number;
+    text: string;
+    voice: string;
+  }) => {
+    await acquire();
+    try {
+      if (signal.aborted) throw new Error("Export cancelled");
+      const buffer = await fetchTTS(event.text, event.voice, signal);
+      results.set(event.index, buffer);
+      completed++;
+      onProgress(completed);
+    } finally {
+      release();
+    }
+  };
+
+  await Promise.all(speakEvents.map(fetchOne));
+  return results;
 }
 
 export async function processExport(
@@ -190,65 +240,85 @@ export async function processExport(
 
     if (signal.aborted) throw new Error("Export cancelled");
 
-    // Spawn ffmpeg and start S3 upload in parallel
+    // Identify speak events for parallel TTS fetching
+    const speakEvents = audioEvents
+      .map((e, index) => ({ event: e, index }))
+      .filter(
+        (x): x is { event: Extract<AudioEvent, { type: "speak" }>; index: number } =>
+          x.event.type === "speak"
+      )
+      .map(({ event, index }) => ({
+        index,
+        text: event.text,
+        voice: event.voice,
+      }));
+
+    // Track TTS cost
+    for (const e of speakEvents) {
+      const inputTokens = ttsEncoder.encode(e.text + e.voice).length;
+      dbOps.accumulateExportTTSCost(sessionId, inputTokens);
+    }
+
+    // Fetch all TTS in parallel
+    const ttsResults = await fetchAllTTS(
+      speakEvents,
+      signal,
+      (completed) => {
+        dbOps.updateExportStatus(
+          sessionId,
+          "processing",
+          null,
+          null,
+          JSON.stringify({
+            current: completed,
+            total: speakEvents.length,
+            phase: "tts",
+          })
+        );
+      }
+    );
+
+    if (signal.aborted) throw new Error("Export cancelled");
+
+    // Spawn ffmpeg and start S3 upload
     ffmpeg = spawnFfmpeg();
     ffmpeg.stderr?.on("data", () => {});
-
-    // Update running exports with ffmpeg reference
     runningExports.set(sessionId, { abort: abortController, ffmpeg });
 
-    // Start S3 upload with ffmpeg stdout as the source
     const uploadPromise = uploadExportStream(
       sessionId,
       ffmpeg.stdout!
     );
 
-    // Track ffmpeg errors
     let ffmpegError: Error | null = null;
     ffmpeg.on("error", (err) => {
       ffmpegError = err;
     });
 
-    // Process audio events, streaming directly to ffmpeg
-    let processed = 0;
-    for (const event of audioEvents) {
+    // Write audio to ffmpeg in order
+    dbOps.updateExportStatus(
+      sessionId,
+      "processing",
+      null,
+      null,
+      JSON.stringify({ phase: "encoding" })
+    );
+
+    for (let i = 0; i < audioEvents.length; i++) {
       if (signal.aborted) throw new Error("Export cancelled");
 
+      const event = audioEvents[i];
       if (event.type === "speak") {
-        await streamTTSTo(
-          event.text,
-          event.voice,
-          ffmpeg.stdin!,
-          signal
-        );
-
-        // Track export TTS cost
-        const inputTokens = ttsEncoder.encode(
-          event.text + event.voice
-        ).length;
-        dbOps.accumulateExportTTSCost(sessionId, inputTokens);
-      } else if (event.type === "silence") {
-        writeSilenceTo(event.durationMs, ffmpeg.stdin!);
+        const buffer = ttsResults.get(i)!;
+        writeBufferTo(buffer, ffmpeg.stdin!);
+      } else {
+        const silence = generateSilence(event.durationMs);
+        writeBufferTo(silence, ffmpeg.stdin!);
       }
-
-      processed++;
-      dbOps.updateExportStatus(
-        sessionId,
-        "processing",
-        null,
-        null,
-        JSON.stringify({
-          current: processed,
-          total: audioEvents.length,
-          phase: "tts",
-        })
-      );
     }
 
-    // Signal end of input to ffmpeg
     ffmpeg.stdin!.end();
 
-    // Update status to uploading
     dbOps.updateExportStatus(
       sessionId,
       "processing",
@@ -257,7 +327,6 @@ export async function processExport(
       JSON.stringify({ phase: "uploading" })
     );
 
-    // Wait for S3 upload to complete
     const url = await uploadPromise;
 
     if (ffmpegError) {
@@ -266,7 +335,6 @@ export async function processExport(
 
     dbOps.updateExportStatus(sessionId, "complete", url);
   } catch (error) {
-    // Clean up ffmpeg if still running
     if (ffmpeg && !ffmpeg.killed) {
       ffmpeg.kill();
     }

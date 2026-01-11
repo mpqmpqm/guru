@@ -342,6 +342,22 @@
         color: var(--bg-deep);
       }
 
+      .cancel-export-btn {
+        background: transparent;
+        border: 1px solid var(--text-secondary);
+        color: var(--text-secondary);
+        padding: 0.375rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.8125rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .cancel-export-btn:hover {
+        border-color: var(--accent-error);
+        color: var(--accent-error);
+      }
+
       .copy-btn {
         background: transparent;
         border: 1px solid var(--text-secondary);
@@ -408,16 +424,6 @@
         margin-top: 1rem;
         padding-top: 1rem;
         border-top: 1px solid var(--border-subtle);
-      }
-
-      .cancel-link {
-        color: var(--text-secondary);
-        text-decoration: underline;
-        cursor: pointer;
-      }
-
-      .cancel-link:hover {
-        color: var(--text-primary);
       }
 
       .export-link {
@@ -723,6 +729,7 @@
               <button class="copy-btn" id="copy-btn" onclick="copyToClipboard()">Copy</button>
               <button class="copy-btn" id="copy-cues-btn" onclick="copyCuesToClipboard()">Copy Cues</button>
               <button class="export-btn" id="export-btn" onclick="startExport()">Export MP3</button>
+              <button class="cancel-export-btn" id="cancel-export-btn" onclick="cancelExport()" style="display:none;">Cancel</button>
               <button class="delete-btn" onclick="deleteSession()">Delete</button>
             </div>
             <div id="export-status" class="export-status"></div>
@@ -1022,19 +1029,23 @@
 
       function updateExportUI(session) {
         const btn = document.getElementById("export-btn");
+        const cancelBtn = document.getElementById(
+          "cancel-export-btn"
+        );
         const status = document.getElementById("export-status");
 
-        if (!btn || !status) return;
+        if (!btn || !status || !cancelBtn) return;
 
         btn.classList.remove("exporting", "complete", "error");
+        cancelBtn.style.display = "none";
 
         switch (session.export_status) {
           case "pending":
             btn.disabled = true;
             btn.classList.add("exporting");
             btn.textContent = "Starting...";
-            status.innerHTML =
-              '<a href="#" onclick="cancelExport(); return false;" class="cancel-link">Cancel</a>';
+            cancelBtn.style.display = "inline-block";
+            status.innerHTML = "";
             startExportPolling();
             break;
           case "processing":
@@ -1047,17 +1058,17 @@
                   session.export_progress
                 );
                 if (progress.phase === "tts") {
-                  progressText = `Generating audio (${progress.current}/${progress.total})`;
+                  progressText = `Generating (${progress.current}/${progress.total})`;
                 } else if (progress.phase === "encoding") {
-                  progressText = "Encoding MP3...";
+                  progressText = "Encoding...";
                 } else if (progress.phase === "uploading") {
                   progressText = "Uploading...";
                 }
               } catch (e) {}
             }
             btn.textContent = progressText;
-            status.innerHTML =
-              '<a href="#" onclick="cancelExport(); return false;" class="cancel-link">Cancel</a>';
+            cancelBtn.style.display = "inline-block";
+            status.innerHTML = "";
             startExportPolling();
             break;
           case "complete":
