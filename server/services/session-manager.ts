@@ -49,6 +49,7 @@ interface Session {
   id: string;
   createdAt: Date;
   timezone?: string;
+  voice?: string;
   model: string;
   stackSize: number;
   audioQueue: QueueItem[];
@@ -161,6 +162,17 @@ class SessionManager {
     if (session) {
       session.timezone = timezone;
     }
+  }
+
+  setVoice(sessionId: string, voice: string): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.voice = voice;
+    }
+  }
+
+  getVoice(sessionId: string): string {
+    return this.sessions.get(sessionId)?.voice ?? "marin";
   }
 
   setSSEResponse(sessionId: string, res: Response): void {

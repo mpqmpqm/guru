@@ -55,6 +55,11 @@ function getSelectedModel() {
   return select ? select.value : "haiku";
 }
 
+function getSelectedVoice() {
+  const select = document.getElementById("voice-selector");
+  return select ? select.value : "marin";
+}
+
 // Calculate exponential backoff with jitter
 function getReconnectDelay(attempts) {
   const delay = Math.min(
@@ -658,6 +663,7 @@ async function sendMessage(message) {
       body: JSON.stringify({
         message,
         model: getSelectedModel(),
+        voice: getSelectedVoice(),
         timezone:
           Intl.DateTimeFormat().resolvedOptions().timeZone,
       }),

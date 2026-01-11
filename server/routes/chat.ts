@@ -51,7 +51,7 @@ chatRouter.get("/events/:sessionId", (req, res) => {
 // POST endpoint for sending messages
 chatRouter.post("/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
-  const { message, model, timezone } = req.body;
+  const { message, model, voice, timezone } = req.body;
 
   // console.log(`[chat] POST /${sessionId} - message: "${message?.slice(0, 50)}..."`);
 
@@ -72,6 +72,9 @@ chatRouter.post("/:sessionId", async (req, res) => {
   sessionManager.setStackSize(sessionId, config.stackSize);
   if (timezone) {
     sessionManager.setTimezone(sessionId, timezone);
+  }
+  if (voice) {
+    sessionManager.setVoice(sessionId, voice);
   }
 
   // Persist session to DB on first message

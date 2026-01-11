@@ -22,7 +22,6 @@ const ttsEncoder = encoding_for_model("gpt-4o");
 
 const openai = new OpenAI();
 
-const VOICE = "alloy";
 const OPENAI_TIMEOUT_MS = 10_000;
 
 // PCM audio: 24kHz, 16-bit mono
@@ -31,7 +30,8 @@ const BYTES_PER_SECOND = 24000 * 2;
 // Helper: fetch TTS and eagerly buffer the stream
 async function fetchAndBufferTTS(
   text: string,
-  voiceInstructions: string
+  voiceInstructions: string,
+  voice: string
 ): Promise<TTSResult> {
   try {
     // Create a timeout promise
@@ -51,13 +51,15 @@ async function fetchAndBufferTTS(
     const response = await Promise.race([
       openai.audio.speech.create({
         model: "gpt-4o-mini-tts",
-        voice: VOICE,
+        voice: voice as "alloy" | "shimmer" | "marin",
         input: text,
         instructions: voiceInstructions,
         response_format: "pcm",
       }),
       timeoutPromise,
     ]);
+
+    console.log(voice, text.slice(0, 30));
 
     // Eagerly read entire stream into buffer
     const chunks: Uint8Array[] = [];
@@ -105,9 +107,11 @@ export function createSpeakTool(sessionId: string) {
       // === AWAIT TTS TO GET DURATION ===
       // Block until we know the audio length for synthetic time
       const ttsStart = Date.now();
+      const voice = sessionManager.getVoice(sessionId);
       const ttsResult = await fetchAndBufferTTS(
         args.content,
-        args.voice
+        args.voice,
+        voice
       );
       const ttsElapsedMs = Date.now() - ttsStart;
 
