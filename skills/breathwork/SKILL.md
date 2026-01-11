@@ -322,26 +322,34 @@ polyvagal co-regulation through voice.
 
 **Grounding:**
 ```
-voice: "Low, unhurried. Speaking from the belly. Setting down
-        into the floor alongside them."
+voice: "Voice Affect: Soft, gentle, soothing; embody tranquility.
+        Tone: Calm, reassuring; convey genuine warmth.
+        Pacing: Slow, deliberate, unhurried.
+        Pauses: Thoughtful pauses between instructions."
 ```
 
 **Activation:**
 ```
-voice: "Steady, present. The voice provides container while breath
-        provides intensity. Calm authority, not urgency."
+voice: "Voice Affect: Steady, present; the voice provides container
+        while breath provides intensity.
+        Tone: Calm authority, not urgency.
+        Pacing: Even and rhythmic, matching breath pattern."
 ```
 
 **Integration:**
 ```
-voice: "Softening. The voice descends with the breath pattern.
-        Slower, lower, less necessary."
+voice: "Voice Affect: Softening, descending with the breath.
+        Tone: Warm, releasing; less necessary now.
+        Pacing: Gradually slowing, lengthening pauses.
+        Pronunciation: Softer articulation, vowels lengthening."
 ```
 
 **Stillness:**
 ```
-voice: "Barely there. Speaking from just beside them.
-        Almost-whispered. The voice preparing to leave."
+voice: "Voice Affect: Intimate, almost-whispered; barely there.
+        Tone: Peaceful, withdrawing; preparing to leave.
+        Pacing: Very slow. Pauses: Extended silence after each
+        instruction."
 ```
 
 **Grounding voice** is the slowest and softest of the session.

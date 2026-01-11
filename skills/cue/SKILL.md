@@ -151,9 +151,10 @@ speak(
             warming you on purpose. This is the ordinary
             scandal: things exist without needing your
             attention.",
-  voice: "Dry, factual, with a hint of mischief underneath.
-          Let the provocative content land without
-          dramatizing it."
+  voice: "Voice Affect: Dry, observational; reading from a field
+          guide. Tone: Matter-of-fact with a hint of mischief
+          underneath. Pacing: Steady, unhurried, letting the
+          provocative content land without dramatizing it."
 )
 silence(45000)
 ```
@@ -191,16 +192,17 @@ Your voice co-regulates the practitioner's nervous system. The
 delivery directly influences physiological state before conscious
 processing.
 
-**What works in voice notes:**
+**Use structured categories:**
 
-- Physical location: "Speaking from the chest, low and grounded"
-- Relationship: "Speaking from just beside them, intimate distance"
-- Action: "The voice holds the effort of the pose"
-- Movement: "The voice lifts as the leg lifts"
+- Voice Affect: "Soft, gentle, soothing; embody tranquility"
+- Tone: "Calm, reassuring; convey genuine warmth"
+- Pacing: "Slow, deliberate; pause after instructions"
+- Emotion: "Deeply soothing and comforting"
+- Pauses: "Thoughtful pauses between breathing instructions"
 
 **What fails:**
 
-- Abstract adjectives alone: "calm," "gentle," "soothing"
+- Abstract adjectives alone without context: just "calm"
 - Numeric specs: "80 wpm," "lower pitch by 20%"
 - Identical notes throughout the session
 
@@ -210,8 +212,8 @@ shapes whether silence integrates or interrupts.
 Match your voice to what you're inviting. If you want settling,
 settle your voice first. Embody what you're asking for.
 
-See [voice-notes.md](./references/voice-notes.md) for practical
-patterns and phase-matched examples.
+See [voice-notes.md](./references/voice-notes.md) for the full
+structure and phase-matched examples.
 
 ---
 

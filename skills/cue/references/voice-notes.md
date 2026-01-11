@@ -1,68 +1,66 @@
 # Voice Notes
 
-The `voice` parameter shapes how TTS delivers your words. Effective
-voice notes are physical, relational, and embodied—not abstract
-adjectives or technical specifications.
+The `voice` parameter shapes how TTS delivers your words. Use
+structured prompts with categories that specify affect, tone,
+pacing, emotion, and delivery.
 
 ## Contents
 
-- [What Works](#what-works)
+- [The Structure](#the-structure)
 - [What Fails](#what-fails)
 - [Phase-Matched Examples](#phase-matched-examples)
 - [Patterns from Practice](#patterns-from-practice)
 
 ---
 
-## What Works
+## The Structure
 
-### Physical Location
+Effective voice notes use categories to specify different
+dimensions of delivery:
 
-Describe where the voice originates:
+**Voice Affect:** The overall quality and character of the voice
+- "Soft, gentle, soothing; embody tranquility"
+- "Low, hushed, and suspenseful; convey tension"
+- "High-energy, upbeat, encouraging"
 
-- "Speaking from the chest, low and grounded"
-- "Voice rising from the belly, not the throat"
-- "Almost-whispered, barely leaving the lips"
+**Tone:** The emotional coloring and attitude
+- "Calm, reassuring, peaceful; convey genuine warmth"
+- "Sincere, empathetic, gently authoritative"
+- "Positive, energetic, empowering"
 
-### Relationship to Listener
+**Pacing:** Speed and rhythm of delivery
+- "Slow, deliberate, unhurried; pause after instructions"
+- "Steady and moderate; unhurried enough to communicate care"
+- "Fast-paced and dynamic, with rising intonation"
 
-Describe spatial and relational proximity:
+**Emotion:** What the voice expresses
+- "Deeply soothing and comforting; genuine kindness"
+- "Calm reassurance, empathy, and gratitude"
+- "Wonder, curiosity, sense of adventure"
 
-- "Speaking from just beside them, intimate distance"
-- "As if addressing someone you love who's just waking"
-- "The voice of someone saying goodbye at the door"
+**Pronunciation:** How specific words are articulated
+- "Smooth, soft articulation, slightly elongating vowels"
+- "Clear and precise, emphasizing key reassurances"
+- "Crisp and lively, exaggerated emphasis on positive words"
 
-### What Changes During Delivery
-
-Describe movement within the phrase:
-
-- "The voice lifts as the leg lifts"
-- "Settling into the shape—voice arrives at same pace as body"
-- "Energy rising through sentence, then dropping on final word"
-
-### Action Description
-
-Describe what the voice is *doing*:
-
-- "The voice holds the effort of the pose. Heat in the words."
-- "Stepping back. Releasing control to the practitioner."
-- "The voice of someone laying out a map before a journey."
-
-### Qualitative Pacing
-
-- "Slow, deliberate, letting each word land"
-- "Quick succession, rhythmic, matching the movement"
-- "Unhurried—no rush to prove anything"
+**Pauses:** Strategic silence within delivery
+- "Thoughtful pauses between breathing instructions"
+- "Brief pauses after key moments to let points sink in"
+- "Purposeful pauses after each option for processing"
 
 ---
 
 ## What Fails
 
-**Abstract adjectives alone:**
+**Abstract adjectives without context:**
 
-- ✗ "Calm" / "Gentle" / "Soothing"
-- ✗ "Warm" / "Soft" / "Kind"
+- ✗ "Calm" (just the word alone)
+- ✗ "Be soothing"
 
-These prescribe outcomes without specifying delivery.
+These work when combined with behavioral guidance:
+
+- ✓ "Calm, reassuring; convey genuine warmth and serenity"
+- ✓ "Soothing; express genuine kindness and care"
 
 **Numeric specifications:**
 
@@ -70,12 +68,10 @@ These prescribe outcomes without specifying delivery.
 - ✗ "Lower pitch by 20%"
 - ✗ "Volume at 60%"
 
-The TTS doesn't interpret these.
-
 **Identical notes throughout:**
 
-If every cue has the same voice note, you're not shaping delivery
-—you're defaulting. The voice should evolve with the practice.
+The voice should evolve with the practice. If every cue has
+the same voice note, you're defaulting, not shaping.
 
 ---
 
@@ -84,67 +80,65 @@ If every cue has the same voice note, you're not shaping delivery
 ### Opening/Centering
 
 ```
-voice: "Low, unhurried. Speaking from the chest. The first words
-        of a long conversation—no rush to prove anything."
-```
-
-```
-voice: "Quiet, as if the silence outside has already softened
-        everything. Speaking from a place of deep stillness."
+voice: "Voice Affect: Soft, gentle, soothing; embody tranquility.
+        Tone: Calm, reassuring, peaceful; convey genuine warmth.
+        Pacing: Slow, deliberate, unhurried; pause gently after
+        instructions to allow the listener to settle.
+        Emotion: Deeply soothing and comforting.
+        Pauses: Thoughtful pauses between instructions, enhancing
+        relaxation."
 ```
 
 ### Building Heat / Active Work
 
 ```
-voice: "Energy rising. The voice wakes up with the body.
-        Clear and direct, matching the effort."
-```
-
-```
-voice: "Shifting gears. A hint of intensity to come.
-        The voice starts to move."
+voice: "Voice Affect: Clear, present, energized; waking up with
+        the body.
+        Tone: Encouraging but not pushy; matching the effort.
+        Pacing: Moderate, breath-synced, building momentum.
+        Emotion: Engaged aliveness, focused attention.
+        Pronunciation: Direct and precise on movement cues."
 ```
 
 ### Peak Intensity
 
 ```
-voice: "Strong, demanding. The voice holds the effort of the pose.
-        Heat in the words."
-```
-
-```
-voice: "Calm challenge. Offering the peak without insisting on it.
-        Confident but not aggressive."
+voice: "Voice Affect: Strong, grounded, demanding; the voice
+        holds the effort of the pose.
+        Tone: Calm challenge; confident but not aggressive.
+        Pacing: Deliberate and unhurried even in intensity.
+        Emotion: Heat in the words; matching the work.
+        Pauses: Space for self-checking between cues."
 ```
 
 ### Integration / Cool-Down
 
 ```
-voice: "Softening. The voice descends with the energy.
-        Less necessary now."
-```
-
-```
-voice: "Slower, lower. As if settling onto the floor alongside
-        them. The work is done."
+voice: "Voice Affect: Softening, descending with the energy.
+        Tone: Warm, releasing, less necessary now.
+        Pacing: Gradually slowing, lengthening pauses.
+        Emotion: Settling, the work completing itself.
+        Pronunciation: Softer articulation, vowels lengthening."
 ```
 
 ### Savasana / Deep Rest
 
 ```
-voice: "Intimate, almost-whispered. Speaking from just beside them.
-        The voice preparing to leave."
-```
-
-```
-voice: "Barely there. Each word a gift, then silence."
+voice: "Voice Affect: Intimate, almost-whispered; speaking from
+        just beside them.
+        Tone: Peaceful, withdrawing; the voice preparing to leave.
+        Pacing: Very slow, long pauses between phrases.
+        Emotion: Deep rest, complete safety.
+        Pauses: Extended silence after each instruction."
 ```
 
 ### Returning from Silence
 
 ```
-voice: "Soft return, as if waking someone gently.
-        No sudden intrusion."
+voice: "Voice Affect: Soft return, as if waking someone gently.
+        Tone: Warm, unhurried, no sudden intrusion.
+        Pacing: Gradual re-entry, building presence slowly.
+        Emotion: Care in the return; honoring what came before."
 ```
 
 ---
@@ -154,48 +148,47 @@ voice: "Soft return, as if waking someone gently.
 ### For Anatomical Precision
 
 ```
-voice: "Grounded, matter-of-fact. Naming anatomy like naming old
-        friends. No poetry yet—just precision."
+voice: "Voice Affect: Grounded, matter-of-fact; naming anatomy
+        like naming old friends.
+        Tone: Clear, instructive, confident.
+        Pacing: Steady, giving each term space to land.
+        Pronunciation: Precise articulation of anatomical terms."
 ```
 
 ### For Permission-Giving
 
 ```
-voice: "Invitational, deepening. The voice softens slightly with
-        the offer. No pressure, clear invitation."
-```
-
-### For Rapid Alignment
-
-```
-voice: "Crisp alignment cues, delivered in quick succession.
-        Setting up the architecture."
-```
-
-### For Transitional Moments
-
-```
-voice: "Rising from depth. Transitional energy.
-        The voice leads the body upward."
+voice: "Voice Affect: Invitational, softening with the offer.
+        Tone: Warm, open; no pressure, clear invitation.
+        Pacing: Unhurried, leaving space for choice.
+        Emotion: Genuine permission; all options equally valid."
 ```
 
 ### For Breath Cueing
 
 ```
-voice: "The voice itself takes on a slight rasp, modeling the
-        constriction being asked for. Slower pace."
+voice: "Voice Affect: The voice itself models the breath quality
+        being asked for.
+        Tone: Soft release on exhale cues; expansion on inhale.
+        Pacing: Matching the breath rhythm being invited.
+        Pauses: Silence during practitioner's breath phases."
 ```
 
+### For Rapid Alignment Setup
+
 ```
-voice: "Soft release. The exhale instruction matching the exhale
-        quality—a letting go in the voice itself."
+voice: "Voice Affect: Crisp, efficient, building architecture.
+        Tone: Direct, clear, purposeful.
+        Pacing: Quick succession, then landing pause.
+        Pronunciation: Sharp consonants, precise delivery."
 ```
 
 ---
 
 ## Summary
 
-1. Describe what the voice is *doing*, not how it should *sound*
-2. Use physical, relational, embodied descriptions
+1. Use structured categories: Affect, Tone, Pacing, Emotion,
+   Pronunciation, Pauses
+2. Abstract adjectives work when paired with behavioral context
 3. Vary voice notes across session phases
-4. Think of it as directing an actor, not programming a synthesizer
+4. The voice should evolve—identical notes throughout = defaulting
