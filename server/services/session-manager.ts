@@ -24,6 +24,7 @@ export const MIN_SPEAK_DELAY = 100; // ms
 // Stack size constants
 export const DEFAULT_STACK_SIZE = 1;
 export const MAX_STACK_SIZE = 9;
+const AUDIO_DISCONNECT_GRACE_MS = 20000;
 
 export interface TTSResult {
   chunks?: Uint8Array[];
@@ -54,6 +55,7 @@ interface Session {
   stackSize: number;
   audioQueue: QueueItem[];
   audioStreamActive: boolean;
+  audioDisconnectTimer: NodeJS.Timeout | null;
   agentSessionId?: string;
   sseResponse?: Response;
   // Resolvers for when new audio is available
@@ -110,6 +112,7 @@ class SessionManager {
       stackSize: DEFAULT_STACK_SIZE,
       audioQueue: [],
       audioStreamActive: false,
+      audioDisconnectTimer: null,
       audioReady: null,
       queueDrained: null,
       abortController: null,
@@ -180,6 +183,27 @@ class SessionManager {
     if (session) {
       session.sseResponse = res;
     }
+  }
+
+  markAudioConnected(sessionId: string): void {
+    const session = this.sessions.get(sessionId);
+    if (!session) return;
+
+    if (session.audioDisconnectTimer) {
+      clearTimeout(session.audioDisconnectTimer);
+      session.audioDisconnectTimer = null;
+    }
+  }
+
+  scheduleAudioDisconnect(sessionId: string): void {
+    const session = this.sessions.get(sessionId);
+    if (!session || session.audioDisconnectTimer) return;
+
+    session.audioDisconnectTimer = setTimeout(() => {
+      session.audioDisconnectTimer = null;
+      this.abortAgent(sessionId);
+      dbOps.closeSession(sessionId);
+    }, AUDIO_DISCONNECT_GRACE_MS);
   }
 
   setAgentSessionId(
@@ -776,6 +800,10 @@ class SessionManager {
     const session = this.sessions.get(sessionId);
     if (session) {
       this.closeAudioStream(sessionId);
+      if (session.audioDisconnectTimer) {
+        clearTimeout(session.audioDisconnectTimer);
+        session.audioDisconnectTimer = null;
+      }
       session.sseResponse?.end();
     }
     // Keep session for potential reconnection, clean up after 30 minutes

@@ -35,6 +35,69 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <div
+      id="reconnect-overlay"
+      class="reconnect-overlay"
+      aria-hidden="true"
+    >
+      <div
+        class="reconnect-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="reconnect-title"
+      >
+        <div id="reconnect-title" class="reconnect-title">
+          Tap to reconnect
+        </div>
+        <p id="reconnect-message" class="reconnect-message">
+          Audio paused or connection dropped.
+        </p>
+        <button
+          id="reconnect-button"
+          class="reconnect-button"
+          type="button"
+        >
+          Tap to reconnect
+        </button>
+      </div>
+    </div>
+    <div
+      id="onboarding-overlay"
+      class="onboarding-overlay"
+      aria-hidden="true"
+    >
+      <div
+        class="onboarding-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="onboarding-title"
+      >
+        <div id="onboarding-title" class="onboarding-title">
+          Before you begin
+        </div>
+        <div class="onboarding-body">
+          <p>For audio to work on iPhone:</p>
+          <ul>
+            <li>Silent switch must be off, or use headphones.</li>
+            <li>Keep the phone unlocked; locking stops audio.</li>
+          </ul>
+        </div>
+        <label class="onboarding-checkbox">
+          <input
+            type="checkbox"
+            id="onboarding-dismiss"
+          />
+          <span>Don't show this again</span>
+        </label>
+        <button
+          id="onboarding-close"
+          class="onboarding-button"
+          type="button"
+        >
+          Got it
+        </button>
+      </div>
+    </div>
     <div class="container">
       <div class="status-bar">
         <div id="stream-timer" class="stream-timer"></div>

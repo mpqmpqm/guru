@@ -18,6 +18,24 @@ const thinkingTraceEl =
 const thinkingContentEl = document.getElementById(
   "thinking-content"
 );
+const reconnectOverlay = document.getElementById(
+  "reconnect-overlay"
+);
+const reconnectButton = document.getElementById(
+  "reconnect-button"
+);
+const reconnectMessageEl = document.getElementById(
+  "reconnect-message"
+);
+const onboardingOverlay = document.getElementById(
+  "onboarding-overlay"
+);
+const onboardingClose = document.getElementById(
+  "onboarding-close"
+);
+const onboardingDismiss = document.getElementById(
+  "onboarding-dismiss"
+);
 
 // Track if user is following the thinking trace (auto-scroll)
 let thinkingFollowing = true;
@@ -49,6 +67,12 @@ let sseReconnectAttempts = 0;
 let audioReconnectAttempts = 0;
 const MAX_RECONNECT_ATTEMPTS = 10;
 const BASE_RECONNECT_DELAY = 1000;
+const ONBOARDING_COOKIE = "guru_onboarding_dismissed";
+let lastSsePingAt = 0;
+let sseHealthInterval = null;
+let lastAudioFrameAt = 0;
+let audioExpectTimeout = null;
+let reconnectInProgress = false;
 
 function getSelectedModel() {
   const select = document.getElementById("model-selector");
@@ -68,6 +92,77 @@ function getReconnectDelay(attempts) {
   );
   const jitter = delay * 0.2 * Math.random();
   return delay + jitter;
+}
+
+function getCookie(name) {
+  const cookies = document.cookie.split(";");
+  for (const cookie of cookies) {
+    const [key, ...rest] = cookie.trim().split("=");
+    if (key === name) return rest.join("=");
+  }
+  return null;
+}
+
+function setCookie(name, value, maxAgeSeconds) {
+  const parts = [
+    `${name}=${value}`,
+    `max-age=${maxAgeSeconds}`,
+    "path=/",
+    "samesite=lax",
+  ];
+  document.cookie = parts.join("; ");
+}
+
+function showOnboarding() {
+  if (!onboardingOverlay) return;
+  onboardingOverlay.classList.add("active");
+  onboardingOverlay.setAttribute("aria-hidden", "false");
+}
+
+function hideOnboarding() {
+  if (!onboardingOverlay) return;
+  onboardingOverlay.classList.remove("active");
+  onboardingOverlay.setAttribute("aria-hidden", "true");
+}
+
+function dismissOnboarding() {
+  if (onboardingDismiss?.checked) {
+    setCookie(ONBOARDING_COOKIE, "1", 365 * 24 * 60 * 60);
+  }
+  hideOnboarding();
+}
+
+function showReconnectOverlay(
+  message = "Audio paused or connection dropped."
+) {
+  if (!reconnectOverlay) return;
+  if (reconnectMessageEl) {
+    reconnectMessageEl.textContent = message;
+  }
+  reconnectOverlay.classList.add("active");
+  reconnectOverlay.setAttribute("aria-hidden", "false");
+}
+
+function hideReconnectOverlay() {
+  if (!reconnectOverlay) return;
+  reconnectOverlay.classList.remove("active");
+  reconnectOverlay.setAttribute("aria-hidden", "true");
+}
+
+function startSseHealthCheck() {
+  if (sseHealthInterval) return;
+  sseHealthInterval = setInterval(() => {
+    if (!sessionId || !eventSource || !lastSsePingAt) return;
+    const age = Date.now() - lastSsePingAt;
+    if (age < 45000) return;
+
+    eventSource.close();
+    eventSource = null;
+    if (isOnline) {
+      sseReconnectAttempts = 0;
+      connectSSE();
+    }
+  }, 10000);
 }
 
 // Recover session when server returns 404 (session not found)
@@ -107,38 +202,94 @@ let frameBuffer = new Uint8Array(0); // Buffer for framed audio parsing
 
 // Initialize AudioContext (but don't unlock yet - needs user gesture)
 function initAudioContext() {
-  if (!audioContext) {
-    audioContext = new (
-      window.AudioContext || window.webkitAudioContext
-    )({
-      sampleRate: SAMPLE_RATE,
-    });
-  }
+  if (audioContext && audioContext.state !== "closed") return;
+
+  audioContext = new (
+    window.AudioContext || window.webkitAudioContext
+  )({
+    sampleRate: SAMPLE_RATE,
+  });
+  isAudioUnlocked = false;
+  nextStartTime = 0;
+
+  audioContext.addEventListener("statechange", () => {
+    if (audioContext.state === "running") {
+      hideReconnectOverlay();
+      return;
+    }
+
+    if (
+      audioContext.state === "suspended" &&
+      document.visibilityState === "visible" &&
+      isProcessing
+    ) {
+      showReconnectOverlay();
+    }
+  });
 }
 
 // Unlock AudioContext - must be called from user gesture
 async function unlockAudioContext() {
-  if (isAudioUnlocked) return;
+  if (isAudioUnlocked && audioContext?.state === "running") {
+    return true;
+  }
 
   initAudioContext();
 
-  if (audioContext.state === "suspended") {
-    await audioContext.resume();
+  try {
+    if (audioContext.state === "suspended") {
+      await audioContext.resume();
+    }
+  } catch (error) {
+    showReconnectOverlay();
+    return false;
   }
 
   // Play a tiny silent buffer to fully unlock on iOS
-  const silentBuffer = audioContext.createBuffer(
-    1,
-    1,
-    SAMPLE_RATE
-  );
-  const source = audioContext.createBufferSource();
-  source.buffer = silentBuffer;
-  source.connect(audioContext.destination);
-  source.start();
+  try {
+    const silentBuffer = audioContext.createBuffer(
+      1,
+      1,
+      SAMPLE_RATE
+    );
+    const source = audioContext.createBufferSource();
+    source.buffer = silentBuffer;
+    source.connect(audioContext.destination);
+    source.start();
+  } catch (error) {
+    showReconnectOverlay();
+    return false;
+  }
+
+  if (audioContext.state !== "running") {
+    showReconnectOverlay();
+    return false;
+  }
 
   isAudioUnlocked = true;
   nextStartTime = audioContext.currentTime;
+  return true;
+}
+
+async function tryResumeAudioContext() {
+  if (!audioContext || !isAudioUnlocked) return false;
+
+  if (audioContext.state === "suspended") {
+    try {
+      await audioContext.resume();
+    } catch (error) {
+      // Resume may fail without user gesture on iOS.
+    }
+  }
+
+  if (audioContext.state !== "running") {
+    if (document.visibilityState === "visible" && isProcessing) {
+      showReconnectOverlay();
+    }
+    return false;
+  }
+
+  return true;
 }
 
 function playGong(audioContext) {
@@ -317,6 +468,12 @@ function int16ToFloat32(int16Array) {
 // flush=true forces scheduling even if buffer is small (used at end of stream)
 function scheduleAudioBuffer(pcmData, flush = false) {
   if (!audioContext || !isAudioUnlocked) return;
+  if (audioContext.state !== "running") {
+    if (document.visibilityState === "visible" && isProcessing) {
+      showReconnectOverlay();
+    }
+    return;
+  }
 
   // Append new data to buffer
   const newBuffer = new Uint8Array(
@@ -377,6 +534,11 @@ function scheduleAudioBuffer(pcmData, flush = false) {
 function processAudioFrames(chunk) {
   if (!chunk || chunk.length === 0) return;
 
+  lastAudioFrameAt = Date.now();
+  if (reconnectOverlay?.classList.contains("active")) {
+    hideReconnectOverlay();
+  }
+
   const newBuffer = new Uint8Array(
     frameBuffer.length + chunk.length
   );
@@ -419,9 +581,31 @@ function processAudioFrames(chunk) {
   }
 }
 
+function scheduleAudioExpectCheck() {
+  if (audioExpectTimeout) {
+    clearTimeout(audioExpectTimeout);
+  }
+  const checkFrom = Date.now();
+  audioExpectTimeout = setTimeout(() => {
+    if (!isProcessing || !isOnline) return;
+    if (!sessionId) return;
+
+    if (!audioFetchController) {
+      startAudioStream();
+      return;
+    }
+
+    if (lastAudioFrameAt < checkFrom) {
+      showReconnectOverlay();
+    }
+  }, 2500);
+}
+
 // Fetch and play audio for the current session
 async function startAudioStream() {
   if (!sessionId || !isAudioUnlocked) return;
+  const resumed = await tryResumeAudioContext();
+  if (!resumed) return;
 
   // Cancel any existing fetch
   if (audioFetchController) {
@@ -431,6 +615,7 @@ async function startAudioStream() {
   // Reset buffers for new audio stream
   pcmBuffer = new Uint8Array(0);
   frameBuffer = new Uint8Array(0);
+  lastAudioFrameAt = 0;
 
   const controller = new AbortController();
   audioFetchController = controller;
@@ -444,6 +629,11 @@ async function startAudioStream() {
       if (response.status === 404) {
         recoverSession();
       }
+      return;
+    }
+
+    if (!response.body) {
+      showReconnectOverlay();
       return;
     }
 
@@ -478,6 +668,7 @@ async function startAudioStream() {
       console.error(
         "Audio stream unavailable after max retries"
       );
+      showReconnectOverlay();
       return;
     }
 
@@ -505,6 +696,16 @@ async function init() {
   try {
     connectionIndicator.className =
       "connection-indicator disconnected";
+    hideReconnectOverlay();
+    if (audioExpectTimeout) {
+      clearTimeout(audioExpectTimeout);
+      audioExpectTimeout = null;
+    }
+    if (sseHealthInterval) {
+      clearInterval(sseHealthInterval);
+      sseHealthInterval = null;
+    }
+    lastSsePingAt = 0;
 
     // Reset audio state for new session
     if (audioFetchController) {
@@ -601,6 +802,12 @@ function connectSSE() {
     connectionIndicator.className =
       "connection-indicator connected";
     sseReconnectAttempts = 0; // Reset on successful connection
+    lastSsePingAt = Date.now();
+    startSseHealthCheck();
+  });
+
+  eventSource.addEventListener("ping", () => {
+    lastSsePingAt = Date.now();
   });
 
   eventSource.addEventListener("processing", (event) => {
@@ -655,6 +862,7 @@ function connectSSE() {
     const data = JSON.parse(event.data);
     stopStatus();
     showCue(data.text);
+    scheduleAudioExpectCheck();
   });
 
   eventSource.addEventListener("breathe_start", (event) => {
@@ -696,6 +904,7 @@ function connectSSE() {
       eventSource.close();
       eventSource = null;
     }
+    lastSsePingAt = 0;
 
     // Don't retry while offline - network listener will reconnect
     if (!isOnline) {
@@ -847,6 +1056,42 @@ async function sendMessage(message) {
   }
 }
 
+async function attemptReconnect() {
+  if (reconnectInProgress) return;
+  reconnectInProgress = true;
+
+  try {
+    hideReconnectOverlay();
+
+    if (!sessionId) {
+      await init();
+    }
+
+    const unlocked = await unlockAudioContext();
+    if (!unlocked) return;
+
+    if (isProcessing && !wakeLock) {
+      requestWakeLock();
+    }
+
+    if (
+      sessionId &&
+      (!eventSource ||
+        eventSource.readyState === EventSource.CLOSED)
+    ) {
+      sseReconnectAttempts = 0;
+      connectSSE();
+    }
+
+    if (sessionId) {
+      audioReconnectAttempts = 0;
+      startAudioStream();
+    }
+  } finally {
+    reconnectInProgress = false;
+  }
+}
+
 // Stop the current session
 function stopSession() {
   if (eventSource) {
@@ -866,10 +1111,40 @@ function stopSession() {
   thinkingTraceEl.classList.remove("active");
   thinkingFollowing = true;
   stopStatus();
+  hideReconnectOverlay();
+  if (audioExpectTimeout) {
+    clearTimeout(audioExpectTimeout);
+    audioExpectTimeout = null;
+  }
+  if (sseHealthInterval) {
+    clearInterval(sseHealthInterval);
+    sseHealthInterval = null;
+  }
   init(); // Start a new session
 }
 
 // Event listeners
+if (reconnectButton) {
+  reconnectButton.addEventListener("click", attemptReconnect);
+}
+if (reconnectOverlay) {
+  reconnectOverlay.addEventListener("click", (event) => {
+    if (event.target === reconnectOverlay) {
+      attemptReconnect();
+    }
+  });
+}
+if (onboardingClose) {
+  onboardingClose.addEventListener("click", dismissOnboarding);
+}
+if (onboardingOverlay) {
+  onboardingOverlay.addEventListener("click", (event) => {
+    if (event.target === onboardingOverlay) {
+      dismissOnboarding();
+    }
+  });
+}
+
 chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -880,7 +1155,10 @@ chatForm.addEventListener("submit", async (e) => {
 
     // Unlock AudioContext on user gesture (iOS requirement)
     // https://webkit.org/blog/6784/new-video-policies-for-ios/
-    await unlockAudioContext();
+    const unlocked = await unlockAudioContext();
+    if (!unlocked) {
+      return;
+    }
 
     // Request wake lock to keep screen on during streaming
     await requestWakeLock();
@@ -902,13 +1180,11 @@ chatForm.addEventListener("submit", async (e) => {
 });
 
 // Resume AudioContext and wake lock when page becomes visible (e.g., phone unlocked)
-document.addEventListener("visibilitychange", () => {
+document.addEventListener("visibilitychange", async () => {
   if (document.visibilityState === "visible") {
     // Resume AudioContext if needed
     if (audioContext && isAudioUnlocked) {
-      if (audioContext.state === "suspended") {
-        audioContext.resume();
-      }
+      await tryResumeAudioContext();
     }
 
     // Re-acquire wake lock if stream is still active
@@ -960,6 +1236,11 @@ window.addEventListener("offline", () => {
   if (eventSource) {
     eventSource.close();
     eventSource = null;
+  }
+  lastSsePingAt = 0;
+  if (audioFetchController) {
+    audioFetchController.abort();
+    audioFetchController = null;
   }
 });
 
@@ -1021,4 +1302,7 @@ async function renderExampleChiclets() {
 
 // Initialize on load
 renderExampleChiclets();
+if (!getCookie(ONBOARDING_COOKIE)) {
+  showOnboarding();
+}
 init();

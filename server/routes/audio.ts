@@ -35,6 +35,8 @@ audioRouter.get("/:sessionId", async (req, res) => {
     return res.status(404).json({ error: "Session not found" });
   }
 
+  sessionManager.markAudioConnected(sessionId);
+
   // Set headers for streaming framed PCM (24kHz, 16-bit signed, little-endian, mono)
   res.writeHead(200, {
     "Content-Type": "application/octet-stream",
@@ -45,7 +47,7 @@ audioRouter.get("/:sessionId", async (req, res) => {
     "X-Audio-Format": "pcm16le-24k-framed",
   });
 
-  // Handle client disconnect - abort agent and close session
+  // Handle client disconnect - schedule abort after grace window
   // Audio is the primary delivery channel; if it disconnects, guidance
   // cannot be heard, so continuing the agent wastes resources
   req.on("close", () => {
@@ -53,8 +55,7 @@ audioRouter.get("/:sessionId", async (req, res) => {
     //   `Audio stream closed for session ${sessionId} - stopping agent`
     // );
     sessionManager.closeAudioStream(sessionId);
-    sessionManager.abortAgent(sessionId);
-    dbOps.closeSession(sessionId);
+    sessionManager.scheduleAudioDisconnect(sessionId);
   });
 
   // Stream audio from queue - write directly without buffering

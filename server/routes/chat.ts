@@ -35,7 +35,7 @@ chatRouter.get("/events/:sessionId", (req, res) => {
   // Keep connection alive with heartbeat
   const heartbeat = setInterval(() => {
     if (!res.writableEnded) {
-      res.write(`: heartbeat\n\n`);
+      res.write(`event: ping\ndata: ${Date.now()}\n\n`);
     }
   }, 15000);
 
