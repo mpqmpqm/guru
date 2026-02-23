@@ -3,7 +3,7 @@ import { sessionManager } from "../services/session-manager.js";
 
 export const sessionRouter = Router();
 
-export const DEFAULT_MODEL = "claude-opus-4-5";
+export const DEFAULT_MODEL = "claude-opus-4-6";
 
 // Model config: shorthand → { stackSize, claudeModelId }
 export const MODEL_CONFIG: Record<
@@ -13,7 +13,7 @@ export const MODEL_CONFIG: Record<
   opus: { stackSize: 9, claudeModelId: DEFAULT_MODEL },
   sonnet: {
     stackSize: 6,
-    claudeModelId: "claude-sonnet-4-5",
+    claudeModelId: "claude-sonnet-4-6",
   },
   haiku: {
     stackSize: 3,
