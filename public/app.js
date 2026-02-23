@@ -770,8 +770,8 @@ async function init() {
             document.getElementById("model-selector");
           if (modelSelector && session.model) {
             const modelMap = {
-              "claude-opus-4-5": "opus",
-              "claude-sonnet-4-5": "sonnet",
+              "claude-opus-4-6": "opus",
+              "claude-sonnet-4-6": "sonnet",
               "claude-haiku-4-5": "haiku",
             };
             const selectValue =
