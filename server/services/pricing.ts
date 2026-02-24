@@ -2,7 +2,7 @@
  * Anthropic model pricing configuration and cost calculation.
  * Prices in USD per million tokens.
  *
- * Last updated: 2026-02-23
+ * Last updated: 2025-12-28
  * Source: https://platform.claude.com/docs/en/about-claude/pricing
  */
 
@@ -19,14 +19,14 @@ interface ModelPricing {
 }
 
 export const MODEL_PRICING: Record<string, ModelPricing> = {
-  "claude-opus-4-6": {
+  "claude-opus-4-5": {
     input: 5.0,
     output: 25.0,
     cacheRead: 0.5,
     cacheWrite5m: 6.25,
     cacheWrite1h: 10.0,
   },
-  "claude-sonnet-4-6": {
+  "claude-sonnet-4-5": {
     input: 3.0,
     output: 15.0,
     cacheRead: 0.3,
@@ -49,7 +49,7 @@ export const MODEL_PRICING: Record<string, ModelPricing> = {
  */
 export function calculateCost(
   usage: Usage,
-  model: string = "claude-opus-4-6"
+  model: string = "claude-opus-4-5"
 ): number {
   const pricing = MODEL_PRICING[model];
   if (!pricing) {
