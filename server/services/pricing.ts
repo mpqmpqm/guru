@@ -69,17 +69,22 @@ export function calculateCost(
     throw new Error(`Unknown model: ${model}`);
   }
 
+  const cachedInputTokens = usage.cached_input_tokens ?? 0;
+  const uncachedInputTokens = Math.max(
+    (usage.input_tokens ?? 0) - cachedInputTokens,
+    0
+  );
   const inputCost =
-    ((usage.input_tokens ?? 0) / 1_000_000) * pricing.input;
+    (uncachedInputTokens / 1_000_000) * pricing.input;
   const outputCost =
     ((usage.output_tokens ?? 0) / 1_000_000) * pricing.output;
 
-  const cachedInputTokens =
+  const cacheReadTokens =
     usage.cached_input_tokens ?? usage.cache_read_input_tokens ?? 0;
   const cacheReadRate =
     pricing.cachedInput ?? pricing.cacheRead ?? 0;
   const cacheReadCost =
-    (cachedInputTokens / 1_000_000) * cacheReadRate;
+    (cacheReadTokens / 1_000_000) * cacheReadRate;
 
   const cacheWriteCost =
     ((usage.cache_creation_input_tokens ?? 0) / 1_000_000) *

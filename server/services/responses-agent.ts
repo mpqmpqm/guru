@@ -121,6 +121,36 @@ function getReasoningSummaryFromResponse(
   return summaries.join("\n");
 }
 
+function getFailedResponseMessage(response: Response): string {
+  const code = response.error?.code;
+  const message = response.error?.message;
+
+  if (code && message) {
+    return `Response failed (${code}): ${message}`;
+  }
+  if (message) {
+    return `Response failed: ${message}`;
+  }
+  return "Response failed";
+}
+
+function getIncompleteResponseMessage(
+  response: Response
+): string {
+  const reason = response.incomplete_details?.reason;
+
+  if (reason === "max_output_tokens") {
+    return "Response incomplete: maximum output tokens reached";
+  }
+  if (reason === "content_filter") {
+    return "Response incomplete: blocked by content filter";
+  }
+  if (reason) {
+    return `Response incomplete: ${reason}`;
+  }
+  return "Response incomplete";
+}
+
 function toUsage(usage: ResponseUsage | undefined) {
   return {
     cached_input_tokens:
@@ -181,6 +211,7 @@ export async function* streamResponsesChat(
   let responseIdToLink: string | null = null;
   let turnStartSeqToLink =
     sessionManager.getTurnStartSeqNum(sessionId);
+  let streamFailureMessage: string | null = null;
 
   sessionManager.resetCueCallCount(sessionId);
   sessionManager.resetProducerState(sessionId);
@@ -192,6 +223,7 @@ export async function* streamResponsesChat(
       turnStartSeqToLink =
         sessionManager.getTurnStartSeqNum(sessionId);
       responseIdToLink = null;
+      streamFailureMessage = null;
 
       const toolRegistry = createOpenAIToolRegistry(sessionId);
       const pendingFunctionCalls: ResponseFunctionToolCall[] = [];
@@ -262,18 +294,23 @@ export async function* streamResponsesChat(
         if (event.type === "response.completed") {
           completedResponse = event.response;
           responseIdToLink = event.response.id;
-          previousResponseId = event.response.id;
-          sessionManager.setPreviousResponseId(
-            sessionId,
-            event.response.id
-          );
-          dbOps.updateSessionResponseState(
-            sessionId,
-            event.response.id,
-            requestPreviousResponseId,
-            "openai"
-          );
           continue;
+        }
+
+        if (event.type === "response.failed") {
+          responseIdToLink = event.response.id;
+          streamFailureMessage = getFailedResponseMessage(
+            event.response
+          );
+          break;
+        }
+
+        if (event.type === "response.incomplete") {
+          responseIdToLink = event.response.id;
+          streamFailureMessage = getIncompleteResponseMessage(
+            event.response
+          );
+          break;
         }
 
         if (event.type === "error") {
@@ -287,6 +324,10 @@ export async function* streamResponsesChat(
           ? getReasoningSummaryFromResponse(completedResponse)
           : null);
       yield { type: "thinking_end" };
+
+      if (streamFailureMessage) {
+        throw new Error(streamFailureMessage);
+      }
 
       if (!completedResponse) {
         throw new Error(
@@ -334,6 +375,7 @@ export async function* streamResponsesChat(
           completedResponse.id,
           turnStartSeqToLink
         );
+        previousResponseId = completedResponse.id;
         sessionManager.markTurnStart(sessionId);
         pendingInput = createUserInput(MUST_SPEAK_RETRY_MESSAGE);
         retryingForSpeak = true;
@@ -365,6 +407,7 @@ export async function* streamResponsesChat(
           completedResponse.id,
           turnStartSeqToLink
         );
+        previousResponseId = completedResponse.id;
         sessionManager.markTurnStart(sessionId);
 
         pendingInput = toolOutputs;
@@ -376,6 +419,16 @@ export async function* streamResponsesChat(
         sessionId,
         completedResponse.id,
         turnStartSeqToLink
+      );
+      sessionManager.setPreviousResponseId(
+        sessionId,
+        completedResponse.id
+      );
+      dbOps.updateSessionResponseState(
+        sessionId,
+        completedResponse.id,
+        requestPreviousResponseId,
+        "openai"
       );
 
       await sessionManager.signalProducerDone(sessionId);
