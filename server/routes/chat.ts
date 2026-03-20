@@ -51,8 +51,7 @@ chatRouter.get("/events/:sessionId", (req, res) => {
 // POST endpoint for sending messages
 chatRouter.post("/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
-  const { message, model, voice, timezone, livingInstruction } =
-    req.body;
+  const { message, model, voice, timezone } = req.body;
 
   // console.log(`[chat] POST /${sessionId} - message: "${message?.slice(0, 50)}..."`);
 
@@ -85,7 +84,6 @@ chatRouter.post("/:sessionId", async (req, res) => {
       session.createdAt.toISOString(),
       message,
       config.modelId,
-      livingInstruction,
       voice ?? "marin",
       "gpt-4o-mini",
       "openai"
@@ -97,9 +95,10 @@ chatRouter.post("/:sessionId", async (req, res) => {
 
   try {
     // Stream response via SSE
-    for await (const event of streamResponsesChat(sessionId, message, {
-      livingInstruction,
-    })) {
+    for await (const event of streamResponsesChat(
+      sessionId,
+      message
+    )) {
       sessionManager.sendSSE(sessionId, event.type, event);
     }
     res.json({ success: true });

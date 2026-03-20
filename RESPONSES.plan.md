@@ -203,7 +203,7 @@ Each in-memory session should store at least:
 - selected model
 - last OpenAI response ID
 - current tool/audiovisual state
-- voice/timezone/living-instruction flags
+- voice/timezone flags
 
 On each turn:
 
@@ -742,7 +742,7 @@ Steps:
 1. Rewrite the base system/developer instructions for Responses.
 2. Replace Claude-specific "load the cue skill now" phrasing with explicit tool guidance.
 3. Add tool-use examples for `speak`/`silence`.
-4. Evaluate whether `livingInstruction` should become an explicit instruction block rather than a prompt suffix.
+4. Evaluate whether any optional instruction block should become explicit rather than a prompt suffix.
 
 ### Phase 5: Cleanup
 

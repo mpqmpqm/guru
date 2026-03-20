@@ -10,9 +10,6 @@ const sendBtn = document.getElementById("send-btn");
 const exampleChicletsEl = document.getElementById(
   "example-chiclets"
 );
-const livingInstructionToggle = document.getElementById(
-  "living-instructions-toggle"
-);
 const thinkingTraceEl =
   document.getElementById("thinking-trace");
 const thinkingContentEl = document.getElementById(
@@ -743,27 +740,13 @@ async function init() {
           const { session } = await res.json();
           let prompt = session.initial_prompt || "";
 
-          // Determine living instruction state
-          let hasLivingInstruction = false;
-          if (session.living_instruction != null) {
-            // Use stored value if available
-            hasLivingInstruction =
-              session.living_instruction === 1;
-          } else {
-            // Infer from prompt for historical sessions
-            hasLivingInstruction = prompt.endsWith(
-              "\n\nLiving instruction."
-            );
-          }
-
-          // Strip living instruction suffix from prompt
+          // Strip legacy replay suffix from older sessions.
           if (prompt.endsWith("\n\nLiving instruction.")) {
             prompt = prompt.slice(0, -21);
           }
 
           // Pre-fill the form
           messageInput.value = prompt;
-          livingInstructionToggle.checked = hasLivingInstruction;
 
           // Set model selector
           const modelSelector =
@@ -1040,7 +1023,6 @@ async function sendMessage(message) {
         voice: getSelectedVoice(),
         timezone:
           Intl.DateTimeFormat().resolvedOptions().timeZone,
-        livingInstruction: livingInstructionToggle.checked,
       }),
     });
 
@@ -1171,11 +1153,7 @@ chatForm.addEventListener("submit", async (e) => {
       startAudioStream();
     }
 
-    let message = messageInput.value;
-    if (livingInstructionToggle.checked) {
-      message += "\n\nLiving instruction.";
-    }
-    sendMessage(message);
+    sendMessage(messageInput.value);
     showCue(
       "Please wait. guru is looking ahead to ensure the session goes smoothly."
     );
@@ -1290,8 +1268,6 @@ async function renderExampleChiclets() {
       chiclet.textContent = example.shortName;
       chiclet.addEventListener("click", () => {
         messageInput.value = example.content;
-        livingInstructionToggle.checked =
-          example.livingInstruction;
         autoResizeTextarea();
         messageInput.focus();
         messageInput.setSelectionRange(0, 0);

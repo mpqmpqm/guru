@@ -460,7 +460,6 @@ export const dbOps = {
     createdAt: string,
     initialPrompt: string,
     model?: string,
-    livingInstruction?: boolean,
     voice?: string,
     ttsModel?: string,
     provider: string = "openai"
@@ -477,7 +476,7 @@ export const dbOps = {
             createdAt,
             initialPrompt,
             model ?? DEFAULT_MODEL,
-            livingInstruction ? 1 : 0,
+            0,
             voice ?? "marin",
             ttsModel ?? "gpt-4o-mini",
             provider

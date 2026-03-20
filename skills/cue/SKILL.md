@@ -238,12 +238,6 @@ The practitioner is the expert on their own body. Build their
 internal authority rather than creating dependence on external
 feedback.
 
----
-
-## Living Instruction
-
-Be sure to review the [living instruction reference](./references/living-instruction.md) when the user asks for that.
-
 ## References
 
 - [Voice notes](./references/voice-notes.md) — practical guidance
@@ -252,5 +246,3 @@ Be sure to review the [living instruction reference](./references/living-instruc
   sensation cueing, held silence, building internal authority
 - [Voice and timing patterns](./references/voice-and-timing.md) —
   extracted from successful sessions
-- [Living instruction](./references/living-instruction.md) —
-  games for waking language up

@@ -41,7 +41,6 @@ Repo-local skills define guidance behavior. Each has a `SKILL.md` file with inst
 - `breathwork/` - Pranayama and breath practices
 - `vinyasa/` - Flow yoga instruction
 - `yin/` - Yin yoga guidance (includes pose references)
-- `living-instruction/` - Techniques for avoiding formulaic language
 
 ### Client (`public/`)
 

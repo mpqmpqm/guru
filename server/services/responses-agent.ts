@@ -14,7 +14,6 @@ import { dbOps } from "./db.js";
 import { calculateCost } from "./pricing.js";
 import {
   getSkillsCatalog,
-  loadReference,
   loadSkill,
 } from "./skills.js";
 import { sessionManager } from "./session-manager.js";
@@ -48,16 +47,12 @@ interface ChatEvent {
 }
 
 function buildInstructions(
-  sessionId: string,
-  livingInstruction: boolean
+  sessionId: string
 ): string {
   const catalog = getSkillsCatalog();
   const cueSkill = loadSkill("cue").instructions;
   const timezone = sessionManager.getTimezone(sessionId);
   const voice = sessionManager.getVoice(sessionId);
-  const livingInstructionText = livingInstruction
-    ? loadReference("cue", "living-instruction").content
-    : null;
 
   return [
     "You are Guru, a voice-guided yoga and meditation instructor. Guide the listener through spoken cues and intentional silence.",
@@ -75,10 +70,6 @@ function buildInstructions(
     "- Break long guidance into multiple speak() calls separated by silence() rather than one oversized monologue.",
     "- Before a long silence, use speak() to frame what the listener should do in that space.",
     "Foundational cue skill:\n\n" + cueSkill,
-    livingInstructionText
-      ? "Living instruction is enabled for this session. Apply it as an additional constraint when it helps keep language alive:\n\n" +
-        livingInstructionText
-      : null,
     "Optional skills:\n\n" + catalog.optionalCatalogText,
   ]
     .filter((section): section is string => Boolean(section))
@@ -191,8 +182,7 @@ function isFunctionCallDoneEvent(
 
 export async function* streamResponsesChat(
   sessionId: string,
-  userMessage: string,
-  options: { livingInstruction?: boolean } = {}
+  userMessage: string
 ): AsyncGenerator<ChatEvent> {
   const session = sessionManager.getSession(sessionId);
   if (!session) {
@@ -240,10 +230,7 @@ export async function* streamResponsesChat(
 
       const stream = await openai.responses.create(
         {
-          instructions: buildInstructions(
-            sessionId,
-            options.livingInstruction ?? false
-          ),
+          instructions: buildInstructions(sessionId),
           input: pendingInput,
           model: sessionManager.getModel(sessionId),
           parallel_tool_calls: false,
