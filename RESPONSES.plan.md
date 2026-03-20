@@ -4,6 +4,16 @@
 
 Before implementing, re-walk the parts of the research path that matter to code and product behavior.
 
+## Review Notes From Current Docs And SDK
+
+These were rechecked against current OpenAI docs and the locally installed `openai` SDK before starting implementation.
+
+- `previous_response_id` supports multi-turn continuation, but `store: true` is not universally required for continuation itself. `store: false` disables later retrieval and the default 30-day stored-response retention; it does not by itself forbid stateful continuation.
+- When using `previous_response_id`, prior `instructions` are not automatically carried forward. The server must resend the intended system/developer instructions each turn.
+- The current SDK stream surface includes `response.output_item.added`, `response.function_call_arguments.delta` / `.done`, `response.output_text.delta`, `response.reasoning_summary_text.delta` / `.done`, `response.completed`, and `error`.
+- Compaction is an explicit `/responses/compact` step, not an automatic background behavior of normal `/responses` calls.
+- After the dependency refresh, the local SDK includes `gpt-5.4`, `gpt-5.4-mini`, and `gpt-5.4-nano` model IDs.
+
 ### 1. Reconfirm The Current Local Architecture
 
 Read these files first and treat them as the current behavioral contract:

@@ -1,6 +1,14 @@
 import { tool } from "@anthropic-ai/claude-agent-sdk";
+import { z } from "zod";
 import { dbOps } from "../services/db.js";
 import { sessionManager } from "../services/session-manager.js";
+
+export const TIME_TOOL_NAME = "time";
+export const TIME_TOOL_DESCRIPTION =
+  "Returns a natural language description of session timing: elapsed time and current wall clock time.";
+export const timeArgShape = {};
+export const timeArgsSchema = z.object(timeArgShape).strict();
+export type TimeArgs = z.infer<typeof timeArgsSchema>;
 
 export function formatDuration(seconds: number): string {
   const mins = Math.floor(seconds / 60);
@@ -49,30 +57,36 @@ export function getTimeInfo(sessionId: string): string {
   return `elapsed ${elapsed} | clock ${wallClock}`;
 }
 
+export async function runTimeTool(
+  sessionId: string,
+  _args: TimeArgs = {}
+): Promise<string> {
+  const seqNum = sessionManager.incrementEventSequence(sessionId);
+  const { elapsedMs, wallClock } = getTimeComponents(sessionId);
+  const prose = getTimeInfo(sessionId);
+
+  dbOps.insertToolCall(
+    sessionId,
+    seqNum,
+    TIME_TOOL_NAME,
+    null,
+    null,
+    null,
+    elapsedMs,
+    wallClock,
+    prose
+  );
+
+  return prose;
+}
+
 export function createTimeTool(sessionId: string) {
   return tool(
-    "time",
-    "Returns a natural language description of session timing: elapsed time and current wall clock time.",
-    {},
-    async () => {
-      const seqNum =
-        sessionManager.incrementEventSequence(sessionId);
-      const { elapsedMs, wallClock } =
-        getTimeComponents(sessionId);
-      const prose = getTimeInfo(sessionId);
-
-      dbOps.insertToolCall(
-        sessionId,
-        seqNum,
-        "time",
-        null,
-        null,
-        null,
-        elapsedMs,
-        wallClock,
-        prose
-      );
-
+    TIME_TOOL_NAME,
+    TIME_TOOL_DESCRIPTION,
+    timeArgShape,
+    async (args) => {
+      const prose = await runTimeTool(sessionId, args);
       return {
         content: [
           {

@@ -57,6 +57,7 @@ interface Session {
   audioStreamActive: boolean;
   audioDisconnectTimer: NodeJS.Timeout | null;
   agentSessionId?: string;
+  previousResponseId?: string;
   sseResponse?: Response;
   // Resolvers for when new audio is available
   audioReady: (() => void) | null;
@@ -213,6 +214,21 @@ class SessionManager {
     const session = this.sessions.get(sessionId);
     if (session) {
       session.agentSessionId = agentSessionId;
+    }
+  }
+
+  getPreviousResponseId(sessionId: string): string | undefined {
+    return this.sessions.get(sessionId)?.previousResponseId;
+  }
+
+  setPreviousResponseId(
+    sessionId: string,
+    previousResponseId: string | null | undefined
+  ): void {
+    const session = this.sessions.get(sessionId);
+    if (session) {
+      session.previousResponseId =
+        previousResponseId ?? undefined;
     }
   }
 

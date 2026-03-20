@@ -40,6 +40,7 @@ sessionRouter.get("/:sessionId", (req, res) => {
     sessionId: session.id,
     createdAt: session.createdAt,
     hasAgentSession: !!session.agentSessionId,
+    hasPreviousResponse: !!session.previousResponseId,
     model: session.model,
     stackSize: session.stackSize,
   });

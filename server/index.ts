@@ -7,12 +7,15 @@ import { audioRouter } from "./routes/audio.js";
 import { chatRouter } from "./routes/chat.js";
 import { inspectRouter } from "./routes/inspect.js";
 import { sessionRouter } from "./routes/session.js";
+import { primeSkillsCatalog } from "./services/skills.js";
 import { logServerStart } from "./utils/log.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+primeSkillsCatalog();
 
 // Middleware
 app.use(express.json());
