@@ -1,55 +1,68 @@
 /**
- * Anthropic model pricing configuration and cost calculation.
- * Prices in USD per million tokens.
+ * Model pricing configuration and cost calculation.
+ * Prices are in USD per million tokens unless noted otherwise.
  *
- * Last updated: 2025-12-28
- * Source: https://platform.claude.com/docs/en/about-claude/pricing
+ * OpenAI rates were rechecked against official model docs in March 2026.
  */
 
-import type { BetaUsage } from "@anthropic-ai/sdk/resources/beta/messages/messages";
+const DEFAULT_PRICING_MODEL = "gpt-5-mini";
 
-export type Usage = BetaUsage;
+export interface Usage {
+  cached_input_tokens?: number | null;
+  cache_creation_input_tokens?: number | null;
+  cache_read_input_tokens?: number | null;
+  input_tokens?: number | null;
+  output_tokens?: number | null;
+  reasoning_tokens?: number | null;
+}
 
 interface ModelPricing {
+  cachedInput?: number;
   input: number;
   output: number;
-  cacheRead: number;
-  cacheWrite5m: number;
-  cacheWrite1h: number;
+  cacheRead?: number;
+  cacheWrite5m?: number;
 }
 
 export const MODEL_PRICING: Record<string, ModelPricing> = {
+  "gpt-5.4": {
+    input: 2.5,
+    cachedInput: 0.25,
+    output: 10.0,
+  },
+  "gpt-5-mini": {
+    input: 0.25,
+    cachedInput: 0.025,
+    output: 2.0,
+  },
+  "gpt-5-nano": {
+    input: 0.05,
+    cachedInput: 0.005,
+    output: 0.4,
+  },
   "claude-opus-4-5": {
     input: 5.0,
     output: 25.0,
     cacheRead: 0.5,
     cacheWrite5m: 6.25,
-    cacheWrite1h: 10.0,
   },
   "claude-sonnet-4-5": {
     input: 3.0,
     output: 15.0,
     cacheRead: 0.3,
     cacheWrite5m: 3.75,
-    cacheWrite1h: 6.0,
   },
   "claude-haiku-4-5": {
     input: 1.0,
     output: 5.0,
     cacheRead: 0.1,
     cacheWrite5m: 1.25,
-    cacheWrite1h: 2.0,
   },
 };
 
-/**
- * Calculate cost in USD from usage data.
- * Extended thinking tokens are included in output_tokens.
- * Assumes 5-minute cache TTL (Agent SDK default).
- */
 export function calculateCost(
   usage: Usage,
-  model: string = "claude-opus-4-5"
+  model: string = DEFAULT_PRICING_MODEL
 ): number {
   const pricing = MODEL_PRICING[model];
   if (!pricing) {
@@ -58,24 +71,23 @@ export function calculateCost(
 
   const inputCost =
     ((usage.input_tokens ?? 0) / 1_000_000) * pricing.input;
-
   const outputCost =
     ((usage.output_tokens ?? 0) / 1_000_000) * pricing.output;
 
+  const cachedInputTokens =
+    usage.cached_input_tokens ?? usage.cache_read_input_tokens ?? 0;
+  const cacheReadRate =
+    pricing.cachedInput ?? pricing.cacheRead ?? 0;
   const cacheReadCost =
-    ((usage.cache_read_input_tokens ?? 0) / 1_000_000) *
-    pricing.cacheRead;
+    (cachedInputTokens / 1_000_000) * cacheReadRate;
 
   const cacheWriteCost =
     ((usage.cache_creation_input_tokens ?? 0) / 1_000_000) *
-    pricing.cacheWrite5m;
+    (pricing.cacheWrite5m ?? 0);
 
   return inputCost + outputCost + cacheReadCost + cacheWriteCost;
 }
 
-/**
- * Format cost as USD string.
- */
 export function formatCost(cost: number): string {
   if (cost < 0.01) {
     return `${cost.toFixed(4)}`;

@@ -126,6 +126,8 @@ function initSchema(database: Database.Database): void {
   ensureSpeakingTimestampColumns(database);
   ensureLivingInstructionColumn(database);
   ensureVoiceColumns(database);
+  ensureSessionProviderColumns(database);
+  ensureMessageResponseColumns(database);
 }
 
 function ensureCueWaitMsColumn(
@@ -242,7 +244,7 @@ function ensureCostColumns(database: Database.Database): void {
     .all() as Array<{ name: string }>;
   const colNames = new Set(columns.map((c) => c.name));
 
-  // Agent SDK costs
+  // Agent/runtime costs
   if (!colNames.has("input_tokens")) {
     database.exec(
       `ALTER TABLE sessions ADD COLUMN input_tokens INTEGER DEFAULT 0`
@@ -382,6 +384,61 @@ function ensureVoiceColumns(database: Database.Database): void {
   }
 }
 
+function ensureSessionProviderColumns(
+  database: Database.Database
+): void {
+  const columns = database
+    .prepare(`PRAGMA table_info(sessions)`)
+    .all() as Array<{ name: string }>;
+  const colNames = new Set(columns.map((c) => c.name));
+
+  if (!colNames.has("provider")) {
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN provider TEXT DEFAULT 'anthropic'`
+    );
+  }
+  if (!colNames.has("response_id")) {
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN response_id TEXT`
+    );
+  }
+  if (!colNames.has("previous_response_id")) {
+    database.exec(
+      `ALTER TABLE sessions ADD COLUMN previous_response_id TEXT`
+    );
+  }
+}
+
+function ensureMessageResponseColumns(
+  database: Database.Database
+): void {
+  const columns = database
+    .prepare(`PRAGMA table_info(messages)`)
+    .all() as Array<{ name: string }>;
+  const colNames = new Set(columns.map((c) => c.name));
+
+  if (!colNames.has("provider")) {
+    database.exec(
+      `ALTER TABLE messages ADD COLUMN provider TEXT`
+    );
+  }
+  if (!colNames.has("response_id")) {
+    database.exec(
+      `ALTER TABLE messages ADD COLUMN response_id TEXT`
+    );
+  }
+  if (!colNames.has("previous_response_id")) {
+    database.exec(
+      `ALTER TABLE messages ADD COLUMN previous_response_id TEXT`
+    );
+  }
+  if (!colNames.has("reasoning_summary")) {
+    database.exec(
+      `ALTER TABLE messages ADD COLUMN reasoning_summary TEXT`
+    );
+  }
+}
+
 // Safe database operation wrapper - logs errors but doesn't crash
 function safeDbOperation<T>(
   operation: () => T,
@@ -405,14 +462,15 @@ export const dbOps = {
     model?: string,
     livingInstruction?: boolean,
     voice?: string,
-    ttsModel?: string
+    ttsModel?: string,
+    provider: string = "openai"
   ): void {
     safeDbOperation(
       () => {
         const database = getDb();
         database
           .prepare(
-            `INSERT INTO sessions (id, created_at, initial_prompt, model, living_instruction, voice, tts_model) VALUES (?, ?, ?, ?, ?, ?, ?)`
+            `INSERT INTO sessions (id, created_at, initial_prompt, model, living_instruction, voice, tts_model, provider, response_id, previous_response_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, NULL)`
           )
           .run(
             id,
@@ -421,10 +479,36 @@ export const dbOps = {
             model ?? DEFAULT_MODEL,
             livingInstruction ? 1 : 0,
             voice ?? "marin",
-            ttsModel ?? "gpt-4o-mini"
+            ttsModel ?? "gpt-4o-mini",
+            provider
           );
       },
       "createSession",
+      undefined
+    );
+  },
+
+  updateSessionResponseState(
+    sessionId: string,
+    responseId: string,
+    previousResponseId: string | null,
+    provider: string = "openai"
+  ): void {
+    safeDbOperation(
+      () => {
+        const database = getDb();
+        database
+          .prepare(
+            `UPDATE sessions SET provider = ?, response_id = ?, previous_response_id = ? WHERE id = ?`
+          )
+          .run(
+            provider,
+            responseId,
+            previousResponseId,
+            sessionId
+          );
+      },
+      "updateSessionResponseState",
       undefined
     );
   },
@@ -645,6 +729,10 @@ export const dbOps = {
     completed_at: string | null;
     status: string;
     model: string | null;
+    provider: string | null;
+    response_id: string | null;
+    previous_response_id: string | null;
+    living_instruction: number | null;
     voice: string | null;
     tts_model: string | null;
     export_status: string | null;
@@ -1026,7 +1114,9 @@ export const dbOps = {
           .run(
             usage.input_tokens ?? 0,
             usage.output_tokens ?? 0,
-            usage.cache_read_input_tokens ?? 0,
+            usage.cached_input_tokens ??
+              usage.cache_read_input_tokens ??
+              0,
             usage.cache_creation_input_tokens ?? 0,
             cost,
             sessionId
@@ -1107,14 +1197,20 @@ export const dbOps = {
     outputTokens: number,
     cacheReadTokens: number,
     cacheCreationTokens: number,
-    costUsd: number
+    costUsd: number,
+    metadata?: {
+      previousResponseId?: string | null;
+      provider?: string | null;
+      reasoningSummary?: string | null;
+      responseId?: string | null;
+    }
   ): void {
     safeDbOperation(
       () => {
         const database = getDb();
         database
           .prepare(
-            `INSERT INTO messages (id, session_id, sequence_num, input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens, cost_usd, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+            `INSERT INTO messages (id, session_id, sequence_num, input_tokens, output_tokens, cache_read_tokens, cache_creation_tokens, cost_usd, provider, response_id, previous_response_id, reasoning_summary, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
           )
           .run(
             id,
@@ -1125,6 +1221,10 @@ export const dbOps = {
             cacheReadTokens,
             cacheCreationTokens,
             costUsd,
+            metadata?.provider ?? null,
+            metadata?.responseId ?? id,
+            metadata?.previousResponseId ?? null,
+            metadata?.reasoningSummary ?? null,
             new Date().toISOString()
           );
       },
@@ -1170,6 +1270,10 @@ export const dbOps = {
     cache_read_tokens: number;
     cache_creation_tokens: number;
     cost_usd: number | null;
+    provider: string | null;
+    response_id: string | null;
+    previous_response_id: string | null;
+    reasoning_summary: string | null;
     created_at: string;
   }> {
     return safeDbOperation(

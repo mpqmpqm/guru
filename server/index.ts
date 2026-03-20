@@ -110,29 +110,6 @@ app.get("/health", async (_req, res) => {
     overallStatus = "degraded";
   }
 
-  // Check Anthropic/Claude status
-  try {
-    const anthropicRes = await fetch(
-      "https://status.claude.com/api/v2/status.json",
-      { signal: AbortSignal.timeout(5000) }
-    );
-    const anthropicData = (await anthropicRes.json()) as {
-      status: { indicator: string; description: string };
-    };
-    const indicator = anthropicData.status.indicator;
-    checks.anthropic = {
-      status: indicator === "none" ? "ok" : indicator,
-    };
-    if (indicator !== "none") overallStatus = "degraded";
-  } catch (error) {
-    checks.anthropic = {
-      status: "error",
-      error:
-        error instanceof Error ? error.message : String(error),
-    };
-    overallStatus = "degraded";
-  }
-
   const statusCode = overallStatus === "ok" ? 200 : 503;
   res.status(statusCode).send(
     `<html>

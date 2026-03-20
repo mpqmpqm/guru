@@ -3,22 +3,25 @@ import { sessionManager } from "../services/session-manager.js";
 
 export const sessionRouter = Router();
 
-export const DEFAULT_MODEL = "claude-opus-4-5";
+export const DEFAULT_MODEL = "gpt-5-mini";
 
-// Model config: shorthand → { stackSize, claudeModelId }
+// Model config: selector value or legacy alias → stack behavior + model ID
 export const MODEL_CONFIG: Record<
   string,
-  { stackSize: number; claudeModelId: string }
+  { stackSize: number; modelId: string }
 > = {
-  opus: { stackSize: 9, claudeModelId: DEFAULT_MODEL },
-  sonnet: {
+  "gpt-5.4": { stackSize: 9, modelId: "gpt-5.4" },
+  "gpt-5-mini": {
     stackSize: 6,
-    claudeModelId: "claude-sonnet-4-5",
+    modelId: DEFAULT_MODEL,
   },
-  haiku: {
+  "gpt-5-nano": {
     stackSize: 3,
-    claudeModelId: "claude-haiku-4-5",
+    modelId: "gpt-5-nano",
   },
+  opus: { stackSize: 9, modelId: "gpt-5.4" },
+  sonnet: { stackSize: 6, modelId: DEFAULT_MODEL },
+  haiku: { stackSize: 3, modelId: "gpt-5-nano" },
 };
 
 // Create a new session
@@ -39,7 +42,6 @@ sessionRouter.get("/:sessionId", (req, res) => {
   res.json({
     sessionId: session.id,
     createdAt: session.createdAt,
-    hasAgentSession: !!session.agentSessionId,
     hasPreviousResponse: !!session.previousResponseId,
     model: session.model,
     stackSize: session.stackSize,

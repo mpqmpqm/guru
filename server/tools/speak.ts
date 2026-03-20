@@ -1,4 +1,3 @@
-import { tool } from "@anthropic-ai/claude-agent-sdk";
 import OpenAI from "openai";
 import { encoding_for_model } from "tiktoken";
 import { z } from "zod";
@@ -196,23 +195,4 @@ export async function runSpeakTool(
   );
 
   return result;
-}
-
-export function createSpeakTool(sessionId: string) {
-  return tool(
-    SPEAK_TOOL_NAME,
-    SPEAK_TOOL_DESCRIPTION,
-    speakArgShape,
-    async (args) => {
-      const text = await runSpeakTool(sessionId, args);
-      return {
-        content: [
-          {
-            type: "text" as const,
-            text,
-          },
-        ],
-      };
-    }
-  );
 }

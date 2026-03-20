@@ -56,7 +56,6 @@ interface Session {
   audioQueue: QueueItem[];
   audioStreamActive: boolean;
   audioDisconnectTimer: NodeJS.Timeout | null;
-  agentSessionId?: string;
   previousResponseId?: string;
   sseResponse?: Response;
   // Resolvers for when new audio is available
@@ -207,16 +206,6 @@ class SessionManager {
     }, AUDIO_DISCONNECT_GRACE_MS);
   }
 
-  setAgentSessionId(
-    sessionId: string,
-    agentSessionId: string
-  ): void {
-    const session = this.sessions.get(sessionId);
-    if (session) {
-      session.agentSessionId = agentSessionId;
-    }
-  }
-
   getPreviousResponseId(sessionId: string): string | undefined {
     return this.sessions.get(sessionId)?.previousResponseId;
   }
@@ -234,7 +223,7 @@ class SessionManager {
 
   setAbortController(
     sessionId: string,
-    controller: AbortController
+    controller: AbortController | null
   ): void {
     const session = this.sessions.get(sessionId);
     if (session) {

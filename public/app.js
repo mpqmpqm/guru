@@ -76,7 +76,7 @@ let reconnectInProgress = false;
 
 function getSelectedModel() {
   const select = document.getElementById("model-selector");
-  return select ? select.value : "opus";
+  return select ? select.value : "gpt-5-mini";
 }
 
 function getSelectedVoice() {
@@ -770,12 +770,15 @@ async function init() {
             document.getElementById("model-selector");
           if (modelSelector && session.model) {
             const modelMap = {
-              "claude-opus-4-5": "opus",
-              "claude-sonnet-4-5": "sonnet",
-              "claude-haiku-4-5": "haiku",
+              "gpt-5.4": "gpt-5.4",
+              "gpt-5-mini": "gpt-5-mini",
+              "gpt-5-nano": "gpt-5-nano",
+              "claude-opus-4-5": "gpt-5.4",
+              "claude-sonnet-4-5": "gpt-5-mini",
+              "claude-haiku-4-5": "gpt-5-nano",
             };
             const selectValue =
-              modelMap[session.model] || "opus";
+              modelMap[session.model] || "gpt-5-mini";
             modelSelector.value = selectValue;
           }
         }

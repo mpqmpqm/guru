@@ -1,4 +1,3 @@
-import { tool } from "@anthropic-ai/claude-agent-sdk";
 import { z } from "zod";
 import { dbOps } from "../services/db.js";
 import { sessionManager } from "../services/session-manager.js";
@@ -78,23 +77,4 @@ export async function runTimeTool(
   );
 
   return prose;
-}
-
-export function createTimeTool(sessionId: string) {
-  return tool(
-    TIME_TOOL_NAME,
-    TIME_TOOL_DESCRIPTION,
-    timeArgShape,
-    async (args) => {
-      const prose = await runTimeTool(sessionId, args);
-      return {
-        content: [
-          {
-            type: "text" as const,
-            text: prose,
-          },
-        ],
-      };
-    }
-  );
 }

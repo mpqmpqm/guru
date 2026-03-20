@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { streamChat } from "../services/agent.js";
+import { streamResponsesChat } from "../services/responses-agent.js";
 import { sessionManager } from "../services/session-manager.js";
 import { dbOps } from "../services/db.js";
 import { logChatError } from "../utils/log.js";
@@ -68,8 +68,8 @@ chatRouter.post("/:sessionId", async (req, res) => {
   }
 
   // Update session from request
-  const config = MODEL_CONFIG[model] ?? MODEL_CONFIG.opus;
-  sessionManager.setModel(sessionId, config.claudeModelId);
+  const config = MODEL_CONFIG[model] ?? MODEL_CONFIG["gpt-5-mini"];
+  sessionManager.setModel(sessionId, config.modelId);
   sessionManager.setStackSize(sessionId, config.stackSize);
   if (timezone) {
     sessionManager.setTimezone(sessionId, timezone);
@@ -79,15 +79,16 @@ chatRouter.post("/:sessionId", async (req, res) => {
   }
 
   // Persist session to DB on first message
-  if (!session.agentSessionId) {
+  if (!session.previousResponseId) {
     dbOps.createSession(
       sessionId,
       session.createdAt.toISOString(),
       message,
-      config.claudeModelId,
+      config.modelId,
       livingInstruction,
       voice ?? "marin",
-      "gpt-4o-mini"
+      "gpt-4o-mini",
+      "openai"
     );
   }
 
@@ -96,7 +97,9 @@ chatRouter.post("/:sessionId", async (req, res) => {
 
   try {
     // Stream response via SSE
-    for await (const event of streamChat(sessionId, message)) {
+    for await (const event of streamResponsesChat(sessionId, message, {
+      livingInstruction,
+    })) {
       sessionManager.sendSSE(sessionId, event.type, event);
     }
     res.json({ success: true });

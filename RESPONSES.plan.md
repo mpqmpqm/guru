@@ -12,13 +12,22 @@ These were rechecked against current OpenAI docs and the locally installed `open
 - When using `previous_response_id`, prior `instructions` are not automatically carried forward. The server must resend the intended system/developer instructions each turn.
 - The current SDK stream surface includes `response.output_item.added`, `response.function_call_arguments.delta` / `.done`, `response.output_text.delta`, `response.reasoning_summary_text.delta` / `.done`, `response.completed`, and `error`.
 - Compaction is an explicit `/responses/compact` step, not an automatic background behavior of normal `/responses` calls.
-- After the dependency refresh, the local SDK includes `gpt-5.4`, `gpt-5.4-mini`, and `gpt-5.4-nano` model IDs.
+- After the dependency refresh, the local SDK includes both the `gpt-5.4` family (`gpt-5.4`, `gpt-5.4-mini`, `gpt-5.4-nano`) and the `gpt-5` family (`gpt-5`, `gpt-5-mini`, `gpt-5-nano`) model IDs.
+
+## Implementation Status
+
+- Phase 1 is complete: skills and references are scanned at startup and exposed through `load_skill` / `load_reference`.
+- Phase 2 is complete for the live path: `server/routes/chat.ts` now uses `server/services/responses-agent.ts`.
+- Phase 3 is substantially complete: session/message persistence and pricing are provider-neutral enough for OpenAI Responses.
+- Phase 4 is in progress: base Responses instructions now include explicit tool guidance, but prompt-quality validation is still pending.
+- Phase 5 is in progress: Claude runtime code and package dependencies have been removed, and the remaining cleanup is doc polish plus runtime validation.
 
 ### 1. Reconfirm The Current Local Architecture
 
 Read these files first and treat them as the current behavioral contract:
 
-- `server/services/agent.ts`
+- `server/services/responses-agent.ts`
+- `server/services/openai-tools.ts`
 - `server/routes/chat.ts`
 - `server/services/session-manager.ts`
 - `server/tools/speak.ts`
@@ -34,7 +43,7 @@ Specifically re-check:
 - how the current stream loop emits SSE events
 - how the current retry-on-no-speak guarantee works
 - how disconnects trigger aborts and session closure
-- how `agentSessionId` is used today
+- how `previousResponseId` is persisted and resumed
 - how costs, thinking traces, and message records are persisted
 
 ### 2. Reconfirm The Relevant OpenAI API Contracts
@@ -120,21 +129,22 @@ Decisions already made for this plan:
 
 - Redesign the web client or audio transport in the first pass.
 - Introduce a generic filesystem tool for the model.
-- Preserve Claude-specific raw thinking traces as-is.
+- Preserve legacy raw thinking traces as-is.
 - Solve every prompt-quality issue before the provider swap lands.
 
 ## Current Architecture
 
-The current app uses Claude as a stateful tool-calling runtime, not as a coding harness.
+The current app uses OpenAI Responses as a stateful tool-calling runtime, not as a coding harness.
 
-- [server/services/agent.ts](./server/services/agent.ts): runs `query(...)`, wires Claude session resume, partial thinking, and tool use.
+- [server/services/responses-agent.ts](./server/services/responses-agent.ts): runs the Responses turn loop, streams text/reasoning summaries, executes tool calls, and persists response IDs.
+- [server/services/openai-tools.ts](./server/services/openai-tools.ts): defines function-tool schemas and dispatches tool execution locally.
 - [server/tools/speak.ts](./server/tools/speak.ts): local tool that calls OpenAI TTS and queues audio.
 - [server/tools/silence.ts](./server/tools/silence.ts): local silence tool.
 - [server/tools/time.ts](./server/tools/time.ts): synthetic timeline tool.
 - [server/tools/stopwatch.ts](./server/tools/stopwatch.ts): hold-timing tool.
 - [server/services/session-manager.ts](./server/services/session-manager.ts): owns in-memory session state, SSE, audio queue, synthetic time, and aborts.
 - [server/routes/chat.ts](./server/routes/chat.ts): POST turn endpoint and SSE endpoint.
-- [skills/](./skills): repo-local skill docs, currently loaded through Claude-specific skill behavior.
+- [skills/](./skills): repo-local skill docs, scanned at startup and loaded through explicit `load_skill` / `load_reference` tools.
 
 The important constraint is that the client already speaks a custom protocol:
 
@@ -379,17 +389,16 @@ Reference-title strategy:
 ### Existing Files To Change
 
 - `server/routes/chat.ts`
-  - call the new Responses runtime instead of `streamChat` from Claude service
+  - now calls the Responses runtime from `server/services/responses-agent.ts`
 - `server/routes/session.ts`
-  - replace Claude model shorthands with OpenAI model shorthands
+  - now exposes OpenAI defaults while keeping legacy aliases for compatibility
 - `server/services/session-manager.ts`
-  - replace `agentSessionId` with `previousResponseId`
+  - now stores `previousResponseId`
   - keep SSE/audio/synthetic-time state
 - `server/services/db.ts`
-  - make session/message storage provider-neutral or OpenAI-specific
-  - store response IDs and revised usage fields
+  - now stores provider-neutral/OpenAI response fields alongside legacy records
 - `server/services/pricing.ts`
-  - replace Anthropic token pricing assumptions
+  - now supports OpenAI pricing and neutral usage fields
 - `README.md`
   - remove Anthropic requirement and update architecture description
 - `server/index.ts`
@@ -411,7 +420,7 @@ Reference-title strategy:
 
 Replace:
 
-- `agentSessionId`
+- legacy provider-specific continuation handles
 
 With:
 

@@ -1,4 +1,3 @@
-import { tool } from "@anthropic-ai/claude-agent-sdk";
 import { z } from "zod";
 import { dbOps } from "../services/db.js";
 import { sessionManager } from "../services/session-manager.js";
@@ -93,18 +92,4 @@ export async function runStopwatchTool(
   );
 
   return result;
-}
-
-export function createStopwatchTool(sessionId: string) {
-  return tool(
-    STOPWATCH_TOOL_NAME,
-    STOPWATCH_TOOL_DESCRIPTION,
-    stopwatchArgShape,
-    async (args) => {
-      const result = await runStopwatchTool(sessionId, args);
-      return {
-        content: [{ type: "text" as const, text: result }],
-      };
-    }
-  );
 }

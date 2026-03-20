@@ -1,4 +1,3 @@
-import { tool } from "@anthropic-ai/claude-agent-sdk";
 import { z } from "zod";
 import { dbOps } from "../services/db.js";
 import { sessionManager } from "../services/session-manager.js";
@@ -76,24 +75,4 @@ export async function runSilenceTool(
   );
 
   return result;
-}
-
-export function createSilenceTool(sessionId: string) {
-  return tool(
-    SILENCE_TOOL_NAME,
-    SILENCE_TOOL_DESCRIPTION,
-    silenceArgShape,
-    async (args) => {
-      const result = await runSilenceTool(sessionId, args);
-
-      return {
-        content: [
-          {
-            type: "text" as const,
-            text: result,
-          },
-        ],
-      };
-    }
-  );
 }

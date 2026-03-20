@@ -1,6 +1,6 @@
 # Guru
 
-Voice-guided yoga and meditation instruction powered by Claude (Agent SDK) with OpenAI TTS streaming audio to a vanilla JS client.
+Voice-guided yoga and meditation instruction powered by OpenAI Responses with streamed OpenAI TTS audio to a vanilla JS client.
 
 ## Features
 
@@ -20,7 +20,6 @@ Then open http://localhost:3000.
 
 ## Environment
 
-- `ANTHROPIC_API_KEY` (required)
 - `OPENAI_API_KEY` (required)
 - `PORT` (optional, default 3000)
 - `FLY_APP_NAME` (optional, enables `/data` DB path)
