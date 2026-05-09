@@ -1,9 +1,11 @@
 import { z } from "zod";
+import { dbOps } from "./db.js";
 import {
   loadOptionalSkill,
   loadReference,
   getSkillsCatalog,
 } from "./skills.js";
+import { sessionManager } from "./session-manager.js";
 import {
   runSilenceTool,
   SILENCE_TOOL_DESCRIPTION,
@@ -23,6 +25,7 @@ import {
   stopwatchArgsSchema,
 } from "../tools/stopwatch.js";
 import {
+  getTimeComponents,
   runTimeTool,
   TIME_TOOL_DESCRIPTION,
   TIME_TOOL_NAME,
@@ -293,6 +296,23 @@ export function createOpenAIToolRegistry(
       "load_skill",
       async (args) => {
         const { skill_id } = loadSkillArgsSchema.parse(args);
+        const seqNum =
+          sessionManager.incrementEventSequence(sessionId);
+        const { elapsedMs, wallClock } =
+          getTimeComponents(sessionId);
+
+        dbOps.insertToolCall(
+          sessionId,
+          seqNum,
+          "load_skill",
+          null,
+          null,
+          null,
+          elapsedMs,
+          wallClock,
+          `Loaded skill "${skill_id}"`
+        );
+
         return {
           output: JSON.stringify(loadOptionalSkill(skill_id)),
           sideEffect: {

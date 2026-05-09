@@ -83,11 +83,11 @@ function createUserInput(content: string): PendingInputItem[] {
 function getReasoningEffort(
   previousResponseId: string | null,
   retryingForSpeak: boolean
-): "low" | "medium" {
+): "high" | "xhigh" {
   if (retryingForSpeak) {
-    return "medium";
+    return "high";
   }
-  return previousResponseId ? "low" : "medium";
+  return previousResponseId ? "high" : "xhigh";
 }
 
 function getReasoningSummaryFromResponse(
