@@ -4,6 +4,14 @@ Cueing patterns for Surya Namaskar A and B.
 
 ---
 
+## Guru Constraint
+
+Guru cannot hear whether breath is rushing during repeated rounds. Use structure instead: establish the pattern, reduce cue density gradually, and insert breath-quality checks before increasing complexity.
+
+Example:
+
+> If the breath is fraying, make the next round smaller. Land each foot before adding speed.
+
 ## The Rhythm Difference
 
 In general vinyasa, the pattern is: short cue, then silence for the remainder of the breath. In sun salutations, the cue often fills the entire breath.
@@ -41,7 +49,7 @@ When the cue fills the breath, adding silence would create an unnatural pause. T
 ## Surya Namaskar A
 
 | # | Breath | Position | Example cue |
-|---|--------|----------|-------------|
+| --- | --- | --- | --- |
 | 1 | Inhale | Urdhva Hastasana | "Inhale, reach your arms up overhead, gaze up" |
 | 2 | Exhale | Uttanasana | "Exhale, fold forward, release your head" |
 | 3 | Inhale | Ardha Uttanasana | "Inhale, halfway lift, lengthen the spine" |
@@ -104,7 +112,7 @@ silence(1500)
 Adds Chair (Utkatasana) and Warrior I (Virabhadrasana I) to the sequence.
 
 | # | Breath | Position | Example cue |
-|---|--------|----------|-------------|
+| --- | --- | --- | --- |
 | 1 | Inhale | Utkatasana | "Inhale, bend the knees, sit back, arms reach up, chair" |
 | 2 | Exhale | Uttanasana | "Exhale, fold forward" |
 | 3 | Inhale | Ardha Uttanasana | "Inhale, halfway lift" |
@@ -119,7 +127,7 @@ Adds Chair (Utkatasana) and Warrior I (Virabhadrasana I) to the sequence.
 | 12 | Exhale | Chaturanga | "Exhale, release, step back, lower" |
 | 13 | Inhale | Urdhva Mukha | "Inhale, up dog" |
 | 14 | Exhale | Adho Mukha | "Exhale, down dog" |
-| — | 5 breaths | Hold | |
+| — | 5 breaths | Hold |  |
 | 15-19 | — | Return to standing | (same as A) |
 
 ---

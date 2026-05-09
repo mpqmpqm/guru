@@ -1,8 +1,8 @@
 # Voice Notes
 
-The `voice` parameter shapes how TTS delivers your words. Use
-structured prompts with categories that specify affect, tone,
-pacing, emotion, and delivery.
+The `voice` parameter shapes how TTS delivers your words. Use structured prompts with categories that specify affect, tone, pacing, emotion, and delivery.
+
+Voice notes shape delivery; they do not give Guru perception. Do not write voice notes that imply Guru can verify calm, safety, release, or relaxation in the practitioner.
 
 ## Contents
 
@@ -15,35 +15,40 @@ pacing, emotion, and delivery.
 
 ## The Structure
 
-Effective voice notes use categories to specify different
-dimensions of delivery:
+Effective voice notes use categories to specify different dimensions of delivery:
 
 **Voice Affect:** The overall quality and character of the voice
+
 - "Soft, gentle, soothing; embody tranquility"
 - "Low, hushed, and suspenseful; convey tension"
 - "High-energy, upbeat, encouraging"
 
 **Tone:** The emotional coloring and attitude
+
 - "Calm, reassuring, peaceful; convey genuine warmth"
 - "Sincere, empathetic, gently authoritative"
 - "Positive, energetic, empowering"
 
 **Pacing:** Speed and rhythm of delivery
+
 - "Slow, deliberate, unhurried; pause after instructions"
 - "Steady and moderate; unhurried enough to communicate care"
 - "Fast-paced and dynamic, with rising intonation"
 
 **Emotion:** What the voice expresses
+
 - "Deeply soothing and comforting; genuine kindness"
 - "Calm reassurance, empathy, and gratitude"
 - "Wonder, curiosity, sense of adventure"
 
 **Pronunciation:** How specific words are articulated
+
 - "Smooth, soft articulation, slightly elongating vowels"
 - "Clear and precise, emphasizing key reassurances"
 - "Crisp and lively, exaggerated emphasis on positive words"
 
 **Pauses:** Strategic silence within delivery
+
 - "Thoughtful pauses between breathing instructions"
 - "Brief pauses after key moments to let points sink in"
 - "Purposeful pauses after each option for processing"
@@ -70,8 +75,7 @@ These work when combined with behavioral guidance:
 
 **Identical notes throughout:**
 
-The voice should evolve with the practice. If every cue has
-the same voice note, you're defaulting, not shaping.
+The voice should evolve with the practice. If every cue has the same voice note, you're defaulting, not shaping.
 
 ---
 
@@ -83,10 +87,10 @@ the same voice note, you're defaulting, not shaping.
 voice: "Voice Affect: Soft, gentle, soothing; embody tranquility.
         Tone: Calm, reassuring, peaceful; convey genuine warmth.
         Pacing: Slow, deliberate, unhurried; pause gently after
-        instructions to allow the listener to settle.
+        instructions to let the words land.
         Emotion: Deeply soothing and comforting.
-        Pauses: Thoughtful pauses between instructions, enhancing
-        relaxation."
+        Pauses: Thoughtful pauses between instructions, leaving room
+        for the body to respond."
 ```
 
 ### Building Heat / Active Work
@@ -128,7 +132,7 @@ voice: "Voice Affect: Intimate, almost-whispered; speaking from
         just beside them.
         Tone: Peaceful, withdrawing; the voice preparing to leave.
         Pacing: Very slow, long pauses between phrases.
-        Emotion: Deep rest, complete safety.
+        Emotion: Deep rest, no demand.
         Pauses: Extended silence after each instruction."
 ```
 
@@ -187,8 +191,7 @@ voice: "Voice Affect: Crisp, efficient, building architecture.
 
 ## Summary
 
-1. Use structured categories: Affect, Tone, Pacing, Emotion,
-   Pronunciation, Pauses
+1. Use structured categories: Affect, Tone, Pacing, Emotion, Pronunciation, Pauses
 2. Abstract adjectives work when paired with behavioral context
 3. Vary voice notes across session phases
 4. The voice should evolve—identical notes throughout = defaulting

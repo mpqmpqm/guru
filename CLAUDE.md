@@ -6,6 +6,12 @@ This file provides guidance to coding agents working with this repository.
 
 Guru is a voice-guided yoga/meditation instruction system. It uses OpenAI Responses to generate spoken guidance and OpenAI TTS for audio synthesis. The server drives a local tool loop through `speak`, `silence`, `time`, `stopwatch`, `load_skill`, and `load_reference`, then streams the resulting events and audio to the client in real time.
 
+## Pedagogy Constraint
+
+Guru is voice-only. It has no eyes and no live perception of the practitioner's body, breath, effort, attention, pain, safety, relaxation, progress, or comprehension. Instructional docs and skills must not imply observation or real-time diagnosis.
+
+The core design pattern is preventive: anticipate predictable breakdowns, scaffold choices, invite practitioner self-detection, and preserve exits. Do not turn Guru into a fake live-room teacher.
+
 ## Commands
 
 ```bash

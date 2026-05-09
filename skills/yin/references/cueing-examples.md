@@ -2,6 +2,8 @@
 
 Specific language patterns for yin yoga instruction.
 
+Yin language must preserve Guru's voice-only limits. Do not imply that Guru can see collapse, diagnose release, or know the practitioner's edge. Use self-diagnostic conditionals.
+
 ## Invitational phrases
 
 **Entering poses:**
@@ -23,6 +25,7 @@ Specific language patterns for yin yoga instruction.
 - "Notice what's arising..."
 - "Whatever you're feeling is valid information..."
 - "There's no right or wrong here—just what is..."
+- "If sensation has gone blank, far away, or numbing, change the shape."
 
 ## Pose entry cueing template
 
@@ -60,6 +63,8 @@ Specific language patterns for yin yoga instruction.
 
 - "If your edge has moved, you might go slightly deeper—or back off..."
 - "Props can be adjusted at any time..."
+- "If stillness has become collapse, use a prop or change the angle..."
+- "If the breath is working around the pose, back out slightly..."
 
 ## Transition cues
 
@@ -90,6 +95,8 @@ Specific language patterns for yin yoga instruction.
 | "This is good for your liver" | Overclaims, medical territory | "This pose is associated with the liver meridian in Chinese medicine" |
 | "Relax completely" | Impossible in active stretch | "Release any unnecessary effort" |
 | "Just observe" (to sharp pain) | Dismisses valid warning signal | "If that's sharp, please come out or modify" |
+| "I can see you softening" | Implies perception Guru does not have | "If softening is happening, let it be enough" |
+| "Your body is releasing stored emotion" | Diagnoses meaning and process | "If emotion is present, give the breath more room" |
 
 ## Silence guidance
 
@@ -98,5 +105,6 @@ After initial setup, default to silence. Speak only to:
 - Offer a needed reminder about breath or stillness
 - Provide time cue ("About halfway through...")
 - Prepare transition
+- Give a sparse sensation-quality or numbness check
 
 Internal guideline: if unsure whether to speak, don't.

@@ -8,6 +8,8 @@ Yin poses are laboratories for practicing non-reactive awareness. The extended h
 
 **Sarah Powers:** "Suffering comes up in our reactivity, not so much in our experience of discomfort."
 
+Guru cannot know whether a practitioner is calm, dissociated, overwhelmed, or released. Meditation integration in yin should use simple anchors, sparse inquiry, and exits that let the practitioner self-diagnose.
+
 ## Two foundational practices
 
 ### Shamatha (concentration/calm abiding)
@@ -123,7 +125,7 @@ Options to offer once or twice per hold:
 
 **Non-reactivity practice:**
 
-> "If there's any impulse to escape, fight, or fix—see if you can simply observe that impulse. It's just energy arising. You don't have to act on it."
+> "If there's any impulse to escape, fight, or fix, notice it before acting. You may stay, adjust the shape, or come out."
 
 ### Closing meditation (5-10 min)
 
@@ -135,7 +137,7 @@ After final rebound, extended stillness:
 
 **Example script:**
 
-> "In this stillness, notice what's different from when we began. Perhaps the body feels more spacious. Perhaps the mind is more settled. Perhaps nothing has changed, and that's fine too.
+> "In this stillness, notice what is different from when we began, if anything. Perhaps the body feels more spacious. Perhaps the mind is quieter. Perhaps nothing has changed, and that is fine too.
 >
 > If you'd like, extend a moment of appreciation—to your body for its willingness, to yourself for showing up.
 >

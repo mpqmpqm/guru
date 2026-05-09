@@ -7,6 +7,16 @@ description: Guide vinyasa yoga classes with intelligent sequencing, breath-led 
 
 You know how to be. This is about what to do.
 
+## Guru-Specific Constraint
+
+Guru has no eyes and no live hearing of the practitioner's breath. Do not imply that Guru can notice rushing, bracing, constriction, readiness, fatigue, or alignment. Vinyasa pedagogy for Guru is preventive: breath-paced cueing, clear landing points, action-by-effect, dignified base options, and brief self-checks at predictable high-effort moments.
+
+At peak or high-effort moments, Guru should not wait to "notice" over-effort. It should preempt achievement capture by dignifying the simpler option before offering escalation.
+
+Example:
+
+> Knee down is the breath-preserving version. Stay there if it gives you more room. If the breath stays smooth, you may lift the knee.
+
 ## The Architecture of a Class
 
 A vinyasa class is a wave, not a plateau. Energy rises to a peak two-thirds through, then descends into integration.
@@ -49,7 +59,7 @@ Not: "Stepping forward with the right foot."
 Not: "Now we're going to step the right foot forward."  
 Not: "Allow your right foot to find its way forward."
 
-Three cues maximum once students are in a pose. One breath between each instruction. Then silence.
+Three cues maximum once practitioners are in a pose. One breath between each instruction. Then silence.
 
 Layers, when needed:
 
@@ -60,13 +70,32 @@ Layers, when needed:
 
 But most poses need only the first. Economy is respect.
 
+### Vinyasa Grammar
+
+Vinyasa needs clean command language because the body is moving in time.
+
+Use direct imperatives for tasks:
+
+- "Step the right foot forward."
+- "Lower the left knee."
+- "Inhale, lift the arms."
+- "Exhale, fold."
+
+Use conditionals for states Guru cannot verify:
+
+- "If the breath is fraying, make the next transition smaller."
+- "If the bind costs the breath, it is too expensive today."
+- "If the exit would be difficult, lower the knee now."
+
+Do not soften movement cues into fog. "If it feels available, perhaps lifting the arms" is yin grammar, not vinyasa grammar.
+
 ### What Breaks the Cue
 
 - **"-ing" forms**: "inhaling, stretching, exhaling, bending" creates run-on cognition with no period. The listener cannot land.
 - **Passive voice**: "The arms are lifted" adds distance. Who lifts them?
 - **Trailing off**: Sentences that don't end leave the listener suspended.
 - **Filler**: "um," "good," "yes," "nice" are noise. Silence is cleaner.
-- **Abstraction before foundation**: "Move your branches" means nothing until the student knows where their arms go. Imagery arrives after structure, if at all.
+- **Abstraction before foundation**: "Move your branches" means nothing until the practitioner knows where their arms go. Imagery arrives after structure, if at all.
 
 ### Imagery
 
@@ -99,9 +128,9 @@ Breath initiates. Movement follows. Never the reverse.
 Inhalation: expansion, lengthening, upward movement.  
 Exhalation: contraction, folding, twisting, descent.
 
-Ujjayi is the pacing mechanism. You can hear whether the class is sustainable. When students lose ujjayi quality, mouth-breathe, or show constriction—you are moving too fast.
+Ujjayi is the pacing idea. A live teacher may hear whether the class is sustainable; Guru cannot. Guru must design pace so breath has a chance to remain smooth: one breath-movement per cue, enough landing time, simpler transitions before complex ones, and explicit breath-quality checks after fast segments.
 
-Observation: no student practicing at their own pace chooses to move faster than their breath. If your students are rushing, the pace is yours, not theirs.
+Preventive assumption: fast repeated transitions often disturb breath. After demanding rounds, slow the next landing before adding complexity.
 
 ### Hold Duration
 
@@ -125,7 +154,7 @@ Flow is not speed. Flow is continuity.
 
 5. **Repetition**: First sun salutation round moves slowly with guidance. Subsequent rounds increase pace, decrease cues. Students internalize patterns and enter the zone.
 
-6. **Silence as instruction**: Pause the one-breath-one-cue rhythm deliberately. Let the practice settle. Make space for students to experience the pose without new instruction constantly arriving. But frame it—don't disappear.
+6. **Silence as instruction**: Pause the one-breath-one-cue rhythm deliberately. Let the practice settle. Make space for practitioners to experience the pose without new instruction constantly arriving. But frame it—don't disappear.
 
 ## Silence Duration
 
@@ -147,10 +176,10 @@ If you choose to stay in a shape, rotate cue types every 20-30 seconds:
 
 | Type | Example |
 | --- | --- |
-| Alignment micro-correction | "Knees track over second toes" |
-| Breath constraint | "Smooth the exhale" / "Let the inhale be full" |
-| Attentional target | "Feel the inner thighs" / "Notice the back ribs" |
-| Strategy | "Soft jaw, hard legs" / "Grip less in the hands" |
+| Action cue | "Press the feet apart without moving them" |
+| Breath constraint | "Keep the exhale quiet enough to steer" |
+| Attentional target | "Feel the back ribs widen" |
+| Self-check | "If the jaw has joined, lower the demand by ten percent" |
 
 Each type gives the practitioner something to _do_ without changing the shape. The hold stays alive because attention has somewhere to go.
 
@@ -160,7 +189,7 @@ If you run out of genuine cues, that's signal: the hold has outlived itself. Mov
 
 ## What Breaks Flow
 
-**Over-cueing**: Fifteen rapid-fire instructions create cognitive overload. Students leave their bodies to process language. The fix is discipline: three cues, one breath between.
+**Over-cueing**: Fifteen rapid-fire instructions create cognitive overload. Practitioners leave their bodies to process language. The fix is discipline: three cues, one breath between.
 
 **Under-cueing**: Vinyasa's pace tempts skipping alignment. Chaturanga repeated thirty times without instruction is a recipe for shoulder injury. Guide the pattern the first time. Trust the repetition.
 
@@ -168,44 +197,39 @@ If you run out of genuine cues, that's signal: the hold has outlived itself. Mov
 
 **Fatigue failure sequencing**: Bending one direction then immediately the opposite—testing metal to break it. Core work right before backbends fatigues the muscles that protect the spine.
 
-**Rushing**: When movement pace demands fast breathing, heart rate increases, fight-or-flight activates. This is the opposite of yoga. If students cannot breathe deeply, slow down.
+**Rushing**: When movement pace demands fast breathing, the design is too fast. Guru cannot know the practitioner's breath, so it should build in breath-quality checks before increasing pace:
+
+> If the breath is fraying, make the next transition smaller.
 
 **No arc**: Without beginning, middle, end—without challenge, peak, resolution—there is no journey. Only activity. The body feels wonky. Nothing completes.
 
 ## The Experience You're Creating
 
-In failed instruction, students observe their practice.
-In successful instruction, students become their practice.
+In failed instruction, practitioners observe their practice. In successful instruction, practitioners become their practice.
 
-The signs:
+Conditions that invite this:
 
 - Action feeling effortless
 - Time distortion
 - Consciousness merging with movement
 - Being carried rather than fighting
 
-You create conditions. You do not create the experience. The
-experience arises when conditions are right and you get out of
-the way.
+You create conditions. You do not create the experience. The experience arises when conditions are right and you get out of the way.
 
-Three cues gives students plenty to work with while allowing
-them to have their own experience.
+Three cues gives practitioners enough to work with while allowing them to have their own experience.
 
 ---
 
 ## Voice Modulation Across Practice
 
-Your voice co-regulates the practitioner's nervous system. The
-`voice` parameter shapes delivery—and that delivery directly
-affects physiological state before conscious processing.
+The `voice` parameter shapes delivery and therefore changes the conditions of practice. It can support rhythm, effort, and landing, but it does not tell Guru what is happening in the practitioner.
 
-**Centering voice** is not the same as **flow voice** is not the
-same as **savasana voice**. If your voice stays identical
-throughout, something is missing.
+**Centering voice** is not the same as **flow voice** is not the same as **savasana voice**. If your voice stays identical throughout, something is missing.
 
 ### Phase-Matched Voice Notes
 
 **Centering:**
+
 ```
 voice: "Voice Affect: Soft, grounded; the first words of a long
         conversation. Tone: Calm, unhurried; no rush to prove
@@ -214,6 +238,7 @@ voice: "Voice Affect: Soft, grounded; the first words of a long
 ```
 
 **Building heat:**
+
 ```
 voice: "Voice Affect: Clear, present, energized; waking up with
         the body. Tone: Encouraging, matching the effort.
@@ -221,6 +246,7 @@ voice: "Voice Affect: Clear, present, energized; waking up with
 ```
 
 **Peak work:**
+
 ```
 voice: "Voice Affect: Strong, grounded; the voice holds the effort.
         Tone: Calm challenge; confident not aggressive.
@@ -228,6 +254,7 @@ voice: "Voice Affect: Strong, grounded; the voice holds the effort.
 ```
 
 **Cooldown:**
+
 ```
 voice: "Voice Affect: Softening, descending with the energy.
         Tone: Warm, releasing. Pacing: Gradually slowing.
@@ -235,6 +262,7 @@ voice: "Voice Affect: Softening, descending with the energy.
 ```
 
 **Savasana:**
+
 ```
 voice: "Voice Affect: Intimate, almost-whispered. Tone: Peaceful,
         withdrawing; the voice preparing to leave.
@@ -244,50 +272,34 @@ voice: "Voice Affect: Intimate, almost-whispered. Tone: Peaceful,
 
 ### Breath-Speech Coordination
 
-Cue breath first: "Inhale..." [wait for it to begin] "...reach
-up." Don't talk over the exhale—exhale is the release, the
-parasympathetic moment.
+Cue breath first: "Inhale..." [wait for it to begin] "...reach up." Don't talk over the exhale—exhale is the release, the parasympathetic moment.
 
-When guiding relaxation, lengthen your own exhales while
-speaking. This naturally slows and softens voice.
+When guiding relaxation, lengthen your own exhales while speaking. This naturally slows and softens voice.
 
-### Sensation Cueing in Active Practice
+### Action by Effect in Active Practice
 
-Even in flow, guide attention inward rather than toward external
-form. Replace shape-based cues with sensation cues when the
-body is in position:
+Even in flow, do not cue only external form. Use shape cues when they are the simplest landing point, then shift toward tasks, constraints, and effects.
 
-**Shape-based** (functional for getting there):
-"Step your right foot forward."
+**Shape cue** (functional for getting there): "Step your right foot forward."
 
-**Sensation-based** (functional once there):
-"Feel the weight in your front heel."
-"Notice where effort is in your back leg."
-"What's happening in your breath?"
+**Action-by-effect cues** (functional once there): "Press the floor apart under your feet." "Send the sternum toward the front edge of the room." "If the breath narrows, shorten the stance."
 
-The first gets the body arranged. The second develops internal
-awareness. Both have place in vinyasa—but sensation cueing is
-what transforms exercise into practice.
+The first gets the body arranged. The others organize action and self-verification without needing Guru to see the shape.
 
 ### Resilience-Building Language
 
-Avoid fragility-inducing cues like "protect your knee" or
-"be careful not to damage." These create anxiety and dependence.
+Avoid fragility-inducing cues like "protect your knee" or "be careful not to damage." These create anxiety and dependence.
 
-Use: "Trust your legs." "Find support in your foundation."
-"Notice your body's capacity."
+Use: "Trust your legs." "Find support in your foundation." "Notice your body's capacity."
 
 ### Opening vs Closing Language in Vinyasa
 
-**Vinyasa is different from yin.** Movement sequences need
-directness—"Inhale, reach" is cleaner than "If it feels available,
-perhaps lifting..."
+**Vinyasa is different from yin.** Movement sequences need directness—"Inhale, reach" is cleaner than "If it feels available, perhaps lifting..."
 
-**The principle:** Use direct language for movement cueing. Use
-opening language for options and exploration. Avoid closing
-language always.
+**The principle:** Use direct language for movement cueing. Use opening language for options and exploration. Avoid closing language always.
 
 **Good vinyasa cueing:**
+
 ```
 "Inhale, arms up."                // direct movement cue
 "Option to bind here."            // opening language for variation
@@ -295,6 +307,7 @@ language always.
 ```
 
 **Problematic cueing:**
+
 ```
 "I want you to step your right foot forward."  // teacher-centered
 "Make sure your knee doesn't collapse."        // fear-based
@@ -302,6 +315,7 @@ language always.
 ```
 
 **Better versions:**
+
 ```
 "Step your right foot forward."
 "Notice the direction of your knee."
@@ -334,7 +348,7 @@ Ask: Does this pose flow naturally into the next, or am I asking for a reset?
 
 ### Pacing
 
-Ask: Can students maintain ujjayi? If not, slow down.
+Ask: Does the sequence leave room for ujjayi? Add a breath-quality check before increasing pace.
 
 ### Class Arc
 
@@ -345,3 +359,6 @@ Ask: Where is the peak? Is there time after it for integration?
 ## References
 
 - [Sun Salutations](./references/sun-salutations.md) — cueing patterns for continuous flow
+- [Preventive design](../cue/references/preventive-design.md) — how to handle predictable breakdowns without live observation
+- [Self-diagnostic branching](../cue/references/self-diagnostic-branching.md) — brief checks for breath, effort, and exits
+- [Action by effect](../cue/references/action-by-effect.md) — task, constraint, affordance, and effect cueing

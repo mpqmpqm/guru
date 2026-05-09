@@ -7,6 +7,31 @@ description: Complete practice architecture for 60-90 minute hatha yoga sessions
 
 Hatha is the architecture skill. It governs how a complete practice unfolds across 60-90 minutes—the macro-structure that makes individual poses serve a coherent intention.
 
+## Guru-Specific Constraint
+
+Guru cannot see alignment, effort, readiness, breath quality, or whether the practitioner has integrated a phase. Hatha sequencing must therefore create verification points inside the practice: component actions, reversible progressions, reduced-effort options, explicit exits, and pauses where the practitioner can check breath, steadiness, and sustainability.
+
+Use action by effect. Teach the action and its felt consequence rather than obedience to a visual shape.
+
+Example:
+
+> Press the floor away until the spine has somewhere to lengthen. If the breath narrows, reduce the reach.
+
+## Hatha Grammar by Phase
+
+Hatha grammar follows the arc of the practice.
+
+| Phase | Grammar | Example |
+| --- | --- | --- |
+| Arrival / awakening | Simple orienting cues | "Feel the floor. Let the breath be ordinary." |
+| Setup | Short stacked instructions | "Feet wide. Knees soft. Hands to blocks." |
+| Active hold | Component action + effect | "Press the feet apart until the pelvis has somewhere to settle." |
+| Peak work | Direct task + self-diagnostic exit | "Reach the sternum forward. If the breath narrows, reduce the reach." |
+| Neutralization | Slow concrete instructions | "Come to neutral. Let the spine stop answering the peak." |
+| Integration / closing | Sparse grounding | "Feel the back body. Let the next breath arrive." |
+
+Do not use hatha architecture to diagnose state. Use pauses for the practitioner to verify breath, reversibility, and effort.
+
 ## The Complete Arc
 
 A depth-oriented hatha practice moves through distinct phases. Each phase has purpose; skipping phases undermines the whole.
@@ -74,7 +99,7 @@ Preparation sequence:
 
 **Longer holds in preparation.** The body needs time to open. Quick preparation produces shallow peaks.
 
-**Teach the actions, not the shapes.** "External rotation from the hip socket" transfers across poses. "Put your shin parallel to the front of the mat" doesn't.
+**Teach the actions, not the shapes.** "Turn the thigh enough that the knee and toes agree" transfers across poses. "Put your shin parallel to the front of the mat" does not. Shape cues can establish a starting point; component actions teach the practice.
 
 ---
 
@@ -133,9 +158,9 @@ After peak work, the body needs structured return to baseline. This is not optio
 
 ## Attentional Arc
 
-Attention quality shifts across practice phases. The instruction should match where attention naturally lives.
+Attention demands shift across practice phases. Guru cannot know the practitioner's actual attention quality, so instruction should match what the phase asks of attention.
 
-**Arrival/Awakening:** External-to-internal transition. Attention is diffuse, distractible. Cues orient toward breath, body contact with floor, simple sensations. Quality: receptive, observant.
+**Arrival/Awakening:** External-to-internal transition. Cues orient toward breath, body contact with floor, simple sensations. Quality: receptive, observant.
 
 **Heat building:** Attention narrows to body and breath. Synchronization becomes possible. Cues support rhythm and coordination. Quality: focused, precise, effortful.
 
@@ -145,7 +170,7 @@ Attention quality shifts across practice phases. The instruction should match wh
 
 **Closing/Savasana:** Attention becomes very refined—or dissolves entirely. Minimal cues. Quality: absorptive, diffuse, awareness of awareness itself.
 
-**The principle:** Don't demand concentrated attention in the arrival phase. Don't offer diffuse, exploratory cues during peak work. Match instruction to attentional capacity.
+**The principle:** Do not demand concentrated attention in the arrival phase. Do not offer diffuse, exploratory cues during peak work. Match instruction to the attentional demand of the phase.
 
 ---
 
@@ -155,7 +180,7 @@ From Feldenkrais: principles that inform how practitioners approach the work.
 
 **Reversibility.** Any position should be abandonable at any moment without strain. If you can't exit smoothly, you went too far.
 
-**Process over achievement.** Quality of exploration supersedes achieving a position. The student at 60% range with full awareness is practicing. The student at 100% range with attention on achievement is not.
+**Process over achievement.** Quality of exploration supersedes achieving a position. The practitioner at 60% range with clear breath and reversibility is practicing. The practitioner at 100% range with attention captured by achievement is not.
 
 **Errors as information.** Mistakes generate data, not failure. "That didn't work" is useful. Shame about failing isn't.
 
@@ -169,6 +194,8 @@ These principles shape cueing:
 - "What's the minimum effort that maintains the shape?"
 - "If something feels wrong, that's information—explore it"
 - "Back off 10% and notice what becomes available"
+- "If the exit would be difficult, reduce the demand now"
+- "If the breath narrows, choose the quieter version"
 
 ---
 
@@ -207,5 +234,12 @@ Hatha is architecture. The skill governs:
 4. **Neutralization**: Structured return after peak work
 5. **Attention**: Matching instruction to attentional phase
 6. **Stance**: Exploratory, reversible, process-oriented
+7. **Humility**: Designing for states Guru cannot see
 
 Individual poses matter less than their placement in the arc. A well-sequenced practice with simple poses produces depth. A poorly-sequenced practice with advanced poses produces strain.
+
+## References
+
+- [Preventive design](../cue/references/preventive-design.md) — anticipating predictable breakdowns without live repair
+- [Self-diagnostic branching](../cue/references/self-diagnostic-branching.md) — checks for breath, reversibility, and effort
+- [Action by effect](../cue/references/action-by-effect.md) — task, constraint, affordance, and effect cueing

@@ -2,6 +2,8 @@
 
 Rhythm is the teaching. What you say matters less than when and how the silences between change.
 
+Guru cannot perceive the practitioner's actual breath or state. Time and rhythm are therefore design tools: they make room for likely breath, movement, and integration without pretending to observe them.
+
 ---
 
 ## Rhythm as Structure
@@ -159,7 +161,7 @@ Questions to ask before each cue:
 - Approaching stillness → decelerate
 - Maintaining flow → match previous rhythm
 
-**What is the body doing?**
+**What is the practice asking the body to do?**
 
 - Moving → voice moves with it
 - Holding → voice can thin
@@ -212,4 +214,4 @@ The arc is a wave, not a plateau. Energy rises to a peak in the core, then desce
 
 5. **Voice evolves.** Opening voice ≠ peak voice ≠ closing voice.
 
-6. **Rhythm matches the body.** Find the rhythm the listener is already in rather than imposing one.
+6. **Rhythm matches the practice-state.** Design the rhythm the listener can plausibly inhabit rather than imposing a speech pattern the body cannot enact.

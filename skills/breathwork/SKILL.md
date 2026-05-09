@@ -5,7 +5,19 @@ description: Procedural knowledge for guiding breath practices. Covers classical
 
 # Breathwork Instruction
 
-This skill provides craft knowledge. It does not prescribe voice, pacing, or presence—those emerge from the guide's disposition. What follows is substrate: what the body does, what the techniques are, what to watch for, what to avoid.
+This skill provides craft knowledge. It does not prescribe voice, pacing, or presence—those emerge from the guide's disposition. What follows is substrate: what the body does, what the techniques are, what to design for, what to avoid.
+
+## Guru-Specific Constraint
+
+Guru cannot see breath depth, facial strain, dizziness, panic, dissociation, relaxation, or nervous-system state. Breathwork guidance must therefore be precise, conservative, and conditional. Do not imply that Guru can perceive calm, release, integration, readiness, or destabilization.
+
+Use explicit reduction rules:
+
+> If the breath feels strained, reduce the count before continuing.
+
+> If you feel dizzy, numb, panicky, or far away, stop the pattern and return to normal breathing.
+
+Intensity is not proof of depth. Stable rhythm, reversibility, and clear exits matter more than dramatic sensation.
 
 ---
 
@@ -32,6 +44,8 @@ Low CO₂ tolerance: rapid shallow breathing, dizziness, anxiety, early breathle
 Baroreceptors in the carotid sinus and aortic arch sense blood pressure changes. At ~6 breaths/minute, baroreflex sensitivity increases significantly. Research shows systolic BP reduction of ~8 mmHg, diastolic ~5 mmHg, baroreflex sensitivity nearly doubled—effects not seen at 15 breaths/minute.
 
 ### Three Nervous System States (Polyvagal)
+
+These categories are educational context, not states Guru can diagnose in a session.
 
 **Ventral vagal:** Safety, connection. Slow smooth breathing, high HRV, relaxed face.
 
@@ -181,35 +195,41 @@ Shifting between expansion and contraction, safety and activation. Restores the 
 
 "Less is more, slower is better." Trauma is too much, too fast, too soon. Healing requires the opposite. Small bits of breath change at a time. Pause frequently. Never push past edge of tolerance.
 
-### Signs of Dysregulation
+### Dysregulation Self-Checks
 
-**Hyperarousal (sympathetic):** Shallow rapid chest breathing, racing heart, sweaty/cold hands, restlessness, darting eyes, muscle tension, clenched jaw.
+These are possible practitioner-known signals. Guru must not claim to observe them.
 
-**Hypoarousal (dorsal):** Very shallow near-absent breathing, blank expression, slumped posture, flat voice, dissociation, numbness.
+**Hyperarousal (sympathetic):** Shallow rapid chest breathing, racing heart, sweaty/cold hands, restlessness, muscle tension, clenched jaw.
 
-**Response:** Slow down. Ground (feet, chair, room). Orient (name 3 things seen, heard, felt). Resource (return to safe sensation). Co-regulate (calm presence). Normalize ("This is your nervous system responding").
+**Hypoarousal (dorsal):** Very shallow or absent-feeling breathing, blankness, heaviness, dissociation, numbness, feeling far away.
 
-### Signs of Integration
+**Self-directed response:** Stop the pattern. Return to normal breathing. Feel feet, chair, or floor. Orient by naming three things seen, heard, and felt. Open the eyes. Choose a simpler breath.
 
-Deeper slower rhythmic breathing. Spontaneous sighing or yawning. Muscle relaxation (jaw, shoulders). Natural trembling or shaking. Warmth spreading. Tears without overwhelm. Greater presence.
+Example language:
+
+> If you feel dizzy, numb, panicky, or far away, stop the pattern. Let normal breathing return and feel the floor under you.
+
+### Possible Integration Markers
+
+These can occur, but Guru must not announce them as observed or expected: deeper slower rhythmic breathing, spontaneous sighing or yawning, muscle softening, natural trembling or shaking, warmth, tears without overwhelm, greater presence.
 
 ---
 
 ## Somatic Markers
 
-These indicate a technique is "landing":
+These may indicate that a technique is landing. They are not outcomes to prescribe and not states Guru can claim to observe.
 
-**Warmth:** Vasodilation, parasympathetic activation. Body entering relaxation response.
+**Warmth:** Possible vasodilation or settling response.
 
-**Tingling:** Changes in blood flow, oxygen levels, pH. Body responding to practice.
+**Tingling:** Possible changes in blood flow, oxygen levels, or pH.
 
-**Spontaneous sighing:** Natural release, vagus nerve activation. Stress response completing.
+**Spontaneous sighing:** A common downshift or reset.
 
-**Tears (without obvious trigger):** Emotional release at somatic level. Processing.
+**Tears (without obvious trigger):** Emotion may be present; do not diagnose its meaning.
 
-**Stillness/deep quiet:** Parasympathetic dominance, possible entry to meditative consciousness.
+**Stillness/deep quiet:** Possible settling or meditative quiet.
 
-**Trembling/shaking:** Stored survival energy finding its way out.
+**Trembling/shaking:** Possible nervous-system discharge; return to ordinary breathing if it feels destabilizing.
 
 ---
 
@@ -254,11 +274,11 @@ Hyperventilation is a known seizure trigger. Only slow, gentle techniques under 
 
 The nervous system needs safe foundation before challenge, time to process after activation.
 
-**Grounding (5-15 min):** Body scan, breath awareness, orienting, diaphragmatic breathing, coherent breathing. Signs of readiness: visible relaxation, deeper slower breath, present demeanor.
+**Grounding (5-15 min):** Body scan, breath awareness, orienting, diaphragmatic breathing, coherent breathing. Do not use visible readiness. Use time, conservative progression, and a self-check: "If the breath feels steady and unforced, continue. If not, stay with the simpler rhythm."
 
 **Activation (15-45 min):** Connected breathing, faster fuller patterns, extended exhale techniques, retention, activating pranayama. Minimum 15 minutes for activation to build.
 
-**Integration (10-20 min minimum):** Slow deliberate breath reduction, return to natural breathing, rest in stillness, gentle humming. Wean breath 15-20 minutes before concluding. Return to normal 10 minutes before end. 5-7 minute rest in stillness. Check everyone is "back."
+**Integration (10-20 min minimum):** Slow deliberate breath reduction, return to natural breathing, rest in stillness, gentle humming. Wean breath 15-20 minutes before concluding. Return to normal 10 minutes before end. Include 5-7 minutes of rest and a concrete reorientation sequence; do not diagnose whether everyone is "back."
 
 ---
 
@@ -274,9 +294,9 @@ The nervous system needs safe foundation before challenge, time to process after
 
 **Month 3-6+:** Work toward 1:4:2 if appropriate, with guidance.
 
-**Signs of readiness:** Current ratio feels effortless. No gasping at exhale end. No facial strain. Breath remains smooth. Can maintain for full practice.
+**Readiness self-checks:** Current ratio feels effortless. No gasping at exhale end. No facial strain. Breath remains smooth. Can maintain for full practice.
 
-**Signs to reduce:** Gasping, anxiety, tension building, shortening breaths unconsciously, dizziness, unable to maintain rhythm.
+**Self-checks to reduce:** Gasping, anxiety, tension building, shortening breaths unconsciously, dizziness, inability to maintain rhythm.
 
 The nervous system loves consistency. 3 minutes daily beats 20 minutes occasionally. Effects typically noticeable after 2+ weeks of consistent practice.
 
@@ -284,43 +304,52 @@ The nervous system loves consistency. 3 minutes daily beats 20 minutes occasiona
 
 ## Cueing Principles
 
-**Invitational over directive:** "You might notice..." rather
-than "Breathe into..."
+**Invitational over directive:** "You might notice..." rather than "Breathe into..."
 
-**Present participle:** "Inhaling now..." creates movement as
-community rather than command.
+**Present participle:** "Inhaling now..." creates movement as community rather than command.
 
-**Never prescribe experience:** "Notice what sensations are
-present" rather than "You should feel calm."
+**Never prescribe experience:** "Notice what sensations are present" rather than "You should feel calm."
+
+### Breathwork Grammar
+
+Breathwork grammar is precise about rhythm and conditional about state.
+
+Use direct rhythm language:
+
+- "Inhale for four."
+- "Exhale for six."
+- "Return to normal breathing."
+- "Pause after the exhale."
+
+Use conditionals for strain and destabilization:
+
+- "If the breath feels strained, reduce the count."
+- "If the hold leaves you gasping, shorten the next hold by half."
+- "If you feel dizzy, numb, panicky, or far away, stop the pattern."
+
+Do not valorize intensity. Do not announce calm, regulation, release, or integration as if Guru can verify it.
 
 **Common beginner errors:**
 
 - Over-breathing to maximum capacity (cue ~75% capacity)
-- Chest breathing without diaphragm (begin supine with hand on
-  belly)
-- Holding tension (periodically release shoulders, jaw, face)
+- Chest breathing without diaphragm (begin supine with hand on belly)
+- Holding tension (periodically invite a shoulder, jaw, and face check)
 - Rushing (quality over quantity)
 
 ---
 
 ## Voice as Co-Regulatory Tool
 
-Your voice directly influences the practitioner's nervous system
-state—before conscious processing. Vocal prosody (pitch, pace,
-rhythm, tone) signals safety or danger to the neuroception
-system. You co-regulate the student's physiology through how
-you speak, not just what you say.
+The `voice` parameter shapes the conditions of breathwork before the content is fully processed. Vocal prosody (pitch, pace, rhythm, tone) can support steadiness or urgency. It does not let Guru know the practitioner's physiology.
 
 ### The Mechanism
 
-Prosodic voice (warm, melodic intonations) signals safety. Middle
-ear muscles relax, facial muscles follow, breath deepens, heart
-calms, sympathetic defense system down-regulates. This is
-polyvagal co-regulation through voice.
+Prosodic voice (warm, steady, predictable) can support a settling environment. Do not promise a specific physiological outcome.
 
 ### Phase-Matched Voice Notes
 
 **Grounding:**
+
 ```
 voice: "Voice Affect: Soft, gentle, soothing; embody tranquility.
         Tone: Calm, reassuring; convey genuine warmth.
@@ -329,6 +358,7 @@ voice: "Voice Affect: Soft, gentle, soothing; embody tranquility.
 ```
 
 **Activation:**
+
 ```
 voice: "Voice Affect: Steady, present; the voice provides container
         while breath provides intensity.
@@ -337,6 +367,7 @@ voice: "Voice Affect: Steady, present; the voice provides container
 ```
 
 **Integration:**
+
 ```
 voice: "Voice Affect: Softening, descending with the breath.
         Tone: Warm, releasing; less necessary now.
@@ -345,6 +376,7 @@ voice: "Voice Affect: Softening, descending with the breath.
 ```
 
 **Stillness:**
+
 ```
 voice: "Voice Affect: Intimate, almost-whispered; barely there.
         Tone: Peaceful, withdrawing; preparing to leave.
@@ -352,70 +384,52 @@ voice: "Voice Affect: Intimate, almost-whispered; barely there.
         instruction."
 ```
 
-**Grounding voice** is the slowest and softest of the session.
-This sets the safety baseline that allows activation to unfold.
+**Grounding voice** is the slowest and softest of the session. This sets a stable baseline before activation.
 
-**Activation voice** remains stable and unhurried even when
-guiding faster breath patterns. The voice provides steady
-container; the breath provides the intensity.
+**Activation voice** remains stable and unhurried even when guiding faster breath patterns. The voice provides steady container; the breath provides the intensity.
 
-**Integration voice** models the return—your voice slows as
-you invite breath to slow.
+**Integration voice** models the return—your voice slows as you invite breath to slow.
 
 ### Breath-Speech Coordination
 
-**Cue during exhale.** The exhale is the parasympathetic moment.
-Speaking during exhale reinforces downregulation.
+**Cue during exhale.** The exhale is the parasympathetic moment. Speaking during exhale reinforces downregulation.
 
-**Silence during inhale.** Let the breath fill without competing
-with voice.
+**Silence during inhale.** Let the breath fill without competing with voice.
 
-**Model the rhythm.** Your speaking rhythm should approximate
-the breath rhythm you're inviting. If you're cueing a 5-second
-exhale, stretch your phrase across 4-5 seconds.
+**Model the rhythm.** Your speaking rhythm should approximate the breath rhythm you're inviting. If you're cueing a 5-second exhale, stretch your phrase across 4-5 seconds.
 
 ### Voice During Retention
 
-Retention (kumbhaka) is a silent moment. The voice before
-retention should land and complete. The voice after retention
-should re-enter softly—not jarring the system that has been
-held in stillness.
+Retention (kumbhaka) is a silent moment. The voice before retention should land and complete. The voice after retention should re-enter softly—not jarring the system that has been held in stillness.
 
-Before: *"After your next inhale, hold the breath gently..."*
+Before: _"After your next inhale, hold the breath gently..."_
 
-After: *"When you're ready... allowing the exhale to release..."*
+After: _"When you're ready... allowing the exhale to release..."_
 
 ### Sensation Cueing in Breathwork
 
 Guide attention inward rather than prescribing experience:
 
-**Instead of:** "Breathe into your belly"
-**Use:** "Notice where breath moves in your body"
+**Instead of:** "Breathe into your belly" **Use:** "Notice where breath moves in your body"
 
-**Instead of:** "You should feel calm now"
-**Use:** "What's the quality of sensation present?"
+**Instead of:** "You should feel calm now" **Use:** "What's the quality of sensation present?"
 
-**Instead of:** "Relax your shoulders"
-**Use:** "Notice if there's anywhere you can let go of effort"
+**Instead of:** "Relax your shoulders" **Use:** "Notice if there's anywhere you can let go of effort"
 
-Questions develop interoceptive capacity. Commands create
-dependence on external instruction.
+Questions develop interoceptive capacity. Commands create dependence on external instruction.
 
-### Creating Safety for Intensity
+### Creating Stability for Intensity
 
-Intense breathwork requires trust. Voice builds trust through:
+Intense breathwork requires stability. Voice supports stability through:
 
 - **Consistency**: Predictable rhythm, no sudden volume shifts
 - **Warmth**: Chest resonance, not thin or nasal quality
 - **Unhurried quality**: Even when pace is fast, voice is steady
 - **Clear re-entry**: After silence, return is announced and soft
 
-**Fragility-inducing language** (avoid): "Be careful," "Don't
-push too hard," "Protect yourself from..."
+**Fragility-inducing language** (avoid): "Be careful," "Don't push too hard," "Protect yourself from..."
 
-**Resilience-building language** (use): "Notice what's available,"
-"Trust what your body is telling you," "Your system knows how to
-regulate"
+**Resilience-building language** (use): "Notice what's available," "Let the smaller breath be complete," "If strain appears, reduce the count."
 
 ---
 
@@ -437,9 +451,9 @@ First stage: Perspiration. Middle stage: Trembling. Final stage: Steadiness—br
 
 Trembling, shaking, undulating spine, spontaneous mudras, vocalizations. Traditional view: prana moving through blocked channels, release of samskaras. Physiological view: nervous system reorganization, discharge along motor neurons.
 
-**Response:** Normalize ("entirely harmless, outward expression of inner energy"). Maintain physical safety. Allow but don't encourage. Practitioners should generally be able to control them.
+**Response if experienced:** Do not dramatize. Return to physical safety and ordinary breathing. Allow but do not encourage. Practitioners should generally be able to control them.
 
-**Concern if:** Cannot control movements. Symptoms persist long after practice. Psychological disturbance. Signs of dissociation.
+**Concern if experienced:** Cannot control movements. Symptoms persist long after practice. Psychological disturbance. Signs of dissociation.
 
 ---
 
@@ -472,3 +486,9 @@ Nasal dominance cycles ~90 minutes. Nadi shodhana balances ida and pingala, crea
 Science describes mechanism. Tradition describes meaning. Both illuminate. Neither exhausts.
 
 The breath is the teacher. This skill provides what can be known. What cannot be known arrives in the silence between.
+
+## References
+
+- [Preventive design](../cue/references/preventive-design.md) — strain and destabilization risks without live observation
+- [Self-diagnostic branching](../cue/references/self-diagnostic-branching.md) — reduction rules and exits
+- [Cue transformations](../cue/references/cue-transformations.md) — bad / better / why examples for overclaiming
