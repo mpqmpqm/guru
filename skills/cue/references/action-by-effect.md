@@ -1,8 +1,11 @@
 # Action by Effect
 
-"Sensation over shape" was a useful corrective, but it is too blunt. Guru cues action by effect: tasks, constraints, affordances, endpoints, and felt consequences.
+"Sensation over shape" was a useful corrective, but it is too blunt.
+Guru cues action by effect: tasks, constraints, affordances,
+endpoints, and felt consequences.
 
-The best voice-only cue helps the practitioner organize action without needing Guru to see the body.
+The best voice-only cue helps the practitioner organize action
+without needing Guru to see the body.
 
 ## Cue Typology
 
@@ -20,109 +23,49 @@ The best voice-only cue helps the practitioner organize action without needing G
 
 ## Shape Cues Are Not Forbidden
 
-Shape cues are allowed when they are the simplest way to establish a safe shared starting point. Shape cues fail when they make the practitioner obey an imagined visual ideal.
+Shape cues are allowed when they are the simplest way to establish a
+safe shared starting point. They fail when they ask the practitioner
+to obey an imagined visual ideal.
 
-The best voice-only cue often begins with a simple shape and then gives an action or effect:
+Invariant:
 
-```
-Step the right foot forward. Press both feet down until the pelvis
-has somewhere to settle.
-```
+> Start with the simplest shared shape when needed, then give an
+> action or effect that organizes the body.
 
-```
-Turn toward the long edge of the mat. Drag the feet apart without
-moving them.
-```
+## External Focus Is Not Externalized Practice
 
-Direct shape cue:
+External-focus language can be excellent. Floor, mat, wall, gravity,
+room, edge, pressure, contact, and direction give the body a task
+without requiring Guru to see the body.
 
-```
-Lower the left knee.
-```
+Invariant:
 
-Action by effect:
-
-```
-Lower the left knee and let the breath widen before you add more.
-```
-
-## External Focus Is Not the Same as Externalized Practice
-
-External-focus language can be excellent. It gives the body a task without requiring Guru to see the body.
-
-Useful external anchors:
-
-- floor,
-- mat,
-- wall,
-- gravity,
-- room,
-- edge,
-- pressure,
-- contact,
-- direction.
-
-Examples:
-
-```
-Press the floor away.
-```
-
-```
-Let the back heel keep arguing with the mat.
-```
-
-```
-Send the crown of the head toward the wall in front of you.
-```
-
-```
-Let gravity have the thigh, not the face.
-```
+> Use the environment when it clarifies action better than internal
+> micromanagement.
 
 ## Sensation Is Feedback
 
-Sensation cues are useful when they help the practitioner verify the effect. They are not automatically better than action cues.
+Sensation cues are useful when they help the practitioner verify an
+effect. They are not automatically better than task, endpoint,
+constraint, or affordance cues.
 
-Less useful:
+Invariant:
 
-> Feel your body.
-
-Better:
-
-> Press the floor away and notice whether the inhale gets wider.
-
-Less useful:
-
-> What is the deepest truth of your hip?
-
-Better:
-
-> Notice whether the sensation is broad, sharp, or going numb.
+> Ask for sensation when it changes the next action.
 
 ## Anatomy Is Useful When It Changes Action
 
-Use anatomy when it makes the action clearer:
+Use anatomy when it makes the action clearer. Avoid anatomy as
+decoration, credentialing, or compliance language.
 
-```
-Bend the front knee until it stacks over the ankle.
-```
+Invariant:
 
-```
-Rotate the upper arm bones outward before you press the floor away.
-```
+> Anatomical language earns its place only when it improves the task.
 
-Avoid anatomy as decoration:
+## Specimens
 
-> Externally rotate the femur, abduct the humerus, and maintain scapular depression.
-
-Better:
-
-> Turn the thigh enough that the knee and toes agree.
-
-## Bad / Better
-
-### Visual Ideal
+The cue-type table is the doctrine. These examples are minimal tests
+of the categories, not runtime copy.
 
 Bad:
 
@@ -132,7 +75,14 @@ Better:
 
 > Press through both feet until the spine has somewhere to lengthen.
 
-### Vague Sensation
+Bad:
+
+> If it feels available, maybe begin to step forward.
+
+Better:
+
+> Step the right foot forward. If the transition is too tight, lower
+> the back knee first.
 
 Bad:
 
@@ -140,74 +90,5 @@ Bad:
 
 Better:
 
-> Notice whether the breath gets wider or narrower when you lower the hand.
-
-### Shape Without Effect
-
-Bad:
-
-> Square your hips.
-
-Better:
-
-> Let the back heel keep arguing with the mat while the front knee bends.
-
-### Decorative Image
-
-Bad:
-
-> Bloom into your highest expression.
-
-Better:
-
-> Let the collarbones spread like a door opening from the center.
-
-### Anatomy Dump
-
-Bad:
-
-> Maintain scapular depression and external rotation.
-
-Better:
-
-> Let the shoulder blades have weight before you reach again.
-
-### Over-Internal Micromanagement
-
-Bad:
-
-> Track every subtle sensation in the shoulder joint.
-
-Better:
-
-> Press the floor away until the shoulder has room.
-
-### Achievement Shape
-
-Bad:
-
-> Take the deepest version you can.
-
-Better:
-
-> Choose the version that lets the breath stay private.
-
-### Missing Exit
-
-Bad:
-
-> Hold for one more minute.
-
-Better:
-
-> Stay only while the exit remains simple. Come out before the breath starts negotiating.
-
-### Timid Task
-
-Bad:
-
-> If it feels available, maybe begin to step forward.
-
-Better:
-
-> Step the right foot forward. If the transition is too tight, lower the back knee first.
+> Notice whether the breath gets wider or narrower when you lower the
+> hand.

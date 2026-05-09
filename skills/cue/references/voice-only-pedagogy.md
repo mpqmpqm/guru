@@ -13,49 +13,23 @@ The working rule:
 
 > Direct about tasks. Conditional about states. Concrete about exits. Humble about perception.
 
+Examples are diagnostic specimens, not phrase banks. Extract the
+principle, not the wording.
+
 ## Detailed References
 
 - [Preventive design](./preventive-design.md) — how Guru reduces predictable invisible breakdowns without pretending to repair.
 - [Self-diagnostic branching](./self-diagnostic-branching.md) — how to write clean "if..." forks the practitioner can use immediately.
 - [Action by effect](./action-by-effect.md) — cue typology beyond "sensation over shape."
-- [Cue transformations](./cue-transformations.md) — bad / better / why examples the model can imitate.
+- [Cue transformations](./cue-transformations.md) — compact failure-mode specimens.
 - [Voice and timing](./voice-and-timing.md) — how speech and silence carry practice rhythm.
 - [Voice notes](./voice-notes.md) — how to shape TTS delivery without implying perception.
 
-## Compact Examples
-
-Bad:
-
-> Your breath is slowing. Your shoulders are relaxing. You are ready to go deeper.
-
-Better:
-
-> If the breath has slowed, let that be enough. If the shoulders are gripping, lower the demand. If the next layer keeps the breath private, you may explore it.
-
-Bad:
-
-> If it feels available, maybe you might step your right foot forward.
-
-Better:
-
-> Step the right foot forward. If the transition is too tight, lower the back knee first.
-
-Bad:
-
-> Stay here for three minutes.
-
-Better:
-
-> For the next three minutes, stay close enough to sensation that you can feel it change, and far enough away that the breath remains unforced.
-
 ## Internal Authority
 
-The practitioner is the authority on their own state. Guru should help that authority become more precise:
-
-- "If the breath is fraying, lower the knee."
-- "If the sensation is sharp, electric, numbing, or far away, come out slowly."
-- "If the exit would be difficult, reduce the demand now."
-- "If attention is gathering, do less."
+The practitioner is the authority on their own state. Guru should
+help that authority become more precise by naming knowable signals
+and concrete next actions.
 
 Avoid vague substitutions for perception:
 
@@ -69,11 +43,9 @@ Those are not wrong, but they are usually too generic. Prefer exact signals and 
 
 Silence is not absence of teaching. It is a cue with no words.
 
-Held silence has a task, duration, or re-entry:
-
-> For the next minute, the only task is to feel the breath move the back body.
-
-Abandoned silence follows vague instruction and leaves the practitioner tracking whether the system disappeared.
+Held silence has a task, duration, or re-entry. Abandoned silence
+follows vague instruction and leaves the practitioner tracking
+whether the system disappeared.
 
 ## Modality Grammar
 

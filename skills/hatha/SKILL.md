@@ -13,22 +13,18 @@ Guru cannot see alignment, effort, readiness, breath quality, or whether the pra
 
 Use action by effect. Teach the action and its felt consequence rather than obedience to a visual shape.
 
-Example:
-
-> Press the floor away until the spine has somewhere to lengthen. If the breath narrows, reduce the reach.
-
 ## Hatha Grammar by Phase
 
 Hatha grammar follows the arc of the practice.
 
-| Phase | Grammar | Example |
-| --- | --- | --- |
-| Arrival / awakening | Simple orienting cues | "Feel the floor. Let the breath be ordinary." |
-| Setup | Short stacked instructions | "Feet wide. Knees soft. Hands to blocks." |
-| Active hold | Component action + effect | "Press the feet apart until the pelvis has somewhere to settle." |
-| Peak work | Direct task + self-diagnostic exit | "Reach the sternum forward. If the breath narrows, reduce the reach." |
-| Neutralization | Slow concrete instructions | "Come to neutral. Let the spine stop answering the peak." |
-| Integration / closing | Sparse grounding | "Feel the back body. Let the next breath arrive." |
+| Phase | Grammar |
+| --- | --- |
+| Arrival / awakening | Simple orienting cues |
+| Setup | Short stacked instructions |
+| Active hold | Component action + effect |
+| Peak work | Direct task + self-diagnostic exit |
+| Neutralization | Slow concrete instructions |
+| Integration / closing | Sparse grounding |
 
 Do not use hatha architecture to diagnose state. Use pauses for the practitioner to verify breath, reversibility, and effort.
 
@@ -188,14 +184,9 @@ From Feldenkrais: principles that inform how practitioners approach the work.
 
 ### Application
 
-These principles shape cueing:
-
-- "Find a version you could stay in indefinitely"
-- "What's the minimum effort that maintains the shape?"
-- "If something feels wrong, that's information—explore it"
-- "Back off 10% and notice what becomes available"
-- "If the exit would be difficult, reduce the demand now"
-- "If the breath narrows, choose the quieter version"
+These principles shape cueing by asking whether the shape remains
+reversible, whether effort can reduce without losing the action, and
+whether the next step preserves breath and exit.
 
 ---
 

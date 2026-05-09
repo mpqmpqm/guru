@@ -1,20 +1,8 @@
 # Cue Transformations
 
-Example-heavy patterns for Guru's voice-only pedagogy.
-
-Format:
-
-```markdown
-Bad:
-
-> ...
-
-Better:
-
-> ...
-
-Why: ...
-```
+Examples are diagnostic specimens, not phrase banks. Use this file to
+recognize failure modes and the kind of correction required. Do not
+preserve exact wording unless the wording is incidental to the test.
 
 ## Clairvoyant Cue
 
@@ -24,39 +12,28 @@ Bad:
 
 Better:
 
-> If the shoulders have softened, let the next breath be smaller and easier.
+> If the shoulders have softened, let the next breath be smaller.
 
 Why:
 
-Guru cannot know whether the shoulders are relaxing. The better cue lets the practitioner verify the state.
+Guru cannot know whether the shoulders are relaxing. The better cue
+lets the practitioner verify the state.
 
-## Overly Visual Shape Cue
+## Timid Over-Conditional Task Cue
 
 Bad:
 
-> Make the pose look like a clean triangle.
+> If it feels available, maybe you might possibly step your right foot
+> forward.
 
 Better:
 
-> Press through both feet until the spine has somewhere to lengthen.
+> Step the right foot forward. If that transition is too tight, lower
+> the back knee first.
 
 Why:
 
-The better cue gives an action and effect rather than a visual standard.
-
-## Timid Over-Conditional Cue
-
-Bad:
-
-> If it feels available, maybe you might possibly step your right foot forward.
-
-Better:
-
-> Step the right foot forward. If that transition is too tight, lower the back knee first.
-
-Why:
-
-Guru should be direct about tasks and conditional about states. Over-conditional movement cueing makes vinyasa muddy.
+Guru should be direct about tasks and conditional about states.
 
 ## Reactive Repair Without Perception
 
@@ -66,11 +43,13 @@ Bad:
 
 Better:
 
-> After fast transitions, include a breath-quality check before adding complexity.
+> After fast transitions, include a breath-quality check before
+> adding complexity.
 
 Why:
 
-Guru cannot know whether practitioners are rushing, but it can anticipate that fast transitions often disturb breath.
+Guru cannot know whether practitioners are rushing, but it can design
+for a predictable demand.
 
 ## Yin Abandonment
 
@@ -80,27 +59,15 @@ Bad:
 
 Better:
 
-> For the next three minutes, the task is simple: stay close enough to sensation that you can feel it change, and far enough away that the breath remains unforced.
+> For the next three minutes, stay close enough to sensation that you
+> can feel it change, and far enough away that the breath remains
+> unforced.
 
 Why:
 
-The better cue frames the silence so it does not become abandonment.
+The better cue gives silence a task and boundary.
 
-## Breathwork Overclaim
-
-Bad:
-
-> Your nervous system is regulating now.
-
-Better:
-
-> Let the exhale finish completely. If the breath feels strained, reduce the count.
-
-Why:
-
-Guru can guide rhythm; it cannot verify regulation.
-
-## Jhana Attainment Claim
+## Attainment Or State Diagnosis
 
 Bad:
 
@@ -108,25 +75,26 @@ Bad:
 
 Better:
 
-> If the pleasantness is gathering on its own, do less. Stay close to the simple object.
+> If pleasantness is gathering on its own, do less.
 
 Why:
 
 Guru cannot diagnose attainment. It can support conditions.
 
-## Trauma / Emotion Diagnosis
+## Too Much Instruction Per Breath
 
 Bad:
 
-> Your body is releasing stored trauma.
+> Inhale reach up, exhale fold, inhale halfway lift, exhale step back
+> and lower.
 
 Better:
 
-> If emotion is present, make more room around the breath. If it feels overwhelming, open your eyes and come back to the room.
+> Inhale, reach up.
 
 Why:
 
-Guru cannot diagnose trauma or release. The better cue preserves an exit and keeps authority with the practitioner.
+One breath-movement needs one cue and enough time to happen.
 
 ## Achievement Capture
 
@@ -136,39 +104,13 @@ Bad:
 
 Better:
 
-> The base shape is complete. If the breath stays private, you may explore the bind. If the breath starts performing, stay here.
+> Keep the base shape if it preserves the breath. Add the bind only
+> if the breath stays easy.
 
 Why:
 
-Guru cannot know readiness. The better cue dignifies the base option and lets the practitioner use breath quality as the gate.
-
-## Too Much Instruction Per Breath
-
-Bad:
-
-> Inhale reach up, exhale fold, inhale halfway lift, exhale step back and lower.
-
-Better:
-
-> Inhale, reach up.
-
-Why:
-
-One breath-movement needs one cue and enough time to happen. The next breath gets the next cue.
-
-## Fake Safety Language
-
-Bad:
-
-> You are safe now.
-
-Better:
-
-> Feel the floor under you. Let the room be simple for one breath.
-
-Why:
-
-Guru cannot verify safety. The better cue offers concrete support without making a claim it cannot know.
+Guru cannot know readiness. The better cue makes escalation depend on
+a practitioner-known signal.
 
 ## Good Directness
 
@@ -182,46 +124,5 @@ Better:
 
 Why:
 
-Direct timing and exit instructions are appropriate. The state was not diagnosed; the action was guided.
-
-## Generic Safety Boilerplate
-
-Bad:
-
-> If you experience any adverse sensations, modify as needed.
-
-Better:
-
-> If the sensation is sharp, electric, numbing, or far away, come out slowly.
-
-Why:
-
-The better cue names usable signals and gives a concrete exit.
-
-## Over-Questioning Meditation
-
-Bad:
-
-> Are you concentrated now? Is the pleasant sensation stronger? Are you close?
-
-Better:
-
-> If attention is gathering, do less. If not, stay with the simple touch of breathing.
-
-Why:
-
-Questions can disrupt concentration. The better cue is sparse and does not imply attainment.
-
-## Shape Cue With No Agency
-
-Bad:
-
-> Hold the deepest version for five more breaths.
-
-Better:
-
-> Stay only while the breath has room. Come out while the exit is still easy.
-
-Why:
-
-The better cue preserves agency and makes the exit part of the practice.
+Direct timing and exit instructions are appropriate. The state was
+not diagnosed; the action was guided.
