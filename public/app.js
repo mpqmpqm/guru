@@ -73,7 +73,7 @@ let reconnectInProgress = false;
 
 function getSelectedModel() {
   const select = document.getElementById("model-selector");
-  return select ? select.value : "gpt-5-mini";
+  return select ? select.value : "gpt-5.5";
 }
 
 function getSelectedVoice() {
@@ -753,15 +753,16 @@ async function init() {
             document.getElementById("model-selector");
           if (modelSelector && session.model) {
             const modelMap = {
+              "gpt-5.5": "gpt-5.5",
               "gpt-5.4": "gpt-5.4",
               "gpt-5-mini": "gpt-5-mini",
               "gpt-5-nano": "gpt-5-nano",
-              "claude-opus-4-5": "gpt-5.4",
+              "claude-opus-4-5": "gpt-5.5",
               "claude-sonnet-4-5": "gpt-5-mini",
               "claude-haiku-4-5": "gpt-5-nano",
             };
             const selectValue =
-              modelMap[session.model] || "gpt-5-mini";
+              modelMap[session.model] || "gpt-5.5";
             modelSelector.value = selectValue;
           }
         }

@@ -3,7 +3,7 @@ import { streamResponsesChat } from "../services/responses-agent.js";
 import { sessionManager } from "../services/session-manager.js";
 import { dbOps } from "../services/db.js";
 import { logChatError } from "../utils/log.js";
-import { MODEL_CONFIG } from "./session.js";
+import { DEFAULT_MODEL, MODEL_CONFIG } from "./session.js";
 
 export const chatRouter = Router();
 
@@ -67,7 +67,7 @@ chatRouter.post("/:sessionId", async (req, res) => {
   }
 
   // Update session from request
-  const config = MODEL_CONFIG[model] ?? MODEL_CONFIG["gpt-5-mini"];
+  const config = MODEL_CONFIG[model] ?? MODEL_CONFIG[DEFAULT_MODEL];
   sessionManager.setModel(sessionId, config.modelId);
   sessionManager.setStackSize(sessionId, config.stackSize);
   if (timezone) {

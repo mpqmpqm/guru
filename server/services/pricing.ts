@@ -2,10 +2,10 @@
  * Model pricing configuration and cost calculation.
  * Prices are in USD per million tokens unless noted otherwise.
  *
- * OpenAI rates were rechecked against official model docs in March 2026.
+ * OpenAI rates were rechecked against official model docs in May 2026.
  */
 
-const DEFAULT_PRICING_MODEL = "gpt-5-mini";
+const DEFAULT_PRICING_MODEL = "gpt-5.5";
 
 export interface Usage {
   cached_input_tokens?: number | null;
@@ -25,10 +25,15 @@ interface ModelPricing {
 }
 
 export const MODEL_PRICING: Record<string, ModelPricing> = {
+  "gpt-5.5": {
+    input: 5.0,
+    cachedInput: 0.5,
+    output: 30.0,
+  },
   "gpt-5.4": {
     input: 2.5,
     cachedInput: 0.25,
-    output: 10.0,
+    output: 15.0,
   },
   "gpt-5-mini": {
     input: 0.25,
