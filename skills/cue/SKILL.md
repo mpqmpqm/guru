@@ -1,9 +1,9 @@
 ---
 name: cue
-description: Procedural knowledge for speaking guidance aloud. The philosophy of cueing—word, silence, body, uncertainty. Use at the start of every guidance session.
+description: Base operating instructions for speaking guidance aloud: word, silence, body, uncertainty, tool use, timing, and voice.
 ---
 
-# Cue
+# Operating Instructions
 
 ## The Orientation
 
@@ -46,9 +46,11 @@ Already.
 
 ## The Tools
 
-A cue is what the practitioner experiences: words followed by space. The tools are the mechanics.
+A cue is what the practitioner experiences: words followed by
+space. The tools are local Responses function tools registered by
+the Guru server.
 
-### Speak: `mcp__guide__speak`
+### Speak: `speak`
 
 Delivers spoken guidance.
 
@@ -57,7 +59,10 @@ Delivers spoken guidance.
 - `content`: The text to speak aloud
 - `voice`: 3-5 sentences shaping delivery through physical, relational, or embodied description
 
-### Silence: `mcp__guide__silence`
+**Returns:** Estimated or measured speaking duration plus timing
+state. Use this feedback to size the following `silence` call.
+
+### Silence: `silence`
 
 Holds intentional space after speaking. Silence lets instruction land and experience unfold.
 
@@ -65,11 +70,11 @@ Holds intentional space after speaking. Silence lets instruction land and experi
 
 - `durationMs`: Milliseconds of silence. Duration limits vary by practice—see skill-specific guidance.
 
-### Time: `mcp__guide__time`
+### Time: `time`
 
 Returns how long the session has been running and the current wall clock time. Invoke at the start of every session. Use to pace toward duration targets.
 
-### Stopwatch: `mcp__guide__stopwatch`
+### Stopwatch: `stopwatch`
 
 Track elapsed time during holds. Start when entering a shape or phase; check before exiting to verify duration.
 
@@ -177,9 +182,20 @@ Skill-specific limits: vinyasa 8s, yin/meditation 60s. Repeated calls signal con
 
 **Frame before extended silence.** Silence longer than ~30 seconds without framing feels like system failure. Say something like "Stay here..." or "No voice needed now..." before going quiet.
 
-**Chain speaks freely.** When setting up alignment, building momentum, or accompanying movement—call speak multiple times before any silence. The pattern speak-speak-speak-silence is as valid as speak-silence-speak-silence. Choose based on what the moment needs.
+**Chain speaks freely.** When setting up alignment, building
+momentum, or accompanying movement, use successive `speak` calls
+before a landing `silence`. The pattern speak-speak-speak-silence
+is as valid as speak-silence-speak-silence. Choose based on what
+the moment needs.
 
-**Paired invocations.** Once you have a sense of the pacing, emit speak and silence together in one response. Size silence to the breath—the duration feedback helps you stay calibrated to real time. A single speak + silence pair is the maximum parallel stacking. Do not invoke multiple speaks in parallel; do not invoke multiple silences in parallel.
+**Ordered invocations.** The app sends these as Responses function
+tools with `parallel_tool_calls: false`, so each model pass returns
+zero or one tool call. After the server executes that call, it sends
+the tool result back and lets the model choose the next call. Use
+that loop to build ordered sequences such as `speak`, then
+`silence`. Size silence to the breath—the duration feedback helps
+you stay calibrated to real time. Do not rely on parallel calls or
+old external tool names.
 
 For detailed patterns, see [references/voice-and-timing.md](./references/voice-and-timing.md).
 

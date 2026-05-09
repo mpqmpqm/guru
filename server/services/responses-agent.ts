@@ -14,6 +14,7 @@ import { dbOps } from "./db.js";
 import { calculateCost } from "./pricing.js";
 import {
   getSkillsCatalog,
+  loadReference,
   loadSkill,
 } from "./skills.js";
 import { sessionManager } from "./session-manager.js";
@@ -46,11 +47,35 @@ interface ChatEvent {
   skill?: string;
 }
 
+function renderReferenceBundle(
+  skillId: string,
+  references: { id: string }[]
+): string {
+  if (references.length === 0) {
+    return "";
+  }
+
+  return references
+    .map((reference) => {
+      const loadedReference = loadReference(skillId, reference.id);
+      return [
+        `## ${loadedReference.title}`,
+        `Reference ID: ${loadedReference.reference_id}`,
+        loadedReference.content,
+      ].join("\n\n");
+    })
+    .join("\n\n---\n\n");
+}
+
 function buildInstructions(
   sessionId: string
 ): string {
   const catalog = getSkillsCatalog();
-  const cueSkill = loadSkill("cue").instructions;
+  const cueSkill = loadSkill("cue");
+  const cueReferences = renderReferenceBundle(
+    cueSkill.skill_id,
+    cueSkill.references
+  );
   const timezone = sessionManager.getTimezone(sessionId);
   const voice = sessionManager.getVoice(sessionId);
 
@@ -62,14 +87,15 @@ function buildInstructions(
     `Selected TTS voice: ${voice}.`,
     "Use speak() and silence() to move the practice forward. Every completed turn must include at least one speak() call.",
     "Use time() at the start of a session and whenever pacing becomes uncertain. Use stopwatch() for holds or any duration that needs explicit verification.",
-    "Cue is foundational and already loaded below. Optional skills must be loaded with load_skill() before relying on their detailed workflow. Only load references when the skill instructions indicate they are needed.",
-    "Keep references out of context unless they materially improve the current turn. Prefer one skill or reference at a time over broad loading.",
+    "The base operating instructions are fully loaded below, including their supporting guidance. Optional skills must be loaded with load_skill() before relying on their detailed workflow. Load optional references only when the skill instructions indicate they are needed.",
+    "Keep optional references out of context unless they materially improve the current turn. Prefer one optional skill or reference at a time over broad loading.",
     "Tool sequencing examples:",
     '- If the listener asks to begin a practice, first orient yourself with time() if useful, then call speak() with the opening cue, then call silence() when space is needed.',
     "- If you need a skill-specific pattern, call load_skill() before applying it. If that skill points to a reference, call load_reference() only for the exact document you need.",
     "- Break long guidance into multiple speak() calls separated by silence() rather than one oversized monologue.",
     "- Before a long silence, use speak() to frame what the listener should do in that space.",
-    "Foundational cue skill:\n\n" + cueSkill,
+    "Base operating instructions:\n\n" + cueSkill.instructions,
+    "Supporting guidance:\n\n" + cueReferences,
     "Optional skills:\n\n" + catalog.optionalCatalogText,
   ]
     .filter((section): section is string => Boolean(section))
